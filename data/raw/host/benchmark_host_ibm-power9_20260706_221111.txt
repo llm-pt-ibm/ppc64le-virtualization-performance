@@ -1,0 +1,663 @@
+=== PRÉ-EXECUÇÃO: desativando swap ===
+sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+sudo: a password is required
+AVISO: swapoff falhou ou swap já estava desativado.
+Estado do swap após swapoff:
+NAME      TYPE      SIZE USED PRIO
+/dev/sda2 partition   6G   0B   -2
+=== BENCHMARK HOST: ibm-power9 — 20260706_221111 ===
+Ambiente: Host físico — IBM Power9 ppc64le
+CPUs alocadas (Slurm): 16
+RAM alocada  (Slurm): 64 GB
+GPUs visíveis (CUDA_VISIBLE_DEVICES): 0,1
+GPUs detectadas: 1
+
+========================================================================
+
+=== INFO DO SISTEMA ===
+Linux ibm-power9 4.18.0-553.139.1.el8_10.ppc64le #1 SMP Tue Jun 30 22:27:17 UTC 2026 ppc64le ppc64le ppc64le GNU/Linux
+CPUs visíveis (nproc): 160
+CPUs em uso (Slurm)  : 16
+              total        used        free      shared  buff/cache   available
+Mem:          567Gi        69Gi       491Gi        23Mi       6.0Gi       494Gi
+Swap:         6.0Gi          0B       6.0Gi
+Swap: 1 dispositivo(s)
+
+========================================================================
+
+=== INFO DO FILESYSTEM ===
+Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/sdb1      ext4  3.5T  3.0T  298G  92% /
+/dev/sdb1 on / type ext4 (rw,relatime,stripe=2)
+
+========================================================================
+
+=== CGROUP DO PROCESSO ===
+12:rdma:/
+11:freezer:/slurm/uid_1000/job_49/step_batch
+10:memory:/system.slice/slurmd.service
+9:hugetlb:/
+8:perf_event:/
+7:devices:/system.slice/slurmd.service
+6:net_cls,net_prio:/
+5:cpuset:/
+4:cpu,cpuacct:/system.slice/slurmd.service
+3:blkio:/system.slice/slurmd.service
+2:pids:/system.slice/slurmd.service
+1:name=systemd:/system.slice/slurmd.service
+0::/
+
+========================================================================
+
+=== CPU ===
+stress-ng: info:  [43379] setting to a 60 second run per stressor
+stress-ng: info:  [43379] dispatching hogs: 16 cpu
+stress-ng: info:  [43379] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [43379]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [43379] cpu              322031     60.01    960.08      0.00      5366.72         335.42
+stress-ng: info:  [43379] successful run completed in 60.01s (1 min, 0.01 secs)
+
+========================================================================
+
+=== MEMÓRIA ===
+stress-ng: info:  [43474] setting to a 60 second run per stressor
+stress-ng: info:  [43474] dispatching hogs: 8 vm
+stress-ng: info:  [43474] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [43474]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [43474] vm             32693804     60.02    465.83     14.31    544730.51       68092.97
+stress-ng: info:  [43474] successful run completed in 60.05s (1 min, 0.05 secs)
+
+========================================================================
+
+=== CACHE ===
+stress-ng: info:  [43568] setting to a 60 second run per stressor
+stress-ng: info:  [43568] dispatching hogs: 16 cache
+stress-ng: info:  [43568] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [43568]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [43568] cache            297345     60.00    949.86      2.66      4955.59         312.17
+stress-ng: info:  [43568] successful run completed in 60.01s (1 min, 0.01 secs)
+
+========================================================================
+
+=== STREAM — LARGURA DE BANDA DE MEMÓRIA ===
+-------------------------------------------------------------
+STREAM version $Revision: 5.10 $
+-------------------------------------------------------------
+This system uses 8 bytes per array element.
+-------------------------------------------------------------
+Array size = 80000000 (elements), Offset = 0 (elements)
+Memory per array = 610.4 MiB (= 0.6 GiB).
+Total memory required = 1831.1 MiB (= 1.8 GiB).
+Each kernel will be executed 20 times.
+ The *best* time for each kernel (excluding the first iteration)
+ will be used to compute the reported bandwidth.
+-------------------------------------------------------------
+Number of Threads requested = 16
+Number of Threads counted = 16
+-------------------------------------------------------------
+Your clock granularity/precision appears to be 1 microseconds.
+Each test below will take on the order of 10454 microseconds.
+   (= 10454 clock ticks)
+Increase the size of the arrays if this shows that
+you are not getting at least 20 clock ticks per test.
+-------------------------------------------------------------
+WARNING -- The above is only a rough guideline.
+For best results, please be sure you know the
+precision of your system timer.
+-------------------------------------------------------------
+Function    Best Rate MB/s  Avg time     Min time     Max time
+Copy:          122427.9     0.012208     0.010455     0.013637
+Scale:         129475.7     0.011050     0.009886     0.013255
+Add:           130125.3     0.015972     0.014755     0.017363
+Triad:         126308.7     0.016532     0.015201     0.018381
+-------------------------------------------------------------
+Solution Validates: avg error less than 1.000000e-13 on all three arrays
+-------------------------------------------------------------
+
+========================================================================
+
+
+=== [DISCO_HOST] PRÉ-ALOCAÇÃO DO ARQUIVO DE TESTE (80G) ===
+precreate: (g=0): rw=write, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=32
+fio-3.19
+Starting 1 process
+precreate: Laying out IO file (1 file / 81920MiB)
+
+precreate: (groupid=0, jobs=1): err= 0: pid=43697: Mon Jul  6 22:17:16 2026
+  write: IOPS=456, BW=457MiB/s (479MB/s)(80.0GiB/179396msec); 0 zone resets
+    slat (usec): min=34, max=60299, avg=55.95, stdev=297.42
+    clat (msec): min=2, max=908, avg=70.01, stdev=23.56
+     lat (msec): min=2, max=908, avg=70.07, stdev=23.56
+    clat percentiles (msec):
+     |  1.00th=[   49],  5.00th=[   62], 10.00th=[   62], 20.00th=[   63],
+     | 30.00th=[   63], 40.00th=[   63], 50.00th=[   64], 60.00th=[   71],
+     | 70.00th=[   73], 80.00th=[   75], 90.00th=[   83], 95.00th=[   89],
+     | 99.00th=[  118], 99.50th=[  155], 99.90th=[  447], 99.95th=[  493],
+     | 99.99th=[  793]
+   bw (  KiB/s): min=32637, max=530432, per=100.00%, avg=468056.01, stdev=72987.59, samples=357
+   iops        : min=   31, max=  518, avg=456.71, stdev=71.22, samples=357
+  lat (msec)   : 4=0.02%, 10=0.14%, 20=0.22%, 50=0.65%, 100=97.20%
+  lat (msec)   : 250=1.50%, 500=0.22%, 750=0.03%, 1000=0.01%
+  cpu          : usr=1.13%, sys=1.70%, ctx=80684, majf=0, minf=23
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=100.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,81920,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=32
+
+Run status group 0 (all jobs):
+  WRITE: bw=457MiB/s (479MB/s), 457MiB/s-457MiB/s (479MB/s-479MB/s), io=80.0GiB (85.9GB), run=179396-179396msec
+
+Disk stats (read/write):
+  sdb: ios=0/82118, merge=0/1701, ticks=0/5696477, in_queue=5696477, util=96.28%
+
+=== [DISCO_HOST] LEITURA SEQUENCIAL ===
+seq-read: (g=0): rw=read, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=32
+...
+fio-3.19
+Starting 4 processes
+
+seq-read: (groupid=0, jobs=4): err= 0: pid=43991: Mon Jul  6 22:18:17 2026
+  read: IOPS=507, BW=508MiB/s (532MB/s)(29.8GiB/60116msec)
+    slat (usec): min=10, max=2219.4k, avg=6609.59, stdev=36582.17
+    clat (msec): min=50, max=7359, avg=243.57, stdev=322.93
+     lat (msec): min=65, max=7371, avg=250.18, stdev=330.38
+    clat percentiles (msec):
+     |  1.00th=[  104],  5.00th=[  122], 10.00th=[  124], 20.00th=[  125],
+     | 30.00th=[  126], 40.00th=[  138], 50.00th=[  140], 60.00th=[  218],
+     | 70.00th=[  247], 80.00th=[  264], 90.00th=[  464], 95.00th=[  502],
+     | 99.00th=[ 1485], 99.50th=[ 2433], 99.90th=[ 4396], 99.95th=[ 6678],
+     | 99.99th=[ 7282]
+   bw (  KiB/s): min=34675, max=1087233, per=100.00%, avg=545889.71, stdev=70338.48, samples=451
+   iops        : min=   30, max= 1059, avg=530.69, stdev=68.76, samples=451
+  lat (msec)   : 100=0.94%, 250=77.00%, 500=17.01%, 750=3.23%, 1000=0.31%
+  lat (msec)   : 2000=0.97%, >=2000=0.54%
+  cpu          : usr=0.05%, sys=0.21%, ctx=22654, majf=0, minf=2130
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.2%, 32=99.6%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
+     issued rwts: total=30522,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=32
+
+Run status group 0 (all jobs):
+   READ: bw=508MiB/s (532MB/s), 508MiB/s-508MiB/s (532MB/s-532MB/s), io=29.8GiB (32.0GB), run=60116-60116msec
+
+Disk stats (read/write):
+  sdb: ios=30418/7, merge=0/3, ticks=3688085/924, in_queue=3689009, util=98.80%
+
+=== [DISCO_HOST] ESCRITA SEQUENCIAL ===
+seq-write: (g=0): rw=write, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=32
+...
+fio-3.19
+Starting 4 processes
+
+seq-write: (groupid=0, jobs=4): err= 0: pid=44065: Mon Jul  6 22:19:17 2026
+  write: IOPS=437, BW=437MiB/s (458MB/s)(25.7GiB/60120msec); 0 zone resets
+    slat (usec): min=23, max=458816, avg=9036.72, stdev=19005.64
+    clat (msec): min=2, max=1136, avg=283.39, stdev=125.45
+     lat (msec): min=17, max=1137, avg=292.43, stdev=128.48
+    clat percentiles (msec):
+     |  1.00th=[  122],  5.00th=[  146], 10.00th=[  163], 20.00th=[  190],
+     | 30.00th=[  209], 40.00th=[  232], 50.00th=[  255], 60.00th=[  284],
+     | 70.00th=[  317], 80.00th=[  355], 90.00th=[  430], 95.00th=[  527],
+     | 99.00th=[  726], 99.50th=[  835], 99.90th=[ 1028], 99.95th=[ 1062],
+     | 99.99th=[ 1116]
+   bw (  KiB/s): min=101989, max=803694, per=99.82%, avg=446945.33, stdev=38626.16, samples=476
+   iops        : min=   96, max=  784, avg=434.20, stdev=37.87, samples=476
+  lat (msec)   : 4=0.01%, 10=0.01%, 20=0.03%, 50=0.08%, 100=0.38%
+  lat (msec)   : 250=46.59%, 500=46.71%, 750=5.38%, 1000=0.65%, 2000=0.17%
+  cpu          : usr=0.39%, sys=1.10%, ctx=13064, majf=1, minf=82
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.2%, 32=99.5%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,26288,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=32
+
+Run status group 0 (all jobs):
+  WRITE: bw=437MiB/s (458MB/s), 437MiB/s-437MiB/s (458MB/s-458MB/s), io=25.7GiB (27.6GB), run=60120-60120msec
+
+Disk stats (read/write):
+  sdb: ios=0/26208, merge=0/17, ticks=0/3553324, in_queue=3553324, util=93.90%
+
+=== [DISCO_HOST] IOPS ALEATÓRIO (4K randrw 70/30) ===
+rand-rw: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+...
+fio-3.19
+Starting 4 processes
+
+rand-rw: (groupid=0, jobs=4): err= 0: pid=44138: Mon Jul  6 22:20:18 2026
+  read: IOPS=42.5k, BW=166MiB/s (174MB/s)(9967MiB/60003msec)
+    slat (usec): min=4, max=8536, avg=54.13, stdev=152.36
+    clat (usec): min=533, max=25387, avg=4214.90, stdev=1037.94
+     lat (usec): min=540, max=25400, avg=4270.03, stdev=1043.72
+    clat percentiles (usec):
+     |  1.00th=[ 2540],  5.00th=[ 2999], 10.00th=[ 3228], 20.00th=[ 3523],
+     | 30.00th=[ 3720], 40.00th=[ 3884], 50.00th=[ 4080], 60.00th=[ 4228],
+     | 70.00th=[ 4424], 80.00th=[ 4752], 90.00th=[ 5211], 95.00th=[ 5866],
+     | 99.00th=[ 8094], 99.50th=[ 9372], 99.90th=[12387], 99.95th=[13304],
+     | 99.99th=[16319]
+   bw (  KiB/s): min=144745, max=211910, per=100.00%, avg=170276.08, stdev=3260.33, samples=476
+   iops        : min=36186, max=52975, avg=42567.49, stdev=815.08, samples=476
+  write: IOPS=18.3k, BW=71.4MiB/s (74.8MB/s)(4281MiB/60003msec); 0 zone resets
+    slat (usec): min=6, max=8450, avg=69.12, stdev=167.48
+    clat (usec): min=163, max=24363, avg=3990.18, stdev=989.69
+     lat (usec): min=179, max=25328, avg=4060.34, stdev=1005.46
+    clat percentiles (usec):
+     |  1.00th=[ 2311],  5.00th=[ 2769], 10.00th=[ 2999], 20.00th=[ 3294],
+     | 30.00th=[ 3490], 40.00th=[ 3687], 50.00th=[ 3884], 60.00th=[ 4047],
+     | 70.00th=[ 4293], 80.00th=[ 4555], 90.00th=[ 5014], 95.00th=[ 5538],
+     | 99.00th=[ 7308], 99.50th=[ 8717], 99.90th=[11994], 99.95th=[12911],
+     | 99.99th=[15533]
+   bw (  KiB/s): min=60829, max=92242, per=100.00%, avg=73131.99, stdev=1471.15, samples=476
+   iops        : min=15206, max=23058, avg=18281.53, stdev=367.80, samples=476
+  lat (usec)   : 250=0.01%, 500=0.01%, 750=0.02%, 1000=0.05%
+  lat (msec)   : 2=0.16%, 4=49.16%, 10=50.29%, 20=0.33%, 50=0.01%
+  cpu          : usr=7.45%, sys=28.92%, ctx=1532576, majf=0, minf=100
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=2551618,1096022,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=166MiB/s (174MB/s), 166MiB/s-166MiB/s (174MB/s-174MB/s), io=9967MiB (10.5GB), run=60003-60003msec
+  WRITE: bw=71.4MiB/s (74.8MB/s), 71.4MiB/s-71.4MiB/s (74.8MB/s-74.8MB/s), io=4281MiB (4489MB), run=60003-60003msec
+
+Disk stats (read/write):
+  sdb: ios=2547886/1094437, merge=5/20, ticks=2211238/674809, in_queue=2886046, util=70.82%
+
+=== [DISCO_HOST] LATÊNCIA (4K randread síncrono) ===
+lat-read: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
+fio-3.19
+Starting 1 process
+
+lat-read: (groupid=0, jobs=1): err= 0: pid=44222: Mon Jul  6 22:21:18 2026
+  read: IOPS=2158, BW=8632KiB/s (8839kB/s)(506MiB/60001msec)
+    slat (usec): min=6, max=951, avg= 6.78, stdev= 2.66
+    clat (usec): min=47, max=5188, avg=453.54, stdev=413.22
+     lat (usec): min=103, max=5196, avg=460.97, stdev=413.30
+    clat percentiles (usec):
+     |  1.00th=[  119],  5.00th=[  120], 10.00th=[  121], 20.00th=[  124],
+     | 30.00th=[  137], 40.00th=[  139], 50.00th=[  169], 60.00th=[  174],
+     | 70.00th=[  955], 80.00th=[  971], 90.00th=[ 1004], 95.00th=[ 1012],
+     | 99.00th=[ 1020], 99.50th=[ 1037], 99.90th=[ 1811], 99.95th=[ 1860],
+     | 99.99th=[ 3228]
+   bw (  KiB/s): min= 3872, max=26589, per=100.00%, avg=8655.59, stdev=8645.82, samples=119
+   iops        : min=  968, max= 6647, avg=2163.34, stdev=2161.56, samples=119
+  lat (usec)   : 50=0.01%, 100=0.02%, 250=63.14%, 500=0.02%, 750=0.01%
+  lat (usec)   : 1000=25.73%
+  lat (msec)   : 2=11.05%, 4=0.03%, 10=0.01%
+  cpu          : usr=0.83%, sys=2.30%, ctx=129485, majf=0, minf=19
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=129485,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=8632KiB/s (8839kB/s), 8632KiB/s-8632KiB/s (8839kB/s-8839kB/s), io=506MiB (530MB), run=60001-60001msec
+
+Disk stats (read/write):
+  sdb: ios=129384/50, merge=0/12, ticks=58792/63, in_queue=58855, util=98.01%
+
+=== [DISCO_HOST] REMOVENDO ARQUIVO DE TESTE ===
+Arquivo removido: /tmp/fio_testfile_host
+
+========================================================================
+
+=== GPU ===
+
+=== GPU — INFO (nvidia-smi) ===
+Mon Jul  6 22:21:19 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.54.15              Driver Version: 550.54.15      CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-SXM2-16GB           On  |   00000004:04:00.0 Off |                    0 |
+| N/A   24C    P0             37W /  150W |       0MiB /  16384MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla V100-SXM2-16GB           On  |   00000004:05:00.0 Off |                    0 |
+| N/A   29C    P0             38W /  150W |       0MiB /  16384MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   2  Tesla V100-SXM2-16GB           On  |   00000035:03:00.0 Off |                    0 |
+| N/A   25C    P0             39W /  150W |       0MiB /  16384MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   3  Tesla V100-SXM2-16GB           On  |   00000035:04:00.0 Off |                    0 |
+| N/A   27C    P0             39W /  150W |       0MiB /  16384MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+=== GPU — TOPOLOGIA / NVLink ===
+	[4mGPU0	GPU1	GPU2	GPU3	CPU Affinity	NUMA Affinity	GPU NUMA ID[0m
+GPU0	 X 	NV3	SYS	SYS	0-79	0		255
+GPU1	NV3	 X 	SYS	SYS	0-79	0		254
+GPU2	SYS	SYS	 X 	NV3	80-159	8		253
+GPU3	SYS	SYS	NV3	 X 	80-159	8		252
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+
+=== GPU — BANDWIDTH TEST (H2D / D2H / D2D) ===
+--- GPU 0 ---
+[CUDA Bandwidth Test] - Starting...
+Running on...
+
+ Device 0: Tesla V100-SXM2-16GB
+ Range Mode
+
+ Host to Device Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)	Bandwidth(GB/s)
+   1048576			32.2
+   34603008			38.0
+   68157440			38.3
+   101711872			39.2
+   135266304			39.8
+   168820736			40.1
+   202375168			40.4
+   235929600			40.6
+
+ Device to Host Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)	Bandwidth(GB/s)
+   1048576			16.1
+   34603008			34.3
+   68157440			36.5
+   101711872			36.6
+   135266304			35.6
+   168820736			35.4
+   202375168			35.2
+   235929600			35.4
+
+ Device to Device Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)	Bandwidth(GB/s)
+   1048576			322.1
+   34603008			750.0
+   68157440			768.8
+   101711872			774.3
+   135266304			780.4
+   168820736			782.3
+   202375168			783.8
+   235929600			783.7
+
+Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+--- GPU 1 ---
+[CUDA Bandwidth Test] - Starting...
+Running on...
+
+ Device 1: Tesla V100-SXM2-16GB
+ Range Mode
+
+ Host to Device Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)	Bandwidth(GB/s)
+   1048576			56.0
+   34603008			67.2
+   68157440			68.0
+   101711872			72.6
+   135266304			72.6
+   168820736			72.6
+   202375168			72.6
+   235929600			72.6
+
+ Device to Host Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)	Bandwidth(GB/s)
+   1048576			18.5
+   34603008			72.3
+   68157440			72.5
+   101711872			72.6
+   135266304			72.7
+   168820736			72.7
+   202375168			72.7
+   235929600			72.7
+
+ Device to Device Bandwidth, 1 Device(s)
+ PINNED Memory Transfers
+   Transfer Size (Bytes)	Bandwidth(GB/s)
+   1048576			334.7
+   34603008			752.5
+   68157440			770.6
+   101711872			775.6
+   135266304			782.8
+   168820736			782.3
+   202375168			784.0
+   235929600			784.5
+
+Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+=== GPU — MATRIXMUL — Throughput de Computação (GFlop/s) ===
+-- Execução 1 --
+[Matrix Multiply Using CUDA] - Starting...
+GPU Device 0: "Volta" with compute capability 7.0
+
+MatrixA(320,320), MatrixB(640,320)
+Computing result using CUDA Kernel...
+done
+Performance= 2923.49 GFlop/s, Time= 0.045 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+-- Execução 2 --
+[Matrix Multiply Using CUDA] - Starting...
+GPU Device 0: "Volta" with compute capability 7.0
+
+MatrixA(320,320), MatrixB(640,320)
+Computing result using CUDA Kernel...
+done
+Performance= 2925.71 GFlop/s, Time= 0.045 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+-- Execução 3 --
+[Matrix Multiply Using CUDA] - Starting...
+GPU Device 0: "Volta" with compute capability 7.0
+
+MatrixA(320,320), MatrixB(640,320)
+Computing result using CUDA Kernel...
+done
+Performance= 2928.61 GFlop/s, Time= 0.045 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+-- Execução 4 --
+[Matrix Multiply Using CUDA] - Starting...
+GPU Device 0: "Volta" with compute capability 7.0
+
+MatrixA(320,320), MatrixB(640,320)
+Computing result using CUDA Kernel...
+done
+Performance= 2925.27 GFlop/s, Time= 0.045 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+-- Execução 5 --
+[Matrix Multiply Using CUDA] - Starting...
+GPU Device 0: "Volta" with compute capability 7.0
+
+MatrixA(320,320), MatrixB(640,320)
+Computing result using CUDA Kernel...
+done
+Performance= 2926.37 GFlop/s, Time= 0.045 msec, Size= 131072000 Ops, WorkgroupSize= 1024 threads/block
+Checking computed result for correctness: Result = PASS
+
+NOTE: The CUDA Samples are not meant for performance measurements. Results may vary when GPU Boost is enabled.
+
+=== GPU — NCCL ALL_REDUCE (NVLink inter-GPU) ===
+--- -b 8 -e 256M -f 2 -g 2 ---
+# nccl-tests version 2.18.3 nccl-headers=22707 nccl-library=22105
+# Collective test starting: all_reduce_perf
+# nThread 1 nGpus 2 minBytes 8 maxBytes 268435456 step: 2(factor) warmup iters: 1 iters: 20 agg iters: 1 validation: 1 graph: 0 unalign: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid  44480 on ibm-power9 device  0 [0004:04:00] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid  44480 on ibm-power9 device  1 [0004:05:00] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw  #wrong     time   algbw   busbw  #wrong 
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)             (us)  (GB/s)  (GB/s)         
+           8             2     float     sum      -1    20.49    0.00    0.00       0    20.33    0.00    0.00       0
+          16             4     float     sum      -1    20.16    0.00    0.00       0    20.33    0.00    0.00       0
+          32             8     float     sum      -1    20.17    0.00    0.00       0    20.46    0.00    0.00       0
+          64            16     float     sum      -1    20.06    0.00    0.00       0    20.24    0.00    0.00       0
+         128            32     float     sum      -1    20.24    0.01    0.01       0    20.22    0.01    0.01       0
+         256            64     float     sum      -1    20.19    0.01    0.01       0    20.15    0.01    0.01       0
+         512           128     float     sum      -1    20.05    0.03    0.03       0    20.28    0.03    0.03       0
+        1024           256     float     sum      -1    20.06    0.05    0.05       0    20.32    0.05    0.05       0
+        2048           512     float     sum      -1    20.18    0.10    0.10       0    20.26    0.10    0.10       0
+        4096          1024     float     sum      -1    20.55    0.20    0.20       0    20.17    0.20    0.20       0
+        8192          2048     float     sum      -1    20.24    0.40    0.40       0    20.29    0.40    0.40       0
+       16384          4096     float     sum      -1    20.71    0.79    0.79       0    20.59    0.80    0.80       0
+       32768          8192     float     sum      -1    21.33    1.54    1.54       0    21.32    1.54    1.54       0
+       65536         16384     float     sum      -1    22.28    2.94    2.94       0    22.35    2.93    2.93       0
+      131072         32768     float     sum      -1    22.48    5.83    5.83       0    22.47    5.83    5.83       0
+      262144         65536     float     sum      -1    22.78   11.51   11.51       0    22.77   11.51   11.51       0
+      524288        131072     float     sum      -1    36.50   14.36   14.36       0    36.15   14.50   14.50       0
+     1048576        262144     float     sum      -1    43.65   24.02   24.02       0    43.31   24.21   24.21       0
+     2097152        524288     float     sum      -1    59.58   35.20   35.20       0    57.04   36.77   36.77       0
+     4194304       1048576     float     sum      -1    95.97   43.71   43.71       0    94.61   44.33   44.33       0
+     8388608       2097152     float     sum      -1   161.65   51.89   51.89       0   161.74   51.86   51.86       0
+    16777216       4194304     float     sum      -1   290.86   57.68   57.68       0   290.92   57.67   57.67       0
+    33554432       8388608     float     sum      -1   550.31   60.97   60.97       0   551.31   60.86   60.86       0
+    67108864      16777216     float     sum      -1  1049.95   63.92   63.92       0  1034.81   64.85   64.85       0
+   134217728      33554432     float     sum      -1  2043.52   65.68   65.68       0  2044.87   65.64   65.64       0
+   268435456      67108864     float     sum      -1  4058.62   66.14   66.14       0  4062.59   66.07   66.07       0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 19.5611 
+#
+# Collective test concluded: all_reduce_perf
+#
+
+
+=== GPU — NCCL ALL_GATHER (NVLink inter-GPU) ===
+--- -b 8 -e 256M -f 2 -g 2 ---
+# nccl-tests version 2.18.3 nccl-headers=22707 nccl-library=22105
+# Collective test starting: all_gather_perf
+# nThread 1 nGpus 2 minBytes 8 maxBytes 268435456 step: 2(factor) warmup iters: 1 iters: 20 agg iters: 1 validation: 1 graph: 0 unalign: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid  44508 on ibm-power9 device  0 [0004:04:00] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid  44508 on ibm-power9 device  1 [0004:05:00] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw  #wrong     time   algbw   busbw  #wrong 
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)             (us)  (GB/s)  (GB/s)         
+           0             0     float    none      -1     0.69    0.00    0.00       0     0.68    0.00    0.00       0
+           0             0     float    none      -1     0.74    0.00    0.00       0     0.67    0.00    0.00       0
+          32             4     float    none      -1    20.51    0.00    0.00       0    20.15    0.00    0.00       0
+          64             8     float    none      -1    19.97    0.00    0.00       0    19.95    0.00    0.00       0
+         128            16     float    none      -1    19.95    0.01    0.00       0    19.90    0.01    0.00       0
+         256            32     float    none      -1    19.92    0.01    0.01       0    19.89    0.01    0.01       0
+         512            64     float    none      -1    20.08    0.03    0.01       0    20.03    0.03    0.01       0
+        1024           128     float    none      -1    20.33    0.05    0.03       0    19.89    0.05    0.03       0
+        2048           256     float    none      -1    19.92    0.10    0.05       0    19.91    0.10    0.05       0
+        4096           512     float    none      -1    20.00    0.20    0.10       0    19.95    0.21    0.10       0
+        8192          1024     float    none      -1    20.06    0.41    0.20       0    20.09    0.41    0.20       0
+       16384          2048     float    none      -1    20.29    0.81    0.40       0    20.25    0.81    0.40       0
+       32768          4096     float    none      -1    20.69    1.58    0.79       0    20.74    1.58    0.79       0
+       65536          8192     float    none      -1    21.93    2.99    1.49       0    21.59    3.03    1.52       0
+      131072         16384     float    none      -1    21.99    5.96    2.98       0    21.85    6.00    3.00       0
+      262144         32768     float    none      -1    22.04   11.90    5.95       0    22.24   11.79    5.89       0
+      524288         65536     float    none      -1    24.63   21.29   10.64       0    22.68   23.12   11.56       0
+     1048576        131072     float    none      -1    29.89   35.09   17.54       0    30.16   34.77   17.38       0
+     2097152        262144     float    none      -1    38.29   54.76   27.38       0    37.88   55.36   27.68       0
+     4194304        524288     float    none      -1    55.68   75.33   37.66       0    53.70   78.11   39.06       0
+     8388608       1048576     float    none      -1    87.09   96.32   48.16       0    86.16   97.37   48.68       0
+    16777216       2097152     float    none      -1   148.81  112.74   56.37       0   147.32  113.88   56.94       0
+    33554432       4194304     float    none      -1   271.53  123.58   61.79       0   269.84  124.35   62.17       0
+    67108864       8388608     float    none      -1   519.51  129.18   64.59       0   516.39  129.96   64.98       0
+   134217728      16777216     float    none      -1  1021.56  131.39   65.69       0  1010.78  132.79   66.39       0
+   268435456      33554432     float    none      -1  2021.72  132.78   66.39       0  1995.93  134.49   67.25       0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 18.1223 
+#
+# Collective test concluded: all_gather_perf
+#
+
+
+=== GPU — NCCL SENDRECV (latência ponto a ponto GPU0↔GPU1) ===
+--- -b 8 -e 4M -f 2 -g 2 ---
+# nccl-tests version 2.18.3 nccl-headers=22707 nccl-library=22105
+# Collective test starting: sendrecv_perf
+# nThread 1 nGpus 2 minBytes 8 maxBytes 4194304 step: 2(factor) warmup iters: 1 iters: 20 agg iters: 1 validation: 1 graph: 0 unalign: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid  44536 on ibm-power9 device  0 [0004:04:00] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid  44536 on ibm-power9 device  1 [0004:05:00] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw  #wrong     time   algbw   busbw  #wrong 
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)             (us)  (GB/s)  (GB/s)         
+           8             2     float     sum      -1    20.35    0.00    0.00       0    20.99    0.00    0.00    N/A
+          16             4     float     sum      -1    20.08    0.00    0.00       0    20.03    0.00    0.00    N/A
+          32             8     float     sum      -1    20.16    0.00    0.00       0    20.38    0.00    0.00    N/A
+          64            16     float     sum      -1    20.28    0.00    0.00       0    20.34    0.00    0.00    N/A
+         128            32     float     sum      -1    20.29    0.01    0.01       0    20.27    0.01    0.01    N/A
+         256            64     float     sum      -1    20.22    0.01    0.01       0    20.27    0.01    0.01    N/A
+         512           128     float     sum      -1    20.14    0.03    0.03       0    20.29    0.03    0.03    N/A
+        1024           256     float     sum      -1    22.94    0.04    0.04       0    20.22    0.05    0.05    N/A
+        2048           512     float     sum      -1    20.03    0.10    0.10       0    20.07    0.10    0.10    N/A
+        4096          1024     float     sum      -1    20.03    0.20    0.20       0    20.19    0.20    0.20    N/A
+        8192          2048     float     sum      -1    20.16    0.41    0.41       0    20.10    0.41    0.41    N/A
+       16384          4096     float     sum      -1    20.28    0.81    0.81       0    20.23    0.81    0.81    N/A
+       32768          8192     float     sum      -1    20.28    1.62    1.62       0    20.16    1.63    1.63    N/A
+       65536         16384     float     sum      -1    20.36    3.22    3.22       0    21.18    3.09    3.09    N/A
+      131072         32768     float     sum      -1    21.36    6.13    6.13       0    21.11    6.21    6.21    N/A
+      262144         65536     float     sum      -1    22.66   11.57   11.57       0    22.73   11.53   11.53    N/A
+      524288        131072     float     sum      -1    23.10   22.70   22.70       0    23.14   22.66   22.66    N/A
+     1048576        262144     float     sum      -1    27.68   37.88   37.88       0    27.41   38.26   38.26    N/A
+     2097152        524288     float     sum      -1    43.47   48.24   48.24       0    42.85   48.94   48.94    N/A
+     4194304       1048576     float     sum      -1    75.64   55.45   55.45       0    73.71   56.90   56.90    N/A
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 9.4817 
+#
+# Collective test concluded: sendrecv_perf
+#
+
+
+=== GPU — ESTADO PÓS-BENCHMARK ===
+0, Tesla V100-SXM2-16GB, 28, 65.03 W, 6 MiB, 16384 MiB, 0 %
+1, Tesla V100-SXM2-16GB, 33, 64.05 W, 6 MiB, 16384 MiB, 0 %
+2, Tesla V100-SXM2-16GB, 25, 39.73 W, 0 MiB, 16384 MiB, 0 %
+3, Tesla V100-SXM2-16GB, 28, 39.73 W, 0 MiB, 16384 MiB, 0 %
+
+========================================================================
+
+
+=== PÓS-EXECUÇÃO: reativando swap ===
+sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+sudo: a password is required
+AVISO: swapon falhou.
+Estado do swap após swapon:
+NAME      TYPE      SIZE USED PRIO
+/dev/sda2 partition   6G   0B   -2
+
+=== FIM ===
+Resultados salvos em: /home/multiarq/experimentos/host/benchmark_host_ibm-power9_20260706_221111.txt

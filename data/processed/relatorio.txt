@@ -1,0 +1,217 @@
+RELATÓRIO DE ANÁLISE ESTATÍSTICA — BENCHMARKS ppc64le
+======================================================================
+
+NOTA sobre alerta_estatisticas_duplicadas.csv: este arquivo lista pares de
+métricas cujo teste estatístico global produziu resultado exatamente idêntico.
+Isso pode ser benigno (ver docs/auditoria/AUDITORIA_SCRIPTS.md para um caso já
+investigado e explicado) ou indicar um problema de cálculo — revise manualmente
+antes de aceitar qualquer novo caso que apareça aqui. É gerado automaticamente
+em toda execução deste pipeline, não é uma checagem pontual/manual.
+
+NOTA sobre "(cuidado: pseudo-replicação)" abaixo: ver
+docs/GLOSSARIO_METODOLOGICO.md para o que esse aviso significa e por que é uma
+consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro.
+----------------------------------------------------------------------
+
+### cache_bogo_ops_s_cpu ###
+  host: n=15, média=314.290, mediana=314.080, IC95%=[313.526, 315.007], Shapiro p=0.7956
+  kvm: n=15, média=3795.541, mediana=3305.260, IC95%=[2609.300, 4619.995], Shapiro p=0.0303
+  qemu: n=15, média=569.420, mediana=584.150, IC95%=[505.257, 632.392], Shapiro p=0.0072
+  Levene p=0.0000
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.592e-08
+  Effect size (epsilon^2): 0.8893
+  Heterogeneidade entre VMs (kvm): H=9.980, p=0.0068 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=1.140, p=0.5655 -> diferem entre si? não
+
+### cache_bogo_ops_s_real ###
+  host: n=15, média=4989.538, mediana=4986.370, IC95%=[4976.678, 5001.552], Shapiro p=0.6637
+  kvm: n=15, média=21161.163, mediana=21870.950, IC95%=[14508.415, 29609.897], Shapiro p=0.2512
+  qemu: n=15, média=7308.035, mediana=6727.330, IC95%=[6250.783, 8267.498], Shapiro p=0.0130
+  Levene p=0.0000
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.592e-08
+  Effect size (epsilon^2): 0.8893
+  Heterogeneidade entre VMs (kvm): H=9.980, p=0.0068 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=4.860, p=0.0880 -> diferem entre si? não
+
+### cpu_bogo_ops_s_cpu ###
+  host: n=15, média=335.517, mediana=335.760, IC95%=[335.284, 335.943], Shapiro p=0.0000
+  kvm: n=15, média=334.991, mediana=335.410, IC95%=[334.485, 335.981], Shapiro p=0.0000
+  qemu: n=15, média=21.946, mediana=20.230, IC95%=[18.954, 24.560], Shapiro p=0.0061
+  Levene p=0.0007
+  Teste global: Kruskal-Wallis, estatística=35.8451, p=1.646e-08
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.485e-08
+  Effect size (epsilon^2): 0.8147
+  Heterogeneidade entre VMs (kvm): H=9.980, p=0.0068 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=0.320, p=0.8521 -> diferem entre si? não
+
+### cpu_bogo_ops_s_real ###
+  host: n=15, média=5368.275, mediana=5372.120, IC95%=[5364.532, 5375.110], Shapiro p=0.0000
+  kvm: n=15, média=5348.371, mediana=5362.370, IC95%=[5333.983, 5368.082], Shapiro p=0.0001
+  qemu: n=15, média=347.926, mediana=323.140, IC95%=[299.156, 388.390], Shapiro p=0.0136
+  Levene p=0.0027
+  Teste global: Kruskal-Wallis, estatística=36.3997, p=1.247e-08
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 4.988e-08
+  Effect size (epsilon^2): 0.8273
+  Heterogeneidade entre VMs (kvm): H=4.580, p=0.1013 -> diferem entre si? não
+  Heterogeneidade entre VMs (qemu): H=0.420, p=0.8106 -> diferem entre si? não
+
+### disk_iops_qd1 ###
+  host: n=15, média=1845.800, mediana=1607.000, IC95%=[1451.798, 2203.690], Shapiro p=0.0857
+  kvm: n=15, média=1995.667, mediana=2160.000, IC95%=[1408.797, 2675.400], Shapiro p=0.1471
+  qemu: n=15, média=1342.667, mediana=1444.000, IC95%=[1127.667, 1524.200], Shapiro p=0.1255
+  Levene p=0.0205
+  Teste global: Kruskal-Wallis, estatística=6.9967, p=0.03025
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.04033
+  Effect size (epsilon^2): 0.1590
+  Heterogeneidade entre VMs (kvm): H=7.460, p=0.0240 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=4.160, p=0.1249 -> diferem entre si? não
+
+### disk_iops_randread ###
+  host: n=15, média=39180.000, mediana=40600.000, IC95%=[37286.500, 41946.833], Shapiro p=0.0000
+  kvm: n=15, média=30120.000, mediana=30100.000, IC95%=[22186.667, 37213.667], Shapiro p=0.1559
+  qemu: n=15, média=6984.133, mediana=6886.000, IC95%=[6807.985, 7156.002], Shapiro p=0.4473
+  Levene p=0.0003
+  Teste global: Kruskal-Wallis, estatística=34.7393, p=2.861e-08
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 7.152e-08
+  Effect size (epsilon^2): 0.7895
+  Heterogeneidade entre VMs (kvm): H=12.500, p=0.0019 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=0.140, p=0.9324 -> diferem entre si? não
+
+### disk_iops_randwrite ###
+  host: n=15, média=16762.867, mediana=17500.000, IC95%=[15912.400, 17970.467], Shapiro p=0.0001
+  kvm: n=15, média=12926.600, mediana=12100.000, IC95%=[9499.867, 15820.452], Shapiro p=0.1456
+  qemu: n=15, média=3001.533, mediana=2958.000, IC95%=[2925.465, 3075.602], Shapiro p=0.4129
+  Levene p=0.0009
+  Teste global: Kruskal-Wallis, estatística=35.1405, p=2.341e-08
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 6.688e-08
+  Effect size (epsilon^2): 0.7986
+  Heterogeneidade entre VMs (kvm): H=12.522, p=0.0019 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=0.140, p=0.9324 -> diferem entre si? não
+
+### disk_lat_avg_usec ###
+  host: n=15, média=619.807, mediana=612.130, IC95%=[503.180, 734.009], Shapiro p=0.2853
+  kvm: n=15, média=612.106, mediana=445.180, IC95%=[270.172, 847.227], Shapiro p=0.0009
+  qemu: n=15, média=604.964, mediana=533.340, IC95%=[505.844, 706.179], Shapiro p=0.4725
+  Levene p=0.3007
+  Teste global: Kruskal-Wallis, estatística=1.5235, p=0.4669
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.4914
+  Effect size (epsilon^2): 0.0346
+  Heterogeneidade entre VMs (kvm): H=7.460, p=0.0240 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=3.120, p=0.2101 -> diferem entre si? não
+
+### disk_seqread_MiBs ###
+  host: n=15, média=511.733, mediana=513.000, IC95%=[510.133, 514.133], Shapiro p=0.0000
+  kvm: n=15, média=494.200, mediana=496.000, IC95%=[483.600, 508.067], Shapiro p=0.0232
+  qemu: n=15, média=499.867, mediana=509.000, IC95%=[489.667, 515.067], Shapiro p=0.0003
+  Levene p=0.0214
+  Teste global: Kruskal-Wallis, estatística=16.5234, p=0.0002582
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.0003973
+  Effect size (epsilon^2): 0.3755
+  Heterogeneidade entre VMs (kvm): H=5.873, p=0.0531 -> diferem entre si? não
+  Heterogeneidade entre VMs (qemu): H=9.610, p=0.0082 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+
+### disk_seqwrite_MiBs ###
+  host: n=15, média=447.467, mediana=449.000, IC95%=[438.133, 457.333], Shapiro p=0.4722
+  kvm: n=15, média=439.867, mediana=437.000, IC95%=[426.733, 450.668], Shapiro p=0.2218
+  qemu: n=15, média=424.800, mediana=426.000, IC95%=[414.465, 434.067], Shapiro p=0.4565
+  Levene p=0.1398
+  Teste global: ANOVA, estatística=8.7360, p=0.0006725
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.0009607
+  Heterogeneidade entre VMs (kvm): H=12.545, p=0.0019 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=5.153, p=0.0760 -> diferem entre si? não
+
+### gpu_matrixmul_gflops ###
+  host: n=15, média=2867.915, mediana=2787.834, IC95%=[2814.356, 2918.100], Shapiro p=0.0006
+  kvm: n=15, média=2932.269, mediana=2997.712, IC95%=[2863.392, 3008.972], Shapiro p=0.0009
+  Levene p=0.5070
+  Teste global: Kruskal-Wallis, estatística=3.5617, p=0.05913
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.07391
+  Effect size (epsilon^2): 0.1228
+  Heterogeneidade entre VMs (kvm): H=1.040, p=0.5945 -> diferem entre si? não
+
+### gpu_nccl_allgather_busbw_gbs ###
+  host: n=15, média=18.108, mediana=18.114, IC95%=[18.101, 18.118], Shapiro p=0.0023
+  kvm: n=15, média=18.105, mediana=18.109, IC95%=[18.088, 18.123], Shapiro p=0.9557
+  Levene p=0.0111
+  Teste global: Kruskal-Wallis, estatística=0.0039, p=0.9504
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.9504
+  Effect size (epsilon^2): 0.0001
+  Heterogeneidade entre VMs (kvm): H=0.620, p=0.7334 -> diferem entre si? não
+
+### gpu_nccl_allreduce_busbw_gbs ###
+  host: n=15, média=19.399, mediana=19.439, IC95%=[19.310, 19.484], Shapiro p=0.1501
+  kvm: n=15, média=19.494, mediana=19.458, IC95%=[19.359, 19.622], Shapiro p=0.0805
+  Levene p=0.5901
+  Teste global: ANOVA, estatística=2.3391, p=0.1374
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.1526
+  Heterogeneidade entre VMs (kvm): H=5.840, p=0.0539 -> diferem entre si? não
+
+### gpu_nccl_sendrecv_busbw_gbs ###
+  host: n=15, média=9.464, mediana=9.472, IC95%=[9.449, 9.480], Shapiro p=0.2879
+  kvm: n=15, média=9.467, mediana=9.515, IC95%=[9.386, 9.565], Shapiro p=0.0166
+  Levene p=0.0092
+  Teste global: Kruskal-Wallis, estatística=2.2920, p=0.13
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 0.1526
+  Effect size (epsilon^2): 0.0790
+  Heterogeneidade entre VMs (kvm): H=0.420, p=0.8106 -> diferem entre si? não
+
+### mem_bogo_ops_s_cpu ###
+  host: n=15, média=68498.152, mediana=68638.330, IC95%=[68235.341, 68897.097], Shapiro p=0.0000
+  kvm: n=15, média=56793.920, mediana=56887.710, IC95%=[55367.469, 58726.444], Shapiro p=0.0377
+  qemu: n=15, média=4966.214, mediana=4969.950, IC95%=[4961.915, 4975.149], Shapiro p=0.0000
+  Levene p=0.0000
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.592e-08
+  Effect size (epsilon^2): 0.8893
+  Heterogeneidade entre VMs (kvm): H=6.660, p=0.0358 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=0.620, p=0.7334 -> diferem entre si? não
+
+### mem_bogo_ops_s_real ###
+  host: n=15, média=546933.500, mediana=549097.420, IC95%=[543794.148, 552192.771], Shapiro p=0.0000
+  kvm: n=15, média=453350.768, mediana=455076.890, IC95%=[441514.853, 468514.244], Shapiro p=0.0595
+  qemu: n=15, média=39724.719, mediana=39753.350, IC95%=[39691.250, 39797.716], Shapiro p=0.0000
+  Levene p=0.0000
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.592e-08
+  Effect size (epsilon^2): 0.8893
+  Heterogeneidade entre VMs (kvm): H=6.020, p=0.0493 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+  Heterogeneidade entre VMs (qemu): H=0.980, p=0.6126 -> diferem entre si? não
+
+### stream_add_mbs ###
+  host: n=15, média=128377.653, mediana=130003.400, IC95%=[126978.278, 129904.777], Shapiro p=0.0061
+  kvm: n=15, média=80417.780, mediana=80981.700, IC95%=[75640.475, 85936.997], Shapiro p=0.9230
+  Levene p=0.0715
+  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  Effect size (epsilon^2): 0.7508
+  Heterogeneidade entre VMs (kvm): H=8.420, p=0.0148 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+
+### stream_copy_mbs ###
+  host: n=15, média=117565.927, mediana=114838.700, IC95%=[115271.212, 119758.953], Shapiro p=0.0028
+  kvm: n=15, média=83351.400, mediana=84875.400, IC95%=[80235.123, 86900.247], Shapiro p=0.5199
+  Levene p=0.8887
+  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  Effect size (epsilon^2): 0.7508
+  Heterogeneidade entre VMs (kvm): H=3.780, p=0.1511 -> diferem entre si? não
+
+### stream_scale_mbs ###
+  host: n=15, média=126865.227, mediana=128684.300, IC95%=[124980.696, 129105.285], Shapiro p=0.0016
+  kvm: n=15, média=85154.813, mediana=85156.800, IC95%=[80871.364, 89196.042], Shapiro p=0.8436
+  Levene p=0.3919
+  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  Effect size (epsilon^2): 0.7508
+  Heterogeneidade entre VMs (kvm): H=6.540, p=0.0380 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+
+### stream_triad_mbs ###
+  host: n=15, média=128322.000, mediana=130443.600, IC95%=[126871.654, 129781.770], Shapiro p=0.0045
+  kvm: n=15, média=82030.820, mediana=81521.900, IC95%=[77036.439, 87408.520], Shapiro p=0.9782
+  Levene p=0.0592
+  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  Effect size (epsilon^2): 0.7508
+  Heterogeneidade entre VMs (kvm): H=7.620, p=0.0221 -> diferem entre si? SIM (cuidado: pseudo-replicação)
+
