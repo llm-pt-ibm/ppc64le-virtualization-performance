@@ -23,9 +23,8 @@ docs/             metodologia, guia de reprodução, auditoria e cenário do exp
 ```
 
 `data/raw/` usa nomes de pasta como `kvm-gabrielly/`, `kvm-lucas/`,
-`kvm-ramalho/`, `qemu-lucas/` etc. — `gabrielly`, `lucas` e `ramalho` aqui
-são **identificadores das 3 VMs replicadas** do experimento (`vm_id`),
-**não** nomes de autores/colaboradores. A lista de autoria está em
+`kvm-ramalho/`, `qemu-lucas/` etc. — `gabrielly`, `lucas` e `ramalho`.
+A lista de autoria está em
 [CITATION.cff](CITATION.cff).
 
 ## Início rápido
@@ -48,11 +47,11 @@ A reprodutibilidade deste trabalho tem dois níveis:
 - **Reprodução da ANÁLISE** a partir dos dados brutos publicados
   (`data/raw/`) — roda em qualquer máquina com Python (nenhum requisito
   de hardware). É o nível garantido pelo kit de artefatos.
-- **Reprodução da COLETA** original — os scripts em `src/collect/*.sh`
+- **Reprodução da COLETA** original: os scripts em `src/collect/*.sh`
   requerem um servidor com arquitetura ppc64le, processador IBM POWER9
   e, para os testes de GPU, GPUs NVIDIA com suporte a NVLink2 e VFIO
-  para passthrough. **Não precisa ser especificamente o servidor
-  original do experimento** — qualquer hardware Power9/ppc64le com
+  para passthrough. Não precisa ser especificamente o servidor
+  original do experimento mas qualquer hardware Power9/ppc64le com
   essas características permite a reexecução da coleta. A reprodução
   EXATA dos valores absolutos depende, no entanto, de hardware
   equivalente; isso é uma limitação de validade externa já documentada
