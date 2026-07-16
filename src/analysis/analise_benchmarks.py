@@ -1102,7 +1102,7 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
 
     cores = ["#d9d9d9", "#2ca25f", "#d73027"]
     legenda = ["sem dado (<2 VMs válidas)", "homogêneo (p≥0.05)",
-               "heterogêneo (p<0.05) — cuidado: pseudo-replicação"]
+               "heterogêneo (p<0.05)"]
 
     def _bin_het(v):
         if pd.isna(v):
