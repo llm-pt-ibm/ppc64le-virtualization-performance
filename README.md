@@ -69,10 +69,6 @@ de cada nível.
   "pseudo-replicação"), em linguagem simples
 - [docs/snapshot_vm.md](docs/snapshot_vm.md) — procedimento de clonagem das VMs de teste
 
-Investigações de integridade estatística e de sincronia entre pipelines
-(auditoria interna, não necessária para reproduzir o experimento) ficam
-em `docs/auditoria/` — ver `docs/auditoria/README.md`.
-
 ## Licença
 
 Código (`src/`, `environment/`): [MIT](LICENSE).

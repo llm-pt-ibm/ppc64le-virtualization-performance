@@ -19,10 +19,10 @@ Este arquivo não é sobrescrito pelo pipeline — só os CSVs/JSON abaixo são.
   entre métricas/ambientes).
 - **`alerta_estatisticas_duplicadas.csv`** — lista pares de métricas cujo
   teste estatístico global produziu resultado exatamente idêntico. Isso
-  pode ser benigno (ver
-  [docs/auditoria/AUDITORIA_SCRIPTS.md](../../docs/auditoria/AUDITORIA_SCRIPTS.md)
-  para um caso já investigado e explicado) ou indicar um problema de
-  cálculo — **revise manualmente antes de aceitar qualquer novo caso que
+  pode ser benigno (grupos de mesmo tamanho com separação completa entre
+  ambientes produzem o mesmo H de Kruskal-Wallis por construção
+  matemática, independentemente dos valores brutos) ou indicar um problema
+  de cálculo — **revise manualmente antes de aceitar qualquer novo caso que
   apareça aqui**. Gerado automaticamente em toda execução do pipeline
   (não é uma checagem pontual/manual).
 - `metadata.json` — commit git, timestamp UTC e seed da execução que

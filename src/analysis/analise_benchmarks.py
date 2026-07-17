@@ -25,7 +25,7 @@ SAÍDAS (em --out-dir):
                                     IC bootstrap
     avisos_parsing.csv          -> arquivos onde uma métrica esperada não foi encontrada
     alerta_estatisticas_duplicadas.csv -> pares de métricas com teste_global_estat/p/epsilon²
-                                           EXATAMENTE idênticos (ver docs/auditoria/AUDITORIA_SCRIPTS.md)
+                                           EXATAMENTE idênticos (ver checar_estatisticas_duplicadas())
     metadata.json                -> versão/commit git, timestamp e seed da execução
     relatorio.txt              -> resumo legível em português (avisos de heterogeneidade entre
                                     VMs referenciam "pseudo-replicação" — ver
@@ -287,8 +287,7 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
         # Cada arquivo contém 5 "-- Execução N --" do matrixMul. CORRIGIDO:
         # antes só a 1ª "Performance=... GFlop/s" era usada (`break` após o
         # 1º match), descartando as outras 4 — inconsistente com
-        # resumo_benchmarks_overhead.py, que já faz média das 5 (ver
-        # docs/auditoria/AUDITORIA_SCRIPTS_RESUMO.md, achado "3a"). Agora
+        # resumo_benchmarks_overhead.py, que já faz média das 5. Agora
         # também tira a média das 5, pelo mesmo motivo: uma única execução
         # de GPU é mais suscetível a ruído/jitter do que a média de 5.
         valores_mm = [float(m.group(1)) for ln in mm_block
@@ -546,12 +545,12 @@ def checar_estatisticas_duplicadas(df_stats: pd.DataFrame) -> pd.DataFrame:
     effect_size_epsilon2 entre TODOS os pares de métricas diferentes. Se
     algum par tiver os três valores EXATAMENTE idênticos, imprime um
     WARNING (estatísticas idênticas entre métricas conceitualmente
-    distintas são um forte indício de bug de reuso de array — ver
-    docs/auditoria/AUDITORIA_SCRIPTS.md para o caso já investigado de cache/memória,
-    onde essa coincidência foi confirmada como benigna: propriedade
-    matemática do Kruskal-Wallis sob separação completa entre grupos de
-    mesmo tamanho, não bug). Retorna um DataFrame (uma linha por par
-    colidente) que também é salvo em
+    distintas são um forte indício de bug de reuso de array, mas também
+    podem ser benignas: propriedade matemática do Kruskal-Wallis sob
+    separação completa entre grupos de mesmo tamanho — como ocorre entre
+    cache e memória neste experimento — produz H idêntico
+    independentemente dos valores brutos). Retorna um DataFrame (uma linha
+    por par colidente) que também é salvo em
     data/processed/alerta_estatisticas_duplicadas.csv."""
     cols = ["teste_global_estat", "teste_global_p", "effect_size_epsilon2"]
     if not all(c in df_stats.columns for c in cols):
@@ -574,8 +573,8 @@ def checar_estatisticas_duplicadas(df_stats: pd.DataFrame) -> pd.DataFrame:
     if not df_alerta.empty:
         print(f"\n[AVISO] {len(df_alerta)} par(es) de métricas com estatística de teste global "
               f"IDÊNTICA (teste_global_estat, teste_global_p e effect_size_epsilon2 batendo "
-              f"exatamente) — ver data/processed/alerta_estatisticas_duplicadas.csv e "
-              f"docs/auditoria/AUDITORIA_SCRIPTS.md antes de assumir que é coincidência benigna:")
+              f"exatamente) — ver data/processed/alerta_estatisticas_duplicadas.csv e revisar "
+              f"manualmente antes de assumir que é coincidência benigna:")
         for _, row in df_alerta.iterrows():
             print(f"    {row['metrica_a']}  ==  {row['metrica_b']}  "
                   f"(H={row['teste_global_estat']:.4f}, p={row['teste_global_p']:.4g})")
@@ -817,8 +816,8 @@ def _plot_metrica(df: pd.DataFrame, metrica: str, df_heterog: Optional[pd.DataFr
 
     A comparação de MAGNITUDE relativa entre ambientes (o "quantos % mais
     lento") já é coberta pelas figuras finais do artigo
-    (results/figures/fig1..4, geradas por geracao_graficos.R) — ver
-    docs/auditoria/PIPELINE_FIGURAS.md. Esta figura aqui é deliberadamente sobre a
+    (results/figures/fig1..4, geradas por geracao_graficos.R). Esta figura
+    aqui é deliberadamente sobre a
     FORMA de cada distribuição (IQR, caudas, outliers, heterogeneidade
     entre VMs), não sobre comparar alturas de caixa entre painéis — por
     isso a nota no título abaixo avisando que os eixos são independentes.
@@ -1024,7 +1023,7 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
     n = len(metricas)
     # Sem título/legenda-texto embutidos na imagem: em artigo (caption via
     # LaTeX), título e texto interpretativo duplicado dentro da figura são
-    # redundantes/não-usuais — ver caption sugerida em docs/auditoria/PIPELINE_FIGURAS.md.
+    # redundantes/não-usuais.
     # Fonte grande (11-12pt) porque a figura tende a ser incluída em largura
     # de coluna/página menor que o tamanho nativo (ex.: 2 colunas ACM).
     fig = plt.figure(figsize=(8.5, 0.40 * n + 1.5))
@@ -1115,10 +1114,9 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
     rotulos_coluna = ["Het. KVM" if c == "kvm" else "Het. QEMU" for c in colunas]
 
     n = len(metricas)
-    # Sem título embutido (caption via LaTeX no artigo — ver caption sugerida
-    # em docs/auditoria/PIPELINE_FIGURAS.md). Fonte grande (13pt) pelo mesmo
-    # motivo do heatmap de significância: a imagem costuma ser incluída
-    # menor que o tamanho nativo.
+    # Sem título embutido (caption via LaTeX no artigo). Fonte grande (13pt)
+    # pelo mesmo motivo do heatmap de significância: a imagem costuma ser
+    # incluída menor que o tamanho nativo.
     fig, ax = plt.subplots(figsize=(5.2, 0.45 * n + 1.3))
     cmap = ListedColormap(cores)
     norm = BoundaryNorm([-0.5, 0.5, 1.5, 2.5], len(cores))
@@ -1256,7 +1254,7 @@ def main():
     df_stats = aplicar_correcao_fdr(df_stats)
 
     # Sanidade: métricas conceitualmente distintas com estatística de teste
-    # global EXATAMENTE idêntica (ver docs/auditoria/AUDITORIA_SCRIPTS.md).
+    # global EXATAMENTE idêntica.
     df_alerta_dup = checar_estatisticas_duplicadas(df_stats)
     df_alerta_dup.to_csv(os.path.join(args.out_dir, "alerta_estatisticas_duplicadas.csv"), index=False)
 
@@ -1278,10 +1276,12 @@ def main():
         f.write(
             "NOTA sobre alerta_estatisticas_duplicadas.csv: este arquivo lista pares de\n"
             "métricas cujo teste estatístico global produziu resultado exatamente idêntico.\n"
-            "Isso pode ser benigno (ver docs/auditoria/AUDITORIA_SCRIPTS.md para um caso já\n"
-            "investigado e explicado) ou indicar um problema de cálculo — revise manualmente\n"
-            "antes de aceitar qualquer novo caso que apareça aqui. É gerado automaticamente\n"
-            "em toda execução deste pipeline, não é uma checagem pontual/manual.\n\n"
+            "Isso pode ser benigno (grupos de mesmo tamanho com separação completa entre\n"
+            "ambientes produzem o mesmo H de Kruskal-Wallis por construção matemática,\n"
+            "independentemente dos valores brutos) ou indicar um problema de cálculo —\n"
+            "revise manualmente antes de aceitar qualquer novo caso que apareça aqui.\n"
+            "É gerado automaticamente em toda execução deste pipeline, não é uma\n"
+            "checagem pontual/manual.\n\n"
             "NOTA sobre \"(cuidado: pseudo-replicação)\" abaixo: ver\n"
             "docs/GLOSSARIO_METODOLOGICO.md para o que esse aviso significa e por que é uma\n"
             "consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro.\n"

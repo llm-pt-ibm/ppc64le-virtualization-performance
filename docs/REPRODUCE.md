@@ -126,10 +126,10 @@ Gera em `data/processed/`:
   métricas/ambientes)
 - `alerta_estatisticas_duplicadas.csv` — pares de métricas cujo teste
   estatístico global produziu resultado exatamente idêntico. Isso pode
-  ser benigno (ver
-  [docs/auditoria/AUDITORIA_SCRIPTS.md](auditoria/AUDITORIA_SCRIPTS.md)
-  para um caso já investigado e explicado) ou indicar um problema de
-  cálculo — revise manualmente antes de aceitar qualquer novo caso que
+  ser benigno (grupos de mesmo tamanho com separação completa entre
+  ambientes produzem o mesmo H de Kruskal-Wallis por construção
+  matemática, independentemente dos valores brutos) ou indicar um problema
+  de cálculo — revise manualmente antes de aceitar qualquer novo caso que
   apareça aqui. Gerado automaticamente em TODA execução do pipeline
   (não é uma checagem pontual/manual).
 - `metadata.json` — commit git, timestamp e seed da execução
@@ -158,32 +158,14 @@ mv data/processed/graficos results/figures/graficos
 mv data/processed/heatmaps results/figures/heatmaps
 ```
 
-### Investigações de auditoria (opcional, não necessário para reproduzir)
-
-Ver também [docs/auditoria/](auditoria/) — documenta investigações de
-integridade estatística e de sincronia entre pipelines conduzidas durante
-a preparação deste artefato (não é necessário para reproduzir o
-experimento, mas serve como evidência de rigor metodológico). Em
-particular, para reexecutar a auditoria de integridade estatística do
-achado cache/memória:
-
-```bash
-python3 docs/auditoria/diagnostico_duplicacao.py --csv data/processed/dados_extraidos.csv
-```
-
-Ver [docs/auditoria/AUDITORIA_SCRIPTS.md](auditoria/AUDITORIA_SCRIPTS.md)
-para o que este script verifica e por que a coincidência de estatística
-idêntica entre cache/memória (e entre as métricas STREAM) é benigna, não
-um bug.
-
 ## 4. Regenerar as figuras finais do artigo
 
 As figuras finais (`results/figures/fig1..4_variacao_*.pdf`) são geradas
 pelo **R**, não pelo Python — e usam números transcritos manualmente a
 partir de `resumo_descritivo.csv`/`dados_extraidos.csv`, não lidos
-automaticamente do CSV. Ver
-[docs/auditoria/PIPELINE_FIGURAS.md](auditoria/PIPELINE_FIGURAS.md)
-para o procedimento completo de conferência antes de regerar.
+automaticamente do CSV. Se `data/raw/` for atualizado (nova coleta, nova
+réplica), os tibbles no topo de `geracao_graficos.R` precisam ser
+recalculados e atualizados manualmente antes de regerar as figuras.
 
 A partir da RAIZ do repositório (o script usa caminhos relativos
 `results/figures/...`):

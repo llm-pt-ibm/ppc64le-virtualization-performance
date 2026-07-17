@@ -1,8 +1,8 @@
 # Os percentuais de variação abaixo (tibbles `disco`, `gpu`, `cpu_mem`,
 # `stream`) são transcritos manualmente a partir de
 # data/processed/resumo_descritivo.csv / dados_extraidos.csv — este script
-# NÃO lê os CSVs automaticamente. Ver docs/auditoria/PIPELINE_FIGURAS.md
-# para o procedimento de conferência e o histórico de conferências.
+# NÃO lê os CSVs automaticamente. Se data/raw/ for atualizado, recalcule e
+# atualize os tibbles abaixo manualmente antes de regerar as figuras.
 library(ggplot2)
 library(dplyr)
 library(tidyr)

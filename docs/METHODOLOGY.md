@@ -79,10 +79,6 @@ Por métrica, comparando os 3 ambientes:
    VM A vs. B vs. C), para sinalizar quando a "diferença entre
    ambientes" pode estar confundida com diferença entre VMs específicas.
 
-Ver [docs/auditoria/AUDITORIA_SCRIPTS.md](auditoria/AUDITORIA_SCRIPTS.md) para um caso específico
-de auditoria de integridade estatística (coincidência de estatística
-idêntica entre métricas de cache e memória — explicada e não é bug).
-
 ## Anomalias investigadas
 
 ### Cache (RESOLVIDA)
