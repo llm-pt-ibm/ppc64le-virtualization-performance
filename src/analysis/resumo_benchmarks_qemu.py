@@ -11,19 +11,24 @@ para essa rodada de QEMU.
 Cobre: CPU, memória, cache, STREAM e os quatro testes de disco do fio
 (leitura seq., escrita seq., IOPS aleatório, latência).
 
+NOVO: --output-csv salva o resumo em CSV pronto pra ser consumido por
+scripts de plotagem (R, pandas), sem re-parsear texto.
+
 Uso:
   python3 resumo_benchmarks_qemu.py
       (usa o padrão de arquivo padrão: benchmark_qemu_*.txt no diretório atual)
 
   python3 resumo_benchmarks_qemu.py --pattern "qemu_results/benchmark_qemu_*.txt"
 
-  # Com overhead em relação ao host:
+  # Com overhead em relação ao host + CSV:
   python3 resumo_benchmarks_qemu.py \
       --pattern "qemu_results/benchmark_qemu_*.txt" \
-      --baseline "host_results/benchmark_host_*.txt"
+      --baseline "host_results/benchmark_host_*.txt" \
+      --output-csv data/processed/resumo_qemu.csv
 """
 import re
 import glob
+import csv
 import argparse
 import statistics as st
 
@@ -44,8 +49,12 @@ METRIC_LABELS = {
     "lat_clat_avg_us":  "Latência média (us)",
 }
 
+# Coerente com o resumo_benchmarks_overhead.py: latência é a única métrica
+# onde "menor é melhor" — usado só pra sinalizar isso no CSV, não muda cálculo.
+LOWER_IS_BETTER = {"lat_clat_avg_us"}
+
 DEFAULT_PATTERN = "benchmark_qemu_*.txt"
-DISK_LABEL = "DISCO_EXT4"  # rótulo padrão usado pelo benchmark-qemu.sh (confirmado igual ao benchmark-vm.sh)
+DISK_LABEL = "DISCO_EXT4"
 
 
 def parse_iops(value):
@@ -162,6 +171,8 @@ def main():
                          help=f"Rótulo de fase de disco nos logs do QEMU (padrão: {DISK_LABEL})")
     parser.add_argument("--baseline-disk-label", default="DISCO_HOST",
                          help='Rótulo de fase de disco nos logs do --baseline/host (padrão: DISCO_HOST, já que o benchmark-host.sh usa esse rótulo)')
+    parser.add_argument("--output-csv", default=None,
+                         help="Se informado, salva o resumo em CSV para consumo por scripts de plotagem.")
     args = parser.parse_args()
 
     metrics, files = load_metrics(args.pattern, disk_label=args.disk_label)
@@ -190,6 +201,7 @@ def main():
     print(header)
     print("-" * len(header))
 
+    csv_rows = []
     for key, label in METRIC_LABELS.items():
         values = metrics.get(key, [])
         stats = summarize(values)
@@ -202,6 +214,7 @@ def main():
             f"{stats['desvio']:>12.2f} {stats['iqr']:>12.2f}"
         )
 
+        overhead = None
         if baseline_files:
             base_values = baseline_metrics.get(key, [])
             base_stats = summarize(base_values)
@@ -213,11 +226,36 @@ def main():
 
         print(line)
 
+        csv_rows.append({
+            "ambiente":     "QEMU",
+            "metrica_id":   key,
+            "metrica":      label,
+            "n":            stats["n"],
+            "media":        round(stats["media"], 4),
+            "mediana":      round(stats["mediana"], 4),
+            "desvio":       round(stats["desvio"], 4),
+            "iqr":          round(stats["iqr"], 4) if stats["iqr"] == stats["iqr"] else "",
+            "overhead_pct": round(overhead, 4) if overhead is not None else "",
+            "lower_is_better": "1" if key in LOWER_IS_BETTER else "0",
+        })
+
     print()
     if baseline_files:
         print("Overhead esperado MUITO maior aqui do que no KVM, já que QEMU em modo TCG")
         print("não tem aceleração de hardware — é tradução de instrução pura em software.")
     print()
+
+    if args.output_csv:
+        fieldnames = [
+            "ambiente", "metrica_id", "metrica", "n",
+            "media", "mediana", "desvio", "iqr",
+            "overhead_pct", "lower_is_better",
+        ]
+        with open(args.output_csv, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(csv_rows)
+        print(f"CSV salvo em: {args.output_csv}")
 
 
 if __name__ == "__main__":

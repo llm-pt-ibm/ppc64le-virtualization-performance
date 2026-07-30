@@ -12,32 +12,34 @@ de arquivos de log, mas agora:
      percentual de cada métrica em relação ao baseline:
          overhead(%) = (média_ambiente / média_host - 1) * 100
      (mesma fórmula da Seção 2.6 do artigo)
+  4. NOVO: --output-csv salva o resumo em CSV, pronto pra ser consumido por
+     scripts de plotagem (R, pandas, etc.) sem precisar re-parsear texto.
 
 Uso:
-  # Comparando KVM contra o host (overhead)
+  # Comparando KVM contra o host (overhead) — imprime + salva CSV
     python3 resumo_benchmarks_overhead.py \
-  --pattern "kvm_results/benchmark_vm_*.txt" \
-  --baseline "host_results/benchmark_host_*.txt" \
+  --pattern "kvm-results/benchmark_vm_localhost.localdomain_*" \
+  --baseline "host/benchmark_host_ibm-power9_20260724_0*" \
   --baseline-disk-label "DISCO_HOST" \
-  --label "KVM"
+  --label "KVM" \
+  --output-csv resumo_kvm.csv
 
-  # Resumo simples de um ambiente
+  # Resumo simples de um ambiente (sem overhead)
     python3 resumo_benchmarks_overhead.py \
-  --pattern "host/benchmark_host_ibm-power9_20260627_1*" \
+  --pattern "host/benchmark_host_ibm-power9_20260724_0*" \
   --disk-label "DISCO_HOST" \
-  --label "Host"
+  --label "Host" \
+  --output-csv resumo_host.csv
 """
 import re
 import glob
+import csv
 import argparse
 import statistics as st
 
 
 # ---------------------------------------------------------------------------
 # Mesmas métricas do script original — nada removido, só reorganizado.
-# Cada métrica tem: rótulo de exibição, e se "maior é melhor" (para overhead
-# com sinal coerente: overhead positivo = pior na maioria dos casos, exceto
-# latência onde já é tratado como "maior tempo = pior" naturalmente).
 # ---------------------------------------------------------------------------
 METRIC_LABELS = {
     "cpu_bogo":         "CPU (bogo ops/s)",
@@ -61,8 +63,7 @@ METRIC_LABELS = {
 
 # Para todas as métricas, "maior é melhor" exceto latência, onde "menor é
 # melhor". Isso só afeta como interpretamos o sinal do overhead na hora de
-# imprimir uma nota — não afeta o cálculo, que segue sempre a mesma fórmula
-# da Seção 2.6 do artigo (valor_ambiente / valor_host - 1) * 100.
+# imprimir uma nota — não afeta o cálculo.
 LOWER_IS_BETTER = {"lat_clat_avg_us"}
 
 
@@ -75,30 +76,20 @@ def parse_iops(value):
 
 
 def extract_metrics(txt, disk_label="DISCO_EXT4"):
-    """
-    Extrai todas as métricas de um único arquivo de log (mesma lógica regex
-    do resumo_benchmarks.py original). disk_label permite reusar isto para
-    logs que eventualmente usem um rótulo de fase diferente de [DISCO_EXT4]
-    (ex.: [DISCO_HOST], [DISCO_QEMU]), sem duplicar o script inteiro.
-    """
     result = {}
 
-    # CPU
     m = re.search(r'cpu\s+\d+\s+\S+\s+\S+\s+\S+\s+([\d.]+)', txt)
     if m:
         result["cpu_bogo"] = float(m.group(1))
 
-    # MEM
     m = re.search(r'vm\s+\d+\s+\S+\s+\S+\s+\S+\s+([\d.]+)', txt)
     if m:
         result["mem_bogo"] = float(m.group(1))
 
-    # CACHE
     m = re.search(r'cache\s+\d+\s+\S+\s+\S+\s+\S+\s+([\d.]+)', txt)
     if m:
         result["cache_bogo"] = float(m.group(1))
 
-    # STREAM
     for key, label in [
         ("stream_copy", "Copy"),
         ("stream_scale", "Scale"),
@@ -109,7 +100,6 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
         if m:
             result[key] = float(m.group(1))
 
-    # Seq Read
     m = re.search(
         rf'=== \[{disk_label}\] LEITURA SEQUENCIAL ===.*?read: IOPS=.*?BW=([\d.]+)MiB/s',
         txt, re.S,
@@ -117,7 +107,6 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
     if m:
         result["seq_read_bw"] = float(m.group(1))
 
-    # Seq Write
     m = re.search(
         rf'=== \[{disk_label}\] ESCRITA SEQUENCIAL ===.*?write: IOPS=.*?BW=([\d.]+)MiB/s',
         txt, re.S,
@@ -125,7 +114,6 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
     if m:
         result["seq_write_bw"] = float(m.group(1))
 
-    # RandRW
     m = re.search(
         rf'=== \[{disk_label}\] IOPS ALEATÓRIO.*?read: IOPS=([0-9.k]+)',
         txt, re.S,
@@ -140,7 +128,6 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
     if m:
         result["rand_write_iops"] = parse_iops(m.group(1))
 
-    # Latência
     m = re.search(
         rf'=== \[{disk_label}\] LATÊNCIA.*?read: IOPS=([\d.]+)',
         txt, re.S,
@@ -155,12 +142,10 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
     if m:
         result["lat_clat_avg_us"] = float(m.group(1))
 
-    # MatrixMul (ausente em logs sem GPU — não gera erro, só fica de fora)
     vals = re.findall(r'Performance=\s*([\d.]+)\s*GFlop/s', txt)
     if vals:
         result["matrix_gflops"] = st.mean(float(v) for v in vals)
 
-    # NCCL (idem — ausente em logs sem GPU)
     for key, section in [
         ("nccl_allreduce", "ALL_REDUCE"),
         ("nccl_allgather", "ALL_GATHER"),
@@ -177,7 +162,6 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
 
 
 def load_metrics(pattern, disk_label="DISCO_EXT4"):
-    """Lê todos os arquivos que casam com pattern e agrega métricas em listas."""
     metrics = {key: [] for key in METRIC_LABELS}
     files = sorted(glob.glob(pattern))
     if not files:
@@ -194,7 +178,6 @@ def load_metrics(pattern, disk_label="DISCO_EXT4"):
 
 
 def summarize(values):
-    """Retorna média, mediana, desvio padrão amostral e IQR de uma lista."""
     n = len(values)
     if n == 0:
         return None
@@ -217,25 +200,14 @@ def summarize(values):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pattern", required=True)
+    parser.add_argument("--baseline", default=None)
+    parser.add_argument("--disk-label", default="DISCO_EXT4")
+    parser.add_argument("--baseline-disk-label", default=None)
+    parser.add_argument("--label", default="Ambiente")
     parser.add_argument(
-        "--pattern", required=True,
-        help='Glob dos arquivos de log do ambiente a resumir, ex: "kvm_results/benchmark_vm_*.txt"',
-    )
-    parser.add_argument(
-        "--baseline", default=None,
-        help='Glob dos arquivos de log do HOST, para calcular overhead. Se omitido, só imprime o resumo do --pattern, sem overhead.',
-    )
-    parser.add_argument(
-        "--disk-label", default="DISCO_EXT4",
-        help='Rótulo de fase usado nos logs para a seção de disco (padrão: DISCO_EXT4). Use DISCO_HOST se os logs do host usarem esse rótulo.',
-    )
-    parser.add_argument(
-        "--baseline-disk-label", default=None,
-        help='Rótulo de fase de disco nos logs do --baseline, se for diferente do --disk-label (ex: host usa DISCO_HOST, VM usa DISCO_EXT4).',
-    )
-    parser.add_argument(
-        "--label", default="Ambiente",
-        help="Nome do ambiente para exibição (ex: KVM, QEMU puro).",
+        "--output-csv", default=None,
+        help="Se informado, salva o resumo em CSV (uma linha por métrica) para consumo por scripts de plotagem.",
     )
     args = parser.parse_args()
 
@@ -266,11 +238,13 @@ def main():
     print(header)
     print("-" * len(header))
 
+    # Coleta linhas pra tanto imprimir quanto (se pedido) gravar CSV
+    csv_rows = []
     for key, label in METRIC_LABELS.items():
         values = metrics.get(key, [])
         stats = summarize(values)
         if stats is None:
-            continue  # métrica ausente neste conjunto de logs (ex.: GPU em log sem GPU)
+            continue
 
         line = (
             f"{label:32s} {stats['n']:>3d} "
@@ -278,28 +252,49 @@ def main():
             f"{stats['desvio']:>12.2f} {stats['iqr']:>12.2f}"
         )
 
+        overhead = None
         if baseline_files:
             base_values = baseline_metrics.get(key, [])
             base_stats = summarize(base_values)
             if base_stats and base_stats["media"] != 0:
                 overhead = (stats["media"] / base_stats["media"] - 1) * 100
-                nota = " (menor=pior)" if key in LOWER_IS_BETTER else ""
                 line += f" {overhead:>11.2f}%"
             else:
                 line += f" {'sem baseline':>12s}"
 
         print(line)
 
+        csv_rows.append({
+            "ambiente":   args.label,
+            "metrica_id": key,
+            "metrica":    label,
+            "n":          stats["n"],
+            "media":      round(stats["media"], 4),
+            "mediana":    round(stats["mediana"], 4),
+            "desvio":     round(stats["desvio"], 4),
+            "iqr":        round(stats["iqr"], 4) if stats["iqr"] == stats["iqr"] else "",  # NaN check
+            "overhead_pct": round(overhead, 4) if overhead is not None else "",
+            "lower_is_better": "1" if key in LOWER_IS_BETTER else "0",
+        })
+
     print()
     if baseline_files:
-        print("Overhead calculado como (média_ambiente / média_host - 1) × 100, conforme Seção 2.6 do artigo.")
-        print("Para métricas de latência (lat_clat_avg_us), overhead positivo significa o ambiente é MAIS LENTO")
-        print("(maior tempo de latência) que o host — isso já é o esperado/intuitivo, sem precisar inverter o sinal.")
-        print("Para as demais métricas (throughput, IOPS, GFLOPS, GB/s), overhead positivo significa o ambiente")
-        print("teve desempenho MAIOR que o host nesta amostra — vale revisar se isso é fisicamente esperado")
-        print("(ex.: maior IOPS aleatório em alta concorrência pode ser efeito real de batching do virtio-blk,")
-        print("não necessariamente um erro de medição — ver discussão na Seção 4 do artigo).")
+        print("Overhead = (média_ambiente / média_host - 1) × 100, conforme Seção 2.6 do artigo.")
+        print("Latência: overhead positivo = ambiente mais lento (esperado).")
+        print("Demais: overhead positivo = ambiente com throughput MAIOR que host — revise se faz sentido físico.")
     print()
+
+    if args.output_csv:
+        fieldnames = [
+            "ambiente", "metrica_id", "metrica", "n",
+            "media", "mediana", "desvio", "iqr",
+            "overhead_pct", "lower_is_better",
+        ]
+        with open(args.output_csv, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(csv_rows)
+        print(f"CSV salvo em: {args.output_csv}")
 
 
 if __name__ == "__main__":
