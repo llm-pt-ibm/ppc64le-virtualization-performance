@@ -123,10 +123,6 @@ STREAM_LINE = re.compile(
 # CUDA matrixMul: procura por algo como "GFlop/s" na linha
 MATRIXMUL_LINE = re.compile(r"([\d.]+)\s*GFlop/s", re.IGNORECASE)
 
-# NCCL busbw: CORRIGIDO — em vez de indexar colunas da linha de dados (frágil
-# por causa do campo #wrong, que alterna entre "0" e "N/A" e desloca a
-# posição), lê a linha de resumo que o próprio nccl-tests já calcula:
-#   "# Avg bus bandwidth    : 19.4013"
 NCCL_AVG_LINE = re.compile(r"Avg bus bandwidth\s*:\s*([\d.]+)")
 
 
@@ -284,12 +280,6 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
     # --- GPU (host e KVM apenas) ---
     if ambiente in ("host", "kvm"):
         mm_block = extract_section(text, r"^=== GPU — MATRIXMUL")
-        # Cada arquivo contém 5 "-- Execução N --" do matrixMul. CORRIGIDO:
-        # antes só a 1ª "Performance=... GFlop/s" era usada (`break` após o
-        # 1º match), descartando as outras 4 — inconsistente com
-        # resumo_benchmarks_overhead.py, que já faz média das 5. Agora
-        # também tira a média das 5, pelo mesmo motivo: uma única execução
-        # de GPU é mais suscetível a ruído/jitter do que a média de 5.
         valores_mm = [float(m.group(1)) for ln in mm_block
                       for m in [MATRIXMUL_LINE.search(ln)] if m]
         if valores_mm:
@@ -301,15 +291,6 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
             ("sendrecv", r"^=== GPU — NCCL SENDRECV"),
         ]:
             block = extract_section(text, header)
-            # CORRIGIDO: a abordagem antiga (nums[-1] na última linha de dados)
-            # pegava, dependendo do log, o campo #wrong (frequentemente "0",
-            # explicando os zeros de all_reduce/all_gather) ou o busbw de uma
-            # mensagem pequena no início da varredura (explicando o valor
-            # inflado de sendrecv), porque o campo #wrong às vezes é "N/A"
-            # (sem dígitos) e desloca a indexação de nums[-1]. A linha de
-            # resumo "Avg bus bandwidth" que o próprio nccl-tests já calcula
-            # é a fonte robusta e é o que bate com os valores manuscritos
-            # originais do artigo.
             for ln in block:
                 m = NCCL_AVG_LINE.search(ln)
                 if m:
@@ -972,6 +953,29 @@ METRICAS_PRINCIPAIS = [
     "gpu_matrixmul_gflops",
 ]
 
+METRICAS_3_AMBIENTES = [
+    "cpu_bogo_ops_s_real",
+    "mem_bogo_ops_s_real",
+    "cache_bogo_ops_s_real",
+    "disk_seqread_MiBs",
+    "disk_seqwrite_MiBs",
+    "disk_iops_randread",
+    "disk_iops_randwrite",
+    "disk_iops_qd1",
+    "disk_lat_avg_usec",
+]
+
+METRICAS_2_AMBIENTES = [
+    "stream_copy_mbs",
+    "stream_scale_mbs",
+    "stream_add_mbs",
+    "stream_triad_mbs",
+    "gpu_matrixmul_gflops",
+    "gpu_nccl_allreduce_busbw_gbs",
+    "gpu_nccl_allgather_busbw_gbs",
+    "gpu_nccl_sendrecv_busbw_gbs",
+]
+
 
 def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
                             metricas_alvo: Optional[list] = None,
@@ -1012,7 +1016,10 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
         "Teste\nglobal (p)": "teste_global_p",
         "p FDR-\ncorrigido": "p_fdr_corrigido",
     }
-    n_pressupostos = 4  # as 4 primeiras colunas de colunas_p acima
+    if "qemu_shapiro_p" not in idx.columns or idx["qemu_shapiro_p"].isna().all():
+        colunas_p.pop("Shapiro\nQEMU", None)
+
+    n_pressupostos = 4 if "Shapiro\nQEMU" in colunas_p else 3
     codes = pd.DataFrame({col: idx[src].apply(_bin_p_valor) for col, src in colunas_p.items()},
                          index=metricas)
     textos = pd.DataFrame({col: idx[src].apply(_formatar_p) for col, src in colunas_p.items()},
@@ -1139,27 +1146,22 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
     print(f"  salvo: heatmaps/{nome_arquivo}")
 
 
-def gerar_heatmap_resumo(df_stats: pd.DataFrame, df_heterog: Optional[pd.DataFrame], out_dir: str) -> None:
-    """Gera QUATRO figuras de heatmap em out_dir/heatmaps/ (mesma
-    convenção de gerar_graficos: relocar depois para
-    results/figures/heatmaps/ — ver docs/REPRODUCE.md):
-
-      - heatmap_significancia.png / heatmap_heterogeneidade_vm.png:
-        versão CURADA (METRICAS_PRINCIPAIS, 1 métrica por domínio
-        experimental) — pensada para o corpo do artigo, onde ~19 linhas
-        por figura seriam ilegíveis/pouco informativas.
-      - heatmap_significancia_completo.png / heatmap_heterogeneidade_vm_completo.png:
-        versão com TODAS as métricas — nada é descartado, só reordenado
-        por relevância editorial; fica para auditoria/apêndice.
-
-    Estas figuras COMPLEMENTAM os boxplots — resumem de forma compacta o
-    resultado dos testes formais, o que hoje só existe como tabela de
-    texto (relatorio.txt) ou coluna a coluna (resultados_estatisticos.csv)."""
+def gerar_heatmap_resumo(df_stats, df_heterog, out_dir: str) -> None:
+    """Gera SEIS figuras de heatmap em out_dir/heatmaps/. A divisão
+    3-ambientes vs 2-ambientes existe porque as duas comparações testam
+    perguntas científicas diferentes e, misturadas, o salto QEMU vs host
+    domina o Kruskal-Wallis (separação completa) e produz ε²≈0.751 em
+    quase todas as métricas do bloco 3-ambientes — correto, mas achata a
+    leitura visual e esconde os efeitos mais sutis do KVM."""
     heat_dir = os.path.join(out_dir, "heatmaps")
     os.makedirs(heat_dir, exist_ok=True)
+
     _heatmap_significancia(df_stats, heat_dir, metricas_alvo=None, sufixo="_completo")
-    _heatmap_heterogeneidade(df_heterog, heat_dir, metricas_alvo=None, sufixo="_completo")
+    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_3_AMBIENTES, sufixo="_3ambientes")
+    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_2_AMBIENTES, sufixo="_2ambientes")
     _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_PRINCIPAIS, sufixo="")
+
+    _heatmap_heterogeneidade(df_heterog, heat_dir, metricas_alvo=None, sufixo="_completo")
     _heatmap_heterogeneidade(df_heterog, heat_dir, metricas_alvo=METRICAS_PRINCIPAIS, sufixo="")
 
 
