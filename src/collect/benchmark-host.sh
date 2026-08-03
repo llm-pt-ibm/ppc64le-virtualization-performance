@@ -28,14 +28,19 @@ VM_WORKERS=8
 VM_BYTES="8G"
 
 # ---------------------------------------------------------------------------
+# PINNING — mesmos CPUs da vm_gabrielly / vm_lucas / vm_ramalho
+# (1 thread SMT por core, cores 20 a 35 do POWER9)
+# ---------------------------------------------------------------------------
+CPU_LIST="80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140"
+TASKSET="taskset -c $CPU_LIST"
+
+# ---------------------------------------------------------------------------
 # CAMINHOS E VARIÁVEIS GERAIS
 # ---------------------------------------------------------------------------
 HOST=$(hostname)
 DATE=$(date +%Y%m%d_%H%M%S)
 WORKDIR=${SLURM_TMPDIR:-/tmp}
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUT="${SCRIPT_DIR}/../../data/raw/host/benchmark_host_${HOST}_${DATE}.txt"
-mkdir -p "$(dirname "$OUT")"
+OUT="/home/multiarq/experimentos/host/benchmark_host_${HOST}_${DATE}.txt"
 
 # ---------------------------------------------------------------------------
 # PARÂMETROS — Disco (fio)
@@ -72,6 +77,25 @@ fi
 # ---------------------------------------------------------------------------
 log()       { echo "$1" | tee -a "$OUT"; }
 separator() { log ""; log "$(printf '=%.0s' {1..72})"; log ""; }
+
+# ---------------------------------------------------------------------------
+# PRÉ-CHECK: aborta se houver VM ligada (contamina disco compartilhado)
+# ---------------------------------------------------------------------------
+mkdir -p "$(dirname "$OUT")"
+: > "$OUT"
+
+log "=== PRÉ-CHECK: VMs ativas no host ==="
+if command -v virsh &>/dev/null; then
+    VMS_ATIVAS=$(sudo -n virsh list --state-running --name 2>/dev/null | grep -v '^$' | wc -l)
+    if [[ "$VMS_ATIVAS" -gt 0 ]]; then
+        log "ERRO: $VMS_ATIVAS VM(s) ativa(s). Desligue com 'sudo virsh shutdown <nome>' e rode de novo."
+        exit 1
+    fi
+    log "OK: nenhuma VM ativa."
+else
+    log "AVISO: virsh não disponível — continuando sem verificação."
+fi
+separator
 
 # ---------------------------------------------------------------------------
 # FUNÇÃO: suite de testes fio
@@ -140,7 +164,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== [$label] LATÊNCIA (4K randread síncrono) ==="
+    log "=== [$label] LATÊNCIA (4K randread QD=1) ==="
     fio --name=lat-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -161,7 +185,7 @@ run_fio_suite() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNÇÃO: suite de testes GPU
+# FUNÇÃO: suite de testes GPU (sem taskset — passthrough gerencia)
 # ---------------------------------------------------------------------------
 run_gpu_suite() {
 
@@ -241,7 +265,7 @@ run_gpu_suite() {
 # INÍCIO — DESATIVAR SWAP
 # =============================================================================
 log "=== PRÉ-EXECUÇÃO: desativando swap ==="
-sudo swapoff -a 2>&1 | tee -a "$OUT" || log "AVISO: swapoff falhou ou swap já estava desativado."
+sudo -n swapoff -a 2>&1 | tee -a "$OUT" || log "AVISO: swapoff falhou ou swap já estava desativado."
 log "Estado do swap após swapoff:"
 swapon --show 2>/dev/null | tee -a "$OUT" || log "(nenhum dispositivo de swap ativo)"
 
@@ -251,6 +275,7 @@ swapon --show 2>/dev/null | tee -a "$OUT" || log "(nenhum dispositivo de swap at
 log "=== BENCHMARK HOST: $HOST — $DATE ==="
 log "Ambiente: Host físico — IBM Power9 ppc64le"
 log "CPUs alocadas (Slurm): $NCPUS"
+log "CPUs pinned (taskset): $CPU_LIST"
 log "RAM alocada  (Slurm): ${MEM_GB} GB"
 log "GPUs visíveis (CUDA_VISIBLE_DEVICES): ${CUDA_VISIBLE_DEVICES}"
 log "GPUs detectadas: $GPU_AVAILABLE"
@@ -283,43 +308,46 @@ cat /proc/self/cgroup                 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# CPU
+# CPU (com taskset — iguala pinning com a VM)
 # =============================================================================
 log "=== CPU ==="
-stress-ng --cpu "$NCPUS" \
+log "(taskset -c $CPU_LIST)"
+$TASKSET stress-ng --cpu "$NCPUS" \
           --cpu-method all \
           --metrics-brief \
           --timeout 60s 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# MEMÓRIA
+# MEMÓRIA (com taskset)
 # =============================================================================
 log "=== MEMÓRIA ==="
-stress-ng --vm "$VM_WORKERS" \
+log "(taskset -c $CPU_LIST)"
+$TASKSET stress-ng --vm "$VM_WORKERS" \
           --vm-bytes "$VM_BYTES" \
           --metrics-brief \
           --timeout 60s 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# CACHE
+# CACHE (com taskset)
 # =============================================================================
 log "=== CACHE ==="
-stress-ng --cache "$NCPUS" \
+log "(taskset -c $CPU_LIST, --cache-level 1)"
+log "Tamanho de buffer L1 (de /sys/): $(cat /sys/devices/system/cpu/cpu0/cache/index0/size)"
+$TASKSET stress-ng --cache "$NCPUS" \
           --cache-level 1 \
           --metrics-brief \
-          --timeout 60s \
-          2>&1 | tee -a "$OUT"
+          --timeout 60s 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# STREAM — LARGURA DE BANDA DE MEMÓRIA
+# STREAM — LARGURA DE BANDA DE MEMÓRIA (com taskset)
 # =============================================================================
-log "=== STREAM — LARGURA DE BANDA DE MEMÓRIA ==="
+log "=== STREAM — LARGURA DE BANDA DE MEMÓRIA (taskset -c $CPU_LIST) ==="
 if [ -x "$STREAM_BIN" ]; then
     export OMP_NUM_THREADS="$NCPUS"
-    "$STREAM_BIN" 2>&1 | tee -a "$OUT"
+    $TASKSET "$STREAM_BIN" 2>&1 | tee -a "$OUT"
 else
     log "AVISO: binário STREAM não encontrado em $STREAM_BIN"
     log "Compile com: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream_power9"
@@ -327,7 +355,7 @@ fi
 separator
 
 # =============================================================================
-# DISCO (fio)
+# DISCO (fio — sem taskset)
 # =============================================================================
 run_fio_suite "DISCO_HOST"
 separator
@@ -350,7 +378,7 @@ fi
 # =============================================================================
 log ""
 log "=== PÓS-EXECUÇÃO: reativando swap ==="
-sudo swapon -a 2>&1 | tee -a "$OUT" || log "AVISO: swapon falhou."
+sudo -n swapon -a 2>&1 | tee -a "$OUT" || log "AVISO: swapon falhou."
 log "Estado do swap após swapon:"
 swapon --show 2>/dev/null | tee -a "$OUT" || log "(nenhum dispositivo de swap ativo)"
 
