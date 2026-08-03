@@ -210,14 +210,14 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
                           "timestamp": timestamp, "metrica": metric, "valor": value})
 
     # --- CPU ---
-    cpu_block = extract_section(text, r"^=== CPU ===")
+    cpu_block = extract_section(text, r"^=== CPU\b")
     cpu_res = parse_stressng_block(cpu_block, "cpu")
     if cpu_res:
         add("cpu_bogo_ops_s_real", cpu_res["bogo_ops_s_real"])
         add("cpu_bogo_ops_s_cpu", cpu_res["bogo_ops_s_cpu"])
 
     # --- MEMÓRIA ---
-    mem_block = extract_section(text, r"^=== MEMÓRIA ===")
+    mem_block = extract_section(text, r"^=== MEMÓRIA\b")
     mem_res = None
     for stressor_guess in ("vm", "memhotplug", "malloc", "mem"):
         mem_res = parse_stressng_block(mem_block, stressor_guess)
@@ -228,7 +228,7 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
         add("mem_bogo_ops_s_cpu", mem_res["bogo_ops_s_cpu"])
 
     # --- CACHE ---
-    cache_block = extract_section(text, r"^=== CACHE ===")
+    cache_block = extract_section(text, r"^=== CACHE\b")
     cache_res = parse_stressng_block(cache_block, "cache")
     if cache_res:
         add("cache_bogo_ops_s_real", cache_res["bogo_ops_s_real"])

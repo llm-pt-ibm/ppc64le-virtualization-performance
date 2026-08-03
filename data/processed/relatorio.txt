@@ -16,42 +16,46 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
 ----------------------------------------------------------------------
 
 ### cache_bogo_ops_s_cpu ###
+  host: n=15, média=4478.879, mediana=4476.280, IC95%=[4474.230, 4483.309], Shapiro p=0.2328
   kvm: n=15, média=3795.541, mediana=3305.260, IC95%=[2609.300, 4619.995], Shapiro p=0.0303
   qemu: n=15, média=569.420, mediana=584.150, IC95%=[505.257, 632.392], Shapiro p=0.0072
-  Levene p=0.0017
-  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
-  Effect size (epsilon^2): 0.7508
+  Levene p=0.0000
+  Teste global: Kruskal-Wallis, estatística=31.4783, p=1.461e-07
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 3.652e-07
+  Effect size (epsilon^2): 0.7154
   Heterogeneidade entre VMs (kvm): H=9.980, p=0.0068 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=1.140, p=0.5655 -> diferem entre si? não
 
 ### cache_bogo_ops_s_real ###
+  host: n=15, média=64058.477, mediana=64107.200, IC95%=[63965.354, 64156.444], Shapiro p=0.7511
   kvm: n=15, média=21161.163, mediana=21870.950, IC95%=[14508.415, 29609.897], Shapiro p=0.2512
   qemu: n=15, média=7308.035, mediana=6727.330, IC95%=[6250.783, 8267.498], Shapiro p=0.0130
   Levene p=0.0000
-  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
-  Effect size (epsilon^2): 0.7508
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
+  Effect size (epsilon^2): 0.8893
   Heterogeneidade entre VMs (kvm): H=9.980, p=0.0068 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=4.860, p=0.0880 -> diferem entre si? não
 
 ### cpu_bogo_ops_s_cpu ###
+  host: n=15, média=335.689, mediana=335.700, IC95%=[335.668, 335.713], Shapiro p=0.0181
   kvm: n=15, média=334.991, mediana=335.410, IC95%=[334.485, 335.981], Shapiro p=0.0000
   qemu: n=15, média=21.946, mediana=20.230, IC95%=[18.954, 24.560], Shapiro p=0.0061
-  Levene p=0.0075
-  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
-  Effect size (epsilon^2): 0.7508
+  Levene p=0.0003
+  Teste global: Kruskal-Wallis, estatística=39.0694, p=3.282e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
+  Effect size (epsilon^2): 0.8879
   Heterogeneidade entre VMs (kvm): H=9.980, p=0.0068 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=0.320, p=0.8521 -> diferem entre si? não
 
 ### cpu_bogo_ops_s_real ###
+  host: n=15, média=5371.021, mediana=5371.110, IC95%=[5370.698, 5371.393], Shapiro p=0.0522
   kvm: n=15, média=5348.371, mediana=5362.370, IC95%=[5333.983, 5368.082], Shapiro p=0.0001
   qemu: n=15, média=347.926, mediana=323.140, IC95%=[299.156, 388.390], Shapiro p=0.0136
-  Levene p=0.0400
-  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
-  Effect size (epsilon^2): 0.7508
+  Levene p=0.0012
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
+  Effect size (epsilon^2): 0.8893
   Heterogeneidade entre VMs (kvm): H=4.580, p=0.1013 -> diferem entre si? não
   Heterogeneidade entre VMs (qemu): H=0.420, p=0.8106 -> diferem entre si? não
 
@@ -72,7 +76,7 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   qemu: n=15, média=6984.133, mediana=6886.000, IC95%=[6807.985, 7156.002], Shapiro p=0.4473
   Levene p=0.0000
   Teste global: Kruskal-Wallis, estatística=38.7056, p=3.937e-09
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 3.937e-08
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
   Effect size (epsilon^2): 0.8797
   Heterogeneidade entre VMs (kvm): H=12.500, p=0.0019 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=0.140, p=0.9324 -> diferem entre si? não
@@ -83,7 +87,7 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   qemu: n=15, média=3001.533, mediana=2958.000, IC95%=[2925.465, 3075.602], Shapiro p=0.4129
   Levene p=0.0000
   Teste global: Kruskal-Wallis, estatística=38.7183, p=3.912e-09
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 3.937e-08
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
   Effect size (epsilon^2): 0.8800
   Heterogeneidade entre VMs (kvm): H=12.522, p=0.0019 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=0.140, p=0.9324 -> diferem entre si? não
@@ -156,22 +160,24 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   Heterogeneidade entre VMs (kvm): H=0.420, p=0.8106 -> diferem entre si? não
 
 ### mem_bogo_ops_s_cpu ###
+  host: n=15, média=67851.999, mediana=67825.250, IC95%=[67713.509, 67999.064], Shapiro p=0.4898
   kvm: n=15, média=56793.920, mediana=56887.710, IC95%=[55367.469, 58726.444], Shapiro p=0.0377
   qemu: n=15, média=4966.214, mediana=4969.950, IC95%=[4961.915, 4975.149], Shapiro p=0.0000
   Levene p=0.0000
-  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
-  Effect size (epsilon^2): 0.7508
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
+  Effect size (epsilon^2): 0.8893
   Heterogeneidade entre VMs (kvm): H=6.660, p=0.0358 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=0.620, p=0.7334 -> diferem entre si? não
 
 ### mem_bogo_ops_s_real ###
+  host: n=15, média=542533.720, mediana=542576.230, IC95%=[541247.562, 544004.963], Shapiro p=0.0744
   kvm: n=15, média=453350.768, mediana=455076.890, IC95%=[441514.853, 468514.244], Shapiro p=0.0595
   qemu: n=15, média=39724.719, mediana=39753.350, IC95%=[39691.250, 39797.716], Shapiro p=0.0000
   Levene p=0.0000
-  Teste global: Kruskal-Wallis, estatística=21.7742, p=3.067e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
-  Effect size (epsilon^2): 0.7508
+  Teste global: Kruskal-Wallis, estatística=39.1304, p=3.184e-09
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 1.125e-08
+  Effect size (epsilon^2): 0.8893
   Heterogeneidade entre VMs (kvm): H=6.020, p=0.0493 -> diferem entre si? SIM (cuidado: pseudo-replicação)
   Heterogeneidade entre VMs (qemu): H=0.980, p=0.6126 -> diferem entre si? não
 
@@ -180,7 +186,7 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   kvm: n=15, média=80417.780, mediana=80981.700, IC95%=[75640.475, 85936.997], Shapiro p=0.9230
   Levene p=0.0003
   Teste global: Kruskal-Wallis, estatística=21.7839, p=3.052e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.099e-06
   Effect size (epsilon^2): 0.7512
   Heterogeneidade entre VMs (kvm): H=8.420, p=0.0148 -> diferem entre si? SIM (cuidado: pseudo-replicação)
 
@@ -189,7 +195,7 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   kvm: n=15, média=83351.400, mediana=84875.400, IC95%=[80235.123, 86900.247], Shapiro p=0.5199
   Levene p=0.0001
   Teste global: Kruskal-Wallis, estatística=21.7790, p=3.059e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.099e-06
   Effect size (epsilon^2): 0.7510
   Heterogeneidade entre VMs (kvm): H=3.780, p=0.1511 -> diferem entre si? não
 
@@ -198,7 +204,7 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   kvm: n=15, média=85154.813, mediana=85156.800, IC95%=[80871.364, 89196.042], Shapiro p=0.8436
   Levene p=0.0001
   Teste global: Kruskal-Wallis, estatística=21.7790, p=3.059e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.099e-06
   Effect size (epsilon^2): 0.7510
   Heterogeneidade entre VMs (kvm): H=6.540, p=0.0380 -> diferem entre si? SIM (cuidado: pseudo-replicação)
 
@@ -207,7 +213,7 @@ consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro
   kvm: n=15, média=82030.820, mediana=81521.900, IC95%=[77036.439, 87408.520], Shapiro p=0.9782
   Levene p=0.0000
   Teste global: Kruskal-Wallis, estatística=21.7790, p=3.059e-06
-  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.112e-06
+  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): 5.099e-06
   Effect size (epsilon^2): 0.7510
   Heterogeneidade entre VMs (kvm): H=7.620, p=0.0221 -> diferem entre si? SIM (cuidado: pseudo-replicação)
 
