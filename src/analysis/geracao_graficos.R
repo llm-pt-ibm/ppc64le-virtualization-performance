@@ -1,5 +1,5 @@
 # =============================================================================
-# geracao_graficos.R — versão que lê CSVs em vez de valores hardcoded.
+# geracao_graficos.R — lê os CSVs de resumo e gera as figuras de overhead.
 #
 # Fluxo esperado (executar da raiz do repo):
 #
@@ -32,7 +32,7 @@ library(readr)
 ARQ_KVM  <- "/home/multiarq/experimentos/data/processed/resumo_kvm.csv"
 ARQ_QEMU <- "/home/multiarq/experimentos/data/processed/resumo_qemu.csv"
 
-# --- Configuração visual (igual ao script anterior) ---
+# --- Configuração visual ---
 COR_KVM  <- "#0072B2"
 COR_QEMU <- "#E69F00"
 
@@ -197,7 +197,7 @@ fig_stream <- ggplot(stream, aes(x = variacao, y = metrica)) +
     tema_artigo() +
     theme(legend.position = "none")
 
-# --- FIGURA 5 (NOVA — cache): incluída porque agora é achado importante ---
+# --- FIGURA 5: Cache ---
 ids_cache <- c(cache_bogo = "Cache (bogo ops/s)")
 cache_df <- monta_dados(ids_cache)
 

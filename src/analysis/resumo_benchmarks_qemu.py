@@ -11,8 +11,8 @@ para essa rodada de QEMU.
 Cobre: CPU, memória, cache, STREAM e os quatro testes de disco do fio
 (leitura seq., escrita seq., IOPS aleatório, latência).
 
-NOVO: --output-csv salva o resumo em CSV pronto pra ser consumido por
-scripts de plotagem (R, pandas), sem re-parsear texto.
+--output-csv salva o resumo em CSV pronto pra ser consumido por scripts
+de plotagem (R, pandas), sem re-parsear texto.
 
 Uso:
   python3 resumo_benchmarks_qemu.py

@@ -12,7 +12,7 @@ de arquivos de log, mas agora:
      percentual de cada métrica em relação ao baseline:
          overhead(%) = (média_ambiente / média_host - 1) * 100
      (mesma fórmula da Seção 2.6 do artigo)
-  4. NOVO: --output-csv salva o resumo em CSV, pronto pra ser consumido por
+  4. --output-csv salva o resumo em CSV, pronto pra ser consumido por
      scripts de plotagem (R, pandas, etc.) sem precisar re-parsear texto.
 
 Uso:
