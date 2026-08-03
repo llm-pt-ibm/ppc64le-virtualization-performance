@@ -1146,13 +1146,79 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
     print(f"  salvo: heatmaps/{nome_arquivo}")
 
 
+def _plot_ic_painel(df_stats: pd.DataFrame, metricas: list, out_path: str,
+                     ncol: int = 3, apenas_host_kvm: bool = False) -> None:
+    """Painel de pequenos múltiplos com média +- IC95%, um subplot por
+    métrica, host/KVM/QEMU como categorias no eixo X. Reaproveita ROTULOS
+    e COR_AMBIENTE já definidos no script. Métricas sem QEMU (STREAM, GPU)
+    simplesmente não desenham esse ponto.
+
+    apenas_host_kvm=True omite o ponto QEMU: seu overhead força o eixo Y a
+    cobrir uma faixa tão grande que a diferença host-vs-KVM, mais sutil,
+    fica ilegível."""
+    disponiveis = [m for m in metricas if m in df_stats["metrica"].values]
+    if not disponiveis:
+        print(f"  [aviso] nenhuma métrica disponível para {out_path}")
+        return
+    idx = df_stats.set_index("metrica")
+    n = len(disponiveis)
+    nrow = -(-n // ncol)
+    fig, axes = plt.subplots(nrow, ncol, figsize=(4.2 * ncol, 3.6 * nrow))
+    axes = axes.flatten() if n > 1 else [axes]
+
+    for ax, metrica in zip(axes, disponiveis):
+        rotulo, unidade = ROTULOS.get(metrica, (metrica, ""))
+        row = idx.loc[metrica]
+        ambientes_presentes = [a for a in ORDEM_AMBIENTES if pd.notna(row.get(f"{a}_media"))]
+        if apenas_host_kvm:
+            ambientes_presentes = [a for a in ambientes_presentes if a != "qemu"]
+        for i, amb in enumerate(ambientes_presentes):
+            media = row[f"{amb}_media"]
+            lo = row[f"{amb}_ic95_lo"]
+            hi = row[f"{amb}_ic95_hi"]
+            ax.errorbar([i], [media], yerr=[[media - lo], [hi - media]], fmt='o',
+                        color=COR_AMBIENTE[amb], markersize=9, capsize=6,
+                        capthick=1.8, elinewidth=1.8, zorder=3)
+        ax.set_xticks(range(len(ambientes_presentes)))
+        ax.set_xticklabels(["Host" if a == "host" else a.upper() for a in ambientes_presentes],
+                            fontsize=10)
+        ax.set_xlim(-0.5, len(ambientes_presentes) - 0.5)
+        ax.set_title(rotulo, fontsize=10, fontweight="bold")
+        ax.set_ylabel(unidade, fontsize=9)
+        ax.grid(axis="y", alpha=0.25, linewidth=0.5)
+        ax.spines[["top", "right"]].set_visible(False)
+
+    for ax in axes[n:]:
+        ax.axis("off")
+
+    titulo = "Média com intervalo de confiança de 95% (bootstrap)"
+    if apenas_host_kvm:
+        titulo += " — zoom Host vs. KVM (sem QEMU)"
+    fig.suptitle(titulo, fontsize=13, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.savefig(out_path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  salvo: {out_path}")
+
+
+def gerar_paineis_ic(df_stats: pd.DataFrame, out_dir: str) -> None:
+    """Gera quatro painéis de IC95%: curado x completo, cada um em escala
+    completa (3 ambientes) e em zoom (só host/KVM)."""
+    ic_dir = os.path.join(out_dir, "intervalos_confianca")
+    os.makedirs(ic_dir, exist_ok=True)
+    todas_metricas = _ordem_metricas_presentes(df_stats["metrica"])
+    _plot_ic_painel(df_stats, METRICAS_PRINCIPAIS, os.path.join(ic_dir, "ic95_curado.png"), ncol=3)
+    _plot_ic_painel(df_stats, todas_metricas, os.path.join(ic_dir, "ic95_completo.png"), ncol=4)
+    _plot_ic_painel(df_stats, METRICAS_PRINCIPAIS, os.path.join(ic_dir, "ic95_curado_2ambientes.png"),
+                     ncol=3, apenas_host_kvm=True)
+    _plot_ic_painel(df_stats, todas_metricas, os.path.join(ic_dir, "ic95_completo_2ambientes.png"),
+                     ncol=4, apenas_host_kvm=True)
+
+
 def gerar_heatmap_resumo(df_stats, df_heterog, out_dir: str) -> None:
-    """Gera SEIS figuras de heatmap em out_dir/heatmaps/. A divisão
-    3-ambientes vs 2-ambientes existe porque as duas comparações testam
-    perguntas científicas diferentes e, misturadas, o salto QEMU vs host
-    domina o Kruskal-Wallis (separação completa) e produz ε²≈0.751 em
-    quase todas as métricas do bloco 3-ambientes — correto, mas achata a
-    leitura visual e esconde os efeitos mais sutis do KVM."""
+    """Gera seis figuras de heatmap em out_dir/heatmaps/. A divisão
+    3-ambientes vs 2-ambientes evita que o overhead do QEMU domine o
+    Kruskal-Wallis e esconda os efeitos mais sutis do KVM."""
     heat_dir = os.path.join(out_dir, "heatmaps")
     os.makedirs(heat_dir, exist_ok=True)
 
@@ -1265,6 +1331,8 @@ def main():
     # Heatmaps-resumo dos testes formais (complementam os boxplots de
     # gerar_graficos — ver docstring de gerar_heatmap_resumo).
     gerar_heatmap_resumo(df_stats, df_heterog, args.out_dir)
+
+    gerar_paineis_ic(df_stats, args.out_dir)
 
     # Metadata da execução (commit git, timestamp, seed) para auditoria/reprodutibilidade
     metadata = obter_metadata_execucao(args)
