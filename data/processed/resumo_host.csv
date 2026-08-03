@@ -1,0 +1,18 @@
+ambiente,metrica_id,metrica,n,media,mediana,desvio,iqr,overhead_pct,lower_is_better
+HOST,cpu_bogo,CPU (bogo ops/s),15,5371.0213,5371.11,0.7144,0.645,,0
+HOST,mem_bogo,Memória (bogo ops/s),15,542533.72,542576.23,2808.581,2950.98,,0
+HOST,cache_bogo,Cache (bogo ops/s),15,64058.4767,64107.2,193.3871,287.35,,0
+HOST,stream_copy,STREAM Copy (MB/s),15,121654.6867,121601.6,168.0913,143.35,,0
+HOST,stream_scale,STREAM Scale (MB/s),15,127761.4333,127783.8,394.9853,657.9,,0
+HOST,stream_add,STREAM Add (MB/s),15,129397.5867,129466.3,169.0459,186.15,,0
+HOST,stream_triad,STREAM Triad (MB/s),15,130473.1067,130452.0,112.0996,146.9,,0
+HOST,seq_read_bw,Leitura seq. (MiB/s),15,513.6,514.0,1.1832,1.0,,0
+HOST,seq_write_bw,Escrita seq. (MiB/s),15,453.6,461.0,17.9436,18.5,,0
+HOST,rand_read_iops,IOPS aleatório leitura,15,41240.0,41400.0,919.4719,1250.0,,0
+HOST,rand_write_iops,IOPS aleatório escrita,15,17713.3333,17800.0,397.971,500.0,,0
+HOST,lat_read_iops,IOPS latência (read),15,2349.6,2076.0,1289.7259,721.0,,0
+HOST,lat_clat_avg_us,Latência média (us),15,491.0573,471.73,178.2128,168.48,,1
+HOST,matrix_gflops,matrixMul (GFlop/s),15,2913.9311,2997.198,107.1298,209.588,,0
+HOST,nccl_allreduce,NCCL all_reduce busbw (GB/s),15,19.4591,19.4653,0.1347,0.2482,,0
+HOST,nccl_allgather,NCCL all_gather busbw (GB/s),15,18.112,18.112,0.0096,0.01,,0
+HOST,nccl_sendrecv,NCCL sendrecv busbw (GB/s),15,9.4724,9.4799,0.0366,0.0317,,0
