@@ -1,38 +1,43 @@
 # =============================================================================
-# geracao_graficos.R — lê os CSVs de resumo e gera as figuras de overhead.
+# generate_plots.R — reads the summary CSVs and generates the overhead figures.
 #
-# Fluxo esperado (executar da raiz do repo):
+# Expected flow (run from the repo root):
 #
-#   1. Gerar os CSVs com o Python:
-#      python3 resumo_benchmarks_overhead.py \
-#          --pattern "kvm-results/benchmark_vm_localhost.localdomain_*" \
-#          --baseline "host/benchmark_host_ibm-power9_20260724_0*" \
+#   1. Generate the CSVs with Python (the existing data/raw/ logs still use
+#      the Portuguese disk labels DISCO_HOST/DISCO_EXT4, since raw logs are
+#      never rewritten after collection — new logs from the current, English
+#      collection scripts would use DISK_HOST/DISK_EXT4 instead):
+#      python3 benchmark_summary_overhead.py \
+#          --pattern "data/raw/kvm-*/benchmark_vm_localhost.localdomain_*" \
+#          --baseline "data/raw/host/benchmark_host_ibm-power9_20260724_0*" \
+#          --disk-label "DISCO_EXT4" \
 #          --baseline-disk-label "DISCO_HOST" \
 #          --label "KVM" \
-#          --output-csv data/processed/resumo_kvm.csv
+#          --output-csv data/processed/kvm_summary.csv
 #
-#      python3 resumo_benchmarks_qemu.py \
-#          --pattern "qemu-results/benchmark_qemu_*" \
-#          --baseline "host/benchmark_host_ibm-power9_20260724_0*" \
-#          --output-csv data/processed/resumo_qemu.csv
-#      # (ajuste o comando do QEMU conforme os args do resumo_benchmarks_qemu.py)
+#      python3 benchmark_summary_qemu.py \
+#          --pattern "data/raw/qemu-*/benchmark_qemu_*" \
+#          --baseline "data/raw/host/benchmark_host_ibm-power9_20260724_0*" \
+#          --disk-label "DISCO_EXT4" \
+#          --baseline-disk-label "DISCO_HOST" \
+#          --output-csv data/processed/qemu_summary.csv
 #
-#   2. Rodar este script:
-#      Rscript src/analysis/geracao_graficos.R
+#   2. Run this script:
+#      Rscript src/analysis/generate_plots.R
 #
-# Os CSVs devem estar em data/processed/. Se estiverem em outro lugar,
-# ajuste ARQ_KVM / ARQ_QEMU abaixo.
+# The CSVs must be in data/processed/. If they're elsewhere, adjust
+# ARQ_KVM / ARQ_QEMU below.
 # =============================================================================
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(readr)
 
-# --- Caminhos dos CSVs ---
-ARQ_KVM  <- "/home/multiarq/experimentos/data/processed/resumo_kvm.csv"
-ARQ_QEMU <- "/home/multiarq/experimentos/data/processed/resumo_qemu.csv"
+# --- CSV paths ---
+ARQ_KVM  <- "data/processed/kvm_summary.csv"
+ARQ_QEMU <- "data/processed/qemu_summary.csv"
 
-# --- Configuração visual ---
+# --- Visual configuration ---
 COR_KVM  <- "#0072B2"
 COR_QEMU <- "#E69F00"
 
@@ -80,14 +85,14 @@ escala_x_percentual <- function(breaks_seq, limites) {
     scale_x_continuous(breaks = breaks_seq, limits = limites)
 }
 
-# --- Carrega e combina os dois CSVs ---
+# --- Loads and combines the two CSVs ---
 carrega_csv <- function(arq, ambiente_esperado) {
     if (!file.exists(arq)) {
-        warning(sprintf("Arquivo não encontrado: %s. Ignorando %s.", arq, ambiente_esperado))
+        warning(sprintf("File not found: %s. Skipping %s.", arq, ambiente_esperado))
         return(NULL)
     }
     df <- read_csv(arq, show_col_types = FALSE)
-    df$ambiente <- ambiente_esperado  # garante consistência de rótulo
+    df$ambiente <- ambiente_esperado  # ensures label consistency
     df
 }
 
@@ -99,12 +104,12 @@ dados <- bind_rows(
     mutate(variacao = as.numeric(overhead_pct))
 
 if (nrow(dados) == 0) {
-    stop("Nenhum dado carregado. Verifique se os CSVs existem e têm coluna overhead_pct.")
+    stop("No data loaded. Check that the CSVs exist and have an overhead_pct column.")
 }
 
 # ---------------------------------------------------------------------------
-# Utilitário: monta um tibble no formato esperado por cada figura, a partir
-# de uma lista de metrica_id + rótulo de exibição, mantendo a ordem.
+# Utility: builds a tibble in the format each figure expects, from a list
+# of metrica_id + display label, preserving order.
 # ---------------------------------------------------------------------------
 monta_dados <- function(ids_e_rotulos, ambientes = c("KVM", "QEMU")) {
     dados %>%
@@ -119,14 +124,14 @@ monta_dados <- function(ids_e_rotulos, ambientes = c("KVM", "QEMU")) {
         select(metrica, ambiente, variacao)
 }
 
-# --- FIGURA 1: Disco ---
+# --- FIGURE 1: Disk ---
 ids_disco <- c(
-    seq_read_bw      = "Leitura seq.",
-    seq_write_bw     = "Escrita seq.",
-    rand_read_iops   = "IOPS rand. leitura",
-    rand_write_iops  = "IOPS rand. escrita",
-    lat_read_iops    = "Latência IOPS (read)",
-    lat_clat_avg_us  = "Latência média"
+    seq_read_bw      = "Seq. read",
+    seq_write_bw     = "Seq. write",
+    rand_read_iops   = "Random read IOPS",
+    rand_write_iops  = "Random write IOPS",
+    lat_read_iops    = "Latency IOPS (read)",
+    lat_clat_avg_us  = "Average latency"
 )
 disco <- monta_dados(ids_disco)
 
@@ -137,10 +142,10 @@ fig_disco <- ggplot(disco, aes(x = variacao, y = metrica, fill = ambiente)) +
     scale_fill_manual(values = c("KVM" = COR_KVM, "QEMU" = COR_QEMU)) +
     escala_x_percentual(seq(-100, 20, by = 20), c(-100, 25)) +
     rotulos_percentuais() +
-    labs(x = "Variação Relativa ao Host (%)", y = NULL) +
+    labs(x = "Variation Relative to Host (%)", y = NULL) +
     tema_artigo()
 
-# --- FIGURA 2: GPU (só KVM — QEMU não tem GPU) ---
+# --- FIGURE 2: GPU (KVM only — QEMU has no GPU) ---
 ids_gpu <- c(
     matrix_gflops   = "matrixMul (GFlop/s)",
     nccl_allreduce  = "NCCL all_reduce",
@@ -156,14 +161,14 @@ fig_gpu <- ggplot(gpu, aes(x = variacao, y = metrica)) +
     linha_zero() +
     escala_x_percentual(seq(-5, 5, by = 2.5), c(-5, 5)) +
     rotulos_percentuais(is_dodge = FALSE) +
-    labs(x = "Variação Relativa ao Host (%)", y = NULL) +
+    labs(x = "Variation Relative to Host (%)", y = NULL) +
     tema_artigo() +
     theme(legend.position = "none")
 
-# --- FIGURA 3: CPU e Memória ---
+# --- FIGURE 3: CPU and Memory ---
 ids_cpu_mem <- c(
     cpu_bogo = "CPU (bogo ops/s)",
-    mem_bogo = "Memória (bogo ops/s)"
+    mem_bogo = "Memory (bogo ops/s)"
 )
 cpu_mem <- monta_dados(ids_cpu_mem)
 
@@ -174,10 +179,10 @@ fig_cpu_mem <- ggplot(cpu_mem, aes(x = variacao, y = metrica, fill = ambiente)) 
     scale_fill_manual(values = c("KVM" = COR_KVM, "QEMU" = COR_QEMU)) +
     escala_x_percentual(seq(-100, 0, by = 20), c(-105, 10)) +
     rotulos_percentuais() +
-    labs(x = "Variação Relativa ao Host (%)", y = NULL) +
+    labs(x = "Variation Relative to Host (%)", y = NULL) +
     tema_artigo()
 
-# --- FIGURA 4: STREAM (só KVM — QEMU/TCG não roda STREAM confiável) ---
+# --- FIGURE 4: STREAM (KVM only — QEMU/TCG doesn't run STREAM reliably) ---
 ids_stream <- c(
     stream_copy  = "Copy",
     stream_scale = "Scale",
@@ -193,11 +198,11 @@ fig_stream <- ggplot(stream, aes(x = variacao, y = metrica)) +
     linha_zero() +
     escala_x_percentual(seq(-40, 0, by = 10), c(-45, 5)) +
     rotulos_percentuais(is_dodge = FALSE) +
-    labs(x = "Variação KVM Relativa ao Host (%)", y = NULL) +
+    labs(x = "KVM Variation Relative to Host (%)", y = NULL) +
     tema_artigo() +
     theme(legend.position = "none")
 
-# --- FIGURA 5: Cache ---
+# --- FIGURE 5: Cache ---
 ids_cache <- c(cache_bogo = "Cache (bogo ops/s)")
 cache_df <- monta_dados(ids_cache)
 
@@ -208,20 +213,20 @@ fig_cache <- ggplot(cache_df, aes(x = variacao, y = metrica, fill = ambiente)) +
     scale_fill_manual(values = c("KVM" = COR_KVM, "QEMU" = COR_QEMU)) +
     escala_x_percentual(seq(-100, 0, by = 20), c(-105, 5)) +
     rotulos_percentuais() +
-    labs(x = "Variação Relativa ao Host (%)", y = NULL) +
+    labs(x = "Variation Relative to Host (%)", y = NULL) +
     tema_artigo()
 
-# --- EXPORTAÇÃO ---
+# --- EXPORT ---
 largura_1col  <- 3.33
 largura_2col  <- 6.99
 altura_padrao <- 2.5
 
-dir.create("home/multiarq/experimentos/results/figures", showWarnings = FALSE, recursive = TRUE)
+dir.create("results/figures", showWarnings = FALSE, recursive = TRUE)
 
-ggsave("results/figures/fig1_variacao_disco.pdf",   fig_disco,   width = largura_2col, height = altura_padrao, device = "pdf")
-ggsave("results/figures/fig2_variacao_gpu.pdf",     fig_gpu,     width = largura_1col, height = altura_padrao, device = "pdf")
-ggsave("results/figures/fig3_variacao_cpu_mem.pdf", fig_cpu_mem, width = largura_1col, height = altura_padrao, device = "pdf")
-ggsave("results/figures/fig4_variacao_stream.pdf",  fig_stream,  width = largura_1col, height = altura_padrao, device = "pdf")
-ggsave("results/figures/fig5_variacao_cache.pdf",   fig_cache,   width = largura_1col, height = altura_padrao, device = "pdf")
+ggsave("results/figures/fig1_disk_variation.pdf",    fig_disco,   width = largura_2col, height = altura_padrao, device = "pdf")
+ggsave("results/figures/fig2_gpu_variation.pdf",     fig_gpu,     width = largura_1col, height = altura_padrao, device = "pdf")
+ggsave("results/figures/fig3_cpu_mem_variation.pdf", fig_cpu_mem, width = largura_1col, height = altura_padrao, device = "pdf")
+ggsave("results/figures/fig4_stream_variation.pdf",  fig_stream,  width = largura_1col, height = altura_padrao, device = "pdf")
+ggsave("results/figures/fig5_cache_variation.pdf",   fig_cache,   width = largura_1col, height = altura_padrao, device = "pdf")
 
-message("Figuras salvas em results/figures/")
+message("Figures saved to results/figures/")

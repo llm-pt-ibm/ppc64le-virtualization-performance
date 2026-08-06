@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
 """
-resumo_benchmarks_qemu.py
+benchmark_summary_qemu.py
 
-Versão dedicada para os logs do benchmark-qemu.sh (QEMU puro / TCG), que
-não roda nenhum teste de GPU. Diferente do resumo_benchmarks_overhead.py
-(que apenas ignora métricas de GPU ausentes), este script nem tenta
-procurá-las — é mais simples e serve como conferência rápida específica
-para essa rodada de QEMU.
+Dedicated version for benchmark-qemu.sh logs (plain QEMU / TCG), which
+doesn't run any GPU test. Unlike benchmark_summary_overhead.py (which
+just ignores missing GPU metrics), this script doesn't even try to look
+for them — it's simpler and works as a quick, QEMU-specific check for
+this run.
 
-Cobre: CPU, memória, cache, STREAM e os quatro testes de disco do fio
-(leitura seq., escrita seq., IOPS aleatório, latência).
+Covers: CPU, memory, cache, STREAM and the four fio disk tests
+(seq. read, seq. write, random IOPS, latency).
 
---output-csv salva o resumo em CSV pronto pra ser consumido por scripts
-de plotagem (R, pandas), sem re-parsear texto.
+--output-csv saves the summary to CSV ready to be consumed by plotting
+scripts (R, pandas), without re-parsing text.
 
-Uso:
-  python3 resumo_benchmarks_qemu.py
-      (usa o padrão de arquivo padrão: benchmark_qemu_*.txt no diretório atual)
+Usage:
+  python3 benchmark_summary_qemu.py
+      (uses the default file pattern: benchmark_qemu_*.txt in the current directory)
 
-  python3 resumo_benchmarks_qemu.py --pattern "qemu_results/benchmark_qemu_*.txt"
+  python3 benchmark_summary_qemu.py --pattern "qemu_results/benchmark_qemu_*.txt"
 
-  # Com overhead em relação ao host + CSV:
-  python3 resumo_benchmarks_qemu.py \
+  # With overhead relative to host + CSV:
+  python3 benchmark_summary_qemu.py \
       --pattern "qemu_results/benchmark_qemu_*.txt" \
       --baseline "host_results/benchmark_host_*.txt" \
-      --output-csv data/processed/resumo_qemu.csv
+      --output-csv data/processed/qemu_summary.csv
 """
 import re
 import glob
@@ -35,26 +35,27 @@ import statistics as st
 
 METRIC_LABELS = {
     "cpu_bogo":         "CPU (bogo ops/s)",
-    "mem_bogo":         "Memória (bogo ops/s)",
+    "mem_bogo":         "Memory (bogo ops/s)",
     "cache_bogo":       "Cache (bogo ops/s)",
     "stream_copy":      "STREAM Copy (MB/s)",
     "stream_scale":     "STREAM Scale (MB/s)",
     "stream_add":       "STREAM Add (MB/s)",
     "stream_triad":     "STREAM Triad (MB/s)",
-    "seq_read_bw":      "Leitura seq. (MiB/s)",
-    "seq_write_bw":     "Escrita seq. (MiB/s)",
-    "rand_read_iops":   "IOPS aleatório leitura",
-    "rand_write_iops":  "IOPS aleatório escrita",
-    "lat_read_iops":    "IOPS latência (read)",
-    "lat_clat_avg_us":  "Latência média (us)",
+    "seq_read_bw":      "Seq. read (MiB/s)",
+    "seq_write_bw":     "Seq. write (MiB/s)",
+    "rand_read_iops":   "Random read IOPS",
+    "rand_write_iops":  "Random write IOPS",
+    "lat_read_iops":    "Latency IOPS (read)",
+    "lat_clat_avg_us":  "Average latency (us)",
 }
 
-# Coerente com o resumo_benchmarks_overhead.py: latência é a única métrica
-# onde "menor é melhor" — usado só pra sinalizar isso no CSV, não muda cálculo.
+# Consistent with benchmark_summary_overhead.py: latency is the only
+# metric where "lower is better" — only used to flag this in the CSV,
+# doesn't change the computation.
 LOWER_IS_BETTER = {"lat_clat_avg_us"}
 
 DEFAULT_PATTERN = "benchmark_qemu_*.txt"
-DISK_LABEL = "DISCO_EXT4"
+DISK_LABEL = "DISK_EXT4"
 
 
 def parse_iops(value):
@@ -64,7 +65,7 @@ def parse_iops(value):
     return float(value)
 
 
-def extract_metrics(txt, disk_label="DISCO_EXT4"):
+def extract_metrics(txt, disk_label="DISK_EXT4"):
     result = {}
 
     m = re.search(r'cpu\s+\d+\s+\S+\s+\S+\s+\S+\s+([\d.]+)', txt)
@@ -89,43 +90,46 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
         if m:
             result[key] = float(m.group(1))
 
+    # Section headers below match both the Portuguese wording used by the
+    # collection scripts before their English rewrite and the current
+    # English wording, so this still parses older logs correctly.
     m = re.search(
-        rf'=== \[{disk_label}\] LEITURA SEQUENCIAL ===.*?read: IOPS=.*?BW=([\d.]+)MiB/s',
+        rf'=== \[{disk_label}\] (?:LEITURA SEQUENCIAL|SEQUENTIAL READ) ===.*?read: IOPS=.*?BW=([\d.]+)MiB/s',
         txt, re.S,
     )
     if m:
         result["seq_read_bw"] = float(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] ESCRITA SEQUENCIAL ===.*?write: IOPS=.*?BW=([\d.]+)MiB/s',
+        rf'=== \[{disk_label}\] (?:ESCRITA SEQUENCIAL|SEQUENTIAL WRITE) ===.*?write: IOPS=.*?BW=([\d.]+)MiB/s',
         txt, re.S,
     )
     if m:
         result["seq_write_bw"] = float(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] IOPS ALEATÓRIO.*?read: IOPS=([0-9.k]+)',
+        rf'=== \[{disk_label}\] (?:IOPS ALEATÓRIO|RANDOM IOPS).*?read: IOPS=([0-9.k]+)',
         txt, re.S,
     )
     if m:
         result["rand_read_iops"] = parse_iops(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] IOPS ALEATÓRIO.*?write: IOPS=([0-9.k]+)',
+        rf'=== \[{disk_label}\] (?:IOPS ALEATÓRIO|RANDOM IOPS).*?write: IOPS=([0-9.k]+)',
         txt, re.S,
     )
     if m:
         result["rand_write_iops"] = parse_iops(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] LATÊNCIA.*?read: IOPS=([\d.]+)',
+        rf'=== \[{disk_label}\] (?:LAT[ÊE]NCIA|LATENCY).*?read: IOPS=([\d.]+)',
         txt, re.S,
     )
     if m:
         result["lat_read_iops"] = float(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] LATÊNCIA.*?clat .*?avg=([\d.]+)',
+        rf'=== \[{disk_label}\] (?:LAT[ÊE]NCIA|LATENCY).*?clat .*?avg=([\d.]+)',
         txt, re.S,
     )
     if m:
@@ -134,7 +138,7 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
     return result
 
 
-def load_metrics(pattern, disk_label="DISCO_EXT4"):
+def load_metrics(pattern, disk_label="DISK_EXT4"):
     metrics = {key: [] for key in METRIC_LABELS}
     files = sorted(glob.glob(pattern))
     for fname in files:
@@ -164,20 +168,20 @@ def summarize(values):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pattern", default=DEFAULT_PATTERN,
-                         help=f"Glob dos logs do QEMU (padrão: {DEFAULT_PATTERN})")
+                         help=f"Glob for the QEMU logs (default: {DEFAULT_PATTERN})")
     parser.add_argument("--baseline", default=None,
-                         help="Glob dos logs do host, para calcular overhead (opcional)")
+                         help="Glob for the host logs, to compute overhead (optional)")
     parser.add_argument("--disk-label", default=DISK_LABEL,
-                         help=f"Rótulo de fase de disco nos logs do QEMU (padrão: {DISK_LABEL})")
-    parser.add_argument("--baseline-disk-label", default="DISCO_HOST",
-                         help='Rótulo de fase de disco nos logs do --baseline/host (padrão: DISCO_HOST, já que o benchmark-host.sh usa esse rótulo)')
+                         help=f"Disk-phase label in the QEMU logs (default: {DISK_LABEL})")
+    parser.add_argument("--baseline-disk-label", default="DISK_HOST",
+                         help='Disk-phase label in the --baseline/host logs (default: DISK_HOST, since benchmark-host.sh uses that label)')
     parser.add_argument("--output-csv", default=None,
-                         help="Se informado, salva o resumo em CSV para consumo por scripts de plotagem.")
+                         help="If given, saves the summary to CSV for consumption by plotting scripts.")
     args = parser.parse_args()
 
     metrics, files = load_metrics(args.pattern, disk_label=args.disk_label)
     if not files:
-        print(f"Nenhum arquivo encontrado para o padrão: {args.pattern}")
+        print(f"No files found for pattern: {args.pattern}")
         return
 
     baseline_metrics, baseline_files = ({}, [])
@@ -186,16 +190,16 @@ def main():
             args.baseline, disk_label=args.baseline_disk_label
         )
         if not baseline_files:
-            print(f"AVISO: nenhum arquivo de baseline encontrado para: {args.baseline}")
-            print("Seguindo sem cálculo de overhead.\n")
+            print(f"WARNING: no baseline files found for: {args.baseline}")
+            print("Continuing without overhead calculation.\n")
 
-    print("\n================ RESUMO — QEMU PURO (TCG) ================\n")
-    print(f"Arquivos analisados (QEMU): {len(files)}")
+    print("\n================ SUMMARY — PLAIN QEMU (TCG) ================\n")
+    print(f"Files analyzed (QEMU): {len(files)}")
     if baseline_files:
-        print(f"Arquivos analisados (baseline/host): {len(baseline_files)}")
-    print("Nota: este script não processa métricas de GPU — benchmark-qemu.sh não inclui esses testes.\n")
+        print(f"Files analyzed (baseline/host): {len(baseline_files)}")
+    print("Note: this script doesn't process GPU metrics — benchmark-qemu.sh doesn't include those tests.\n")
 
-    header = f"{'Métrica':28s} {'n':>3s} {'média':>14s} {'mediana':>14s} {'desvio':>12s} {'IQR':>12s}"
+    header = f"{'Metric':28s} {'n':>3s} {'mean':>14s} {'median':>14s} {'std dev':>12s} {'IQR':>12s}"
     if baseline_files:
         header += f" {'overhead %':>12s}"
     print(header)
@@ -222,7 +226,7 @@ def main():
                 overhead = (stats["media"] / base_stats["media"] - 1) * 100
                 line += f" {overhead:>11.2f}%"
             else:
-                line += f" {'sem baseline':>12s}"
+                line += f" {'no baseline':>12s}"
 
         print(line)
 
@@ -241,8 +245,8 @@ def main():
 
     print()
     if baseline_files:
-        print("Overhead esperado MUITO maior aqui do que no KVM, já que QEMU em modo TCG")
-        print("não tem aceleração de hardware — é tradução de instrução pura em software.")
+        print("Overhead here is expected to be MUCH higher than on KVM, since QEMU in TCG mode")
+        print("has no hardware acceleration — it's pure software instruction translation.")
     print()
 
     if args.output_csv:
@@ -255,7 +259,7 @@ def main():
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(csv_rows)
-        print(f"CSV salvo em: {args.output_csv}")
+        print(f"CSV saved to: {args.output_csv}")
 
 
 if __name__ == "__main__":

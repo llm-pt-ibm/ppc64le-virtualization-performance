@@ -1,35 +1,35 @@
 #!/usr/bin/env python3
 """
-resumo_benchmarks_overhead.py
+benchmark_summary_overhead.py
 
-Evolução do resumo_benchmarks.py original. Continua extraindo as mesmas
-métricas (CPU, memória, cache, STREAM, fio, matrixMul, NCCL) de um conjunto
-de arquivos de log, mas agora:
+Evolution of the original resumo_benchmarks.py. Still extracts the same
+metrics (CPU, memory, cache, STREAM, fio, matrixMul, NCCL) from a set of
+log files, but now:
 
-  1. Aceita qualquer padrão de nome de arquivo via --pattern (host, vm, qemu...)
-  2. Calcula não só a média, mas também mediana, desvio padrão e IQR
-  3. Se você passar --baseline com os arquivos do host, calcula o overhead
-     percentual de cada métrica em relação ao baseline:
-         overhead(%) = (média_ambiente / média_host - 1) * 100
-     (mesma fórmula da Seção 2.6 do artigo)
-  4. --output-csv salva o resumo em CSV, pronto pra ser consumido por
-     scripts de plotagem (R, pandas, etc.) sem precisar re-parsear texto.
+  1. Accepts any file-name pattern via --pattern (host, vm, qemu...)
+  2. Computes not just the mean, but also median, standard deviation and IQR
+  3. If you pass --baseline with the host files, computes the percentage
+     overhead of each metric relative to the baseline:
+         overhead(%) = (environment_mean / host_mean - 1) * 100
+     (same formula as Section 2.6 of the paper)
+  4. --output-csv saves the summary to CSV, ready to be consumed by
+     plotting scripts (R, pandas, etc.) without needing to re-parse text.
 
-Uso:
-  # Comparando KVM contra o host (overhead) — imprime + salva CSV
-    python3 resumo_benchmarks_overhead.py \
+Usage:
+  # Comparing KVM against the host (overhead) — prints + saves CSV
+    python3 benchmark_summary_overhead.py \
   --pattern "kvm-results/benchmark_vm_localhost.localdomain_*" \
   --baseline "host/benchmark_host_ibm-power9_20260724_0*" \
-  --baseline-disk-label "DISCO_HOST" \
+  --baseline-disk-label "DISK_HOST" \
   --label "KVM" \
-  --output-csv resumo_kvm.csv
+  --output-csv kvm_summary.csv
 
-  # Resumo simples de um ambiente (sem overhead)
-    python3 resumo_benchmarks_overhead.py \
+  # Simple summary of one environment (no overhead)
+    python3 benchmark_summary_overhead.py \
   --pattern "host/benchmark_host_ibm-power9_20260724_0*" \
-  --disk-label "DISCO_HOST" \
+  --disk-label "DISK_HOST" \
   --label "Host" \
-  --output-csv resumo_host.csv
+  --output-csv host_summary.csv
 """
 import re
 import glob
@@ -39,43 +39,43 @@ import statistics as st
 
 
 # ---------------------------------------------------------------------------
-# Mesmas métricas do script original — nada removido, só reorganizado.
+# Same metrics as the original script — nothing removed, just reorganized.
 # ---------------------------------------------------------------------------
 METRIC_LABELS = {
     "cpu_bogo":         "CPU (bogo ops/s)",
-    "mem_bogo":         "Memória (bogo ops/s)",
+    "mem_bogo":         "Memory (bogo ops/s)",
     "cache_bogo":       "Cache (bogo ops/s)",
     "stream_copy":      "STREAM Copy (MB/s)",
     "stream_scale":     "STREAM Scale (MB/s)",
     "stream_add":       "STREAM Add (MB/s)",
     "stream_triad":     "STREAM Triad (MB/s)",
-    "seq_read_bw":      "Leitura seq. (MiB/s)",
-    "seq_write_bw":     "Escrita seq. (MiB/s)",
-    "rand_read_iops":   "IOPS aleatório leitura",
-    "rand_write_iops":  "IOPS aleatório escrita",
-    "lat_read_iops":    "IOPS latência (read)",
-    "lat_clat_avg_us":  "Latência média (us)",
+    "seq_read_bw":      "Seq. read (MiB/s)",
+    "seq_write_bw":     "Seq. write (MiB/s)",
+    "rand_read_iops":   "Random read IOPS",
+    "rand_write_iops":  "Random write IOPS",
+    "lat_read_iops":    "Latency IOPS (read)",
+    "lat_clat_avg_us":  "Average latency (us)",
     "matrix_gflops":    "matrixMul (GFlop/s)",
     "nccl_allreduce":   "NCCL all_reduce busbw (GB/s)",
     "nccl_allgather":   "NCCL all_gather busbw (GB/s)",
     "nccl_sendrecv":    "NCCL sendrecv busbw (GB/s)",
 }
 
-# Para todas as métricas, "maior é melhor" exceto latência, onde "menor é
-# melhor". Isso só afeta como interpretamos o sinal do overhead na hora de
-# imprimir uma nota — não afeta o cálculo.
+# For all metrics, "higher is better" except latency, where "lower is
+# better". This only affects how we interpret the overhead's sign when
+# printing a note — it doesn't affect the computation.
 LOWER_IS_BETTER = {"lat_clat_avg_us"}
 
 
 def parse_iops(value):
-    """Converte strings como '22.1k' ou '1325967' para float."""
+    """Converts strings like '22.1k' or '1325967' to float."""
     value = value.lower().replace(",", "")
     if value.endswith("k"):
         return float(value[:-1]) * 1000
     return float(value)
 
 
-def extract_metrics(txt, disk_label="DISCO_EXT4"):
+def extract_metrics(txt, disk_label="DISK_EXT4"):
     result = {}
 
     m = re.search(r'cpu\s+\d+\s+\S+\s+\S+\s+\S+\s+([\d.]+)', txt)
@@ -100,43 +100,46 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
         if m:
             result[key] = float(m.group(1))
 
+    # Section headers below match both the Portuguese wording used by the
+    # collection scripts before their English rewrite and the current
+    # English wording, so this still parses older logs correctly.
     m = re.search(
-        rf'=== \[{disk_label}\] LEITURA SEQUENCIAL ===.*?read: IOPS=.*?BW=([\d.]+)MiB/s',
+        rf'=== \[{disk_label}\] (?:LEITURA SEQUENCIAL|SEQUENTIAL READ) ===.*?read: IOPS=.*?BW=([\d.]+)MiB/s',
         txt, re.S,
     )
     if m:
         result["seq_read_bw"] = float(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] ESCRITA SEQUENCIAL ===.*?write: IOPS=.*?BW=([\d.]+)MiB/s',
+        rf'=== \[{disk_label}\] (?:ESCRITA SEQUENCIAL|SEQUENTIAL WRITE) ===.*?write: IOPS=.*?BW=([\d.]+)MiB/s',
         txt, re.S,
     )
     if m:
         result["seq_write_bw"] = float(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] IOPS ALEATÓRIO.*?read: IOPS=([0-9.k]+)',
+        rf'=== \[{disk_label}\] (?:IOPS ALEATÓRIO|RANDOM IOPS).*?read: IOPS=([0-9.k]+)',
         txt, re.S,
     )
     if m:
         result["rand_read_iops"] = parse_iops(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] IOPS ALEATÓRIO.*?write: IOPS=([0-9.k]+)',
+        rf'=== \[{disk_label}\] (?:IOPS ALEATÓRIO|RANDOM IOPS).*?write: IOPS=([0-9.k]+)',
         txt, re.S,
     )
     if m:
         result["rand_write_iops"] = parse_iops(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] LATÊNCIA.*?read: IOPS=([\d.]+)',
+        rf'=== \[{disk_label}\] (?:LAT[ÊE]NCIA|LATENCY).*?read: IOPS=([\d.]+)',
         txt, re.S,
     )
     if m:
         result["lat_read_iops"] = float(m.group(1))
 
     m = re.search(
-        rf'=== \[{disk_label}\] LATÊNCIA.*?clat .*?avg=([\d.]+)',
+        rf'=== \[{disk_label}\] (?:LAT[ÊE]NCIA|LATENCY).*?clat .*?avg=([\d.]+)',
         txt, re.S,
     )
     if m:
@@ -161,7 +164,7 @@ def extract_metrics(txt, disk_label="DISCO_EXT4"):
     return result
 
 
-def load_metrics(pattern, disk_label="DISCO_EXT4"):
+def load_metrics(pattern, disk_label="DISK_EXT4"):
     metrics = {key: [] for key in METRIC_LABELS}
     files = sorted(glob.glob(pattern))
     if not files:
@@ -202,18 +205,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pattern", required=True)
     parser.add_argument("--baseline", default=None)
-    parser.add_argument("--disk-label", default="DISCO_EXT4")
+    parser.add_argument("--disk-label", default="DISK_EXT4")
     parser.add_argument("--baseline-disk-label", default=None)
-    parser.add_argument("--label", default="Ambiente")
+    parser.add_argument("--label", default="Environment")
     parser.add_argument(
         "--output-csv", default=None,
-        help="Se informado, salva o resumo em CSV (uma linha por métrica) para consumo por scripts de plotagem.",
+        help="If given, saves the summary to CSV (one row per metric) for consumption by plotting scripts.",
     )
     args = parser.parse_args()
 
     metrics, files = load_metrics(args.pattern, disk_label=args.disk_label)
     if not files:
-        print(f"Nenhum arquivo encontrado para o padrão: {args.pattern}")
+        print(f"No files found for pattern: {args.pattern}")
         return
 
     baseline_metrics, baseline_files = ({}, [])
@@ -223,22 +226,22 @@ def main():
             args.baseline, disk_label=baseline_disk_label
         )
         if not baseline_files:
-            print(f"AVISO: nenhum arquivo de baseline encontrado para: {args.baseline}")
-            print("Seguindo sem cálculo de overhead.\n")
+            print(f"WARNING: no baseline files found for: {args.baseline}")
+            print("Continuing without overhead calculation.\n")
 
-    print(f"\n================ RESUMO — {args.label} ================\n")
-    print(f"Arquivos analisados ({args.label}): {len(files)}")
+    print(f"\n================ SUMMARY — {args.label} ================\n")
+    print(f"Files analyzed ({args.label}): {len(files)}")
     if baseline_files:
-        print(f"Arquivos analisados (baseline/host): {len(baseline_files)}")
+        print(f"Files analyzed (baseline/host): {len(baseline_files)}")
     print()
 
-    header = f"{'Métrica':32s} {'n':>3s} {'média':>14s} {'mediana':>14s} {'desvio':>12s} {'IQR':>12s}"
+    header = f"{'Metric':32s} {'n':>3s} {'mean':>14s} {'median':>14s} {'std dev':>12s} {'IQR':>12s}"
     if baseline_files:
         header += f" {'overhead %':>12s}"
     print(header)
     print("-" * len(header))
 
-    # Coleta linhas pra tanto imprimir quanto (se pedido) gravar CSV
+    # Collect rows to both print and (if requested) write to CSV
     csv_rows = []
     for key, label in METRIC_LABELS.items():
         values = metrics.get(key, [])
@@ -260,7 +263,7 @@ def main():
                 overhead = (stats["media"] / base_stats["media"] - 1) * 100
                 line += f" {overhead:>11.2f}%"
             else:
-                line += f" {'sem baseline':>12s}"
+                line += f" {'no baseline':>12s}"
 
         print(line)
 
@@ -279,9 +282,9 @@ def main():
 
     print()
     if baseline_files:
-        print("Overhead = (média_ambiente / média_host - 1) × 100, conforme Seção 2.6 do artigo.")
-        print("Latência: overhead positivo = ambiente mais lento (esperado).")
-        print("Demais: overhead positivo = ambiente com throughput MAIOR que host — revise se faz sentido físico.")
+        print("Overhead = (environment_mean / host_mean - 1) x 100, per Section 2.6 of the paper.")
+        print("Latency: positive overhead = slower environment (expected).")
+        print("Others: positive overhead = environment with HIGHER throughput than host — check whether that's physically plausible.")
     print()
 
     if args.output_csv:
@@ -294,7 +297,7 @@ def main():
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(csv_rows)
-        print(f"CSV salvo em: {args.output_csv}")
+        print(f"CSV saved to: {args.output_csv}")
 
 
 if __name__ == "__main__":

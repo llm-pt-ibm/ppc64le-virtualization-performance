@@ -1,18 +1,18 @@
 # =============================================================================
-# slide_panorama.R — painel consolidado pra slide de apresentação.
+# slide_overview.R — consolidated panel for a presentation slide.
 #
-# Diferença-chave em relação a um bar chart único: usa facet_wrap com
-# scales = "free_x", dando a CADA domínio (CPU/Memória, Cache, STREAM,
-# Disco, GPU) seu próprio eixo X. Sem isso, o -93% do QEMU em CPU/memória
-# obriga um eixo compartilhado enorme, e o +0.6% da GPU vira um traço
-# invisível ao lado dele — mesmo princípio já usado nos boxplots de
-# analise_benchmarks.py (_plot_metrica), aplicado aqui pro gráfico de barras.
+# Key difference from a single bar chart: uses facet_wrap with
+# scales = "free_x", giving EACH domain (CPU/Memory, Cache, STREAM,
+# Disk, GPU) its own X axis. Without this, QEMU's -93% on CPU/memory
+# forces a huge shared axis, and GPU's +0.6% becomes an invisible mark
+# next to it — the same principle already used in the boxplots of
+# analyze_benchmarks.py (_plot_metrica), applied here to the bar chart.
 #
-# Uso (rodar da raiz do repo, depois de já ter gerado os CSVs — mesmos
-# arquivos usados por geracao_graficos.R):
-#   Rscript src/analysis/slide_panorama.R
+# Usage (run from the repo root, after the CSVs have already been
+# generated — same files used by generate_plots.R):
+#   Rscript src/analysis/slide_overview.R
 #
-# Saída: results/figures/slide_panorama.png
+# Output: results/figures/slide_overview.png
 # =============================================================================
 library(ggplot2)
 library(dplyr)
@@ -22,11 +22,11 @@ library(tibble)
 COR_KVM  <- "#0072B2"
 COR_QEMU <- "#E69F00"
 
-ARQ_KVM  <- "data/processed/resumo_kvm.csv"
-ARQ_QEMU <- "data/processed/resumo_qemu.csv"
+ARQ_KVM  <- "data/processed/kvm_summary.csv"
+ARQ_QEMU <- "data/processed/qemu_summary.csv"
 
 carrega_csv <- function(arq, ambiente_esperado) {
-    if (!file.exists(arq)) stop(sprintf("Arquivo não encontrado: %s", arq))
+    if (!file.exists(arq)) stop(sprintf("File not found: %s", arq))
     df <- read_csv(arq, show_col_types = FALSE)
     df$ambiente <- ambiente_esperado
     df
@@ -38,43 +38,44 @@ dados_brutos <- bind_rows(
 ) %>%
     filter(!is.na(overhead_pct))
 
-# --- Mapeamento metrica_id -> domínio + rótulo curto pra exibição ---
-# Nota: usa lat_read_iops (IOPS em QD=1) em vez de lat_clat_avg_us (µs),
-# pra manter "negativo = pior" consistente em todo o painel — latência em
-# µs tem sinal invertido (positivo = pior) e confundiria a leitura.
+# --- metrica_id -> domain + short display label mapping ---
+# Note: uses lat_read_iops (IOPS at QD=1) instead of lat_clat_avg_us (µs),
+# to keep "negative = worse" consistent across the whole panel — latency
+# in µs has an inverted sign (positive = worse) and would confuse the reading.
 mapa <- tribble(
-    ~metrica_id,       ~grupo,          ~rotulo,
-    "cpu_bogo",        "CPU / Memória", "CPU",
-    "mem_bogo",        "CPU / Memória", "Memória",
-    "cache_bogo",      "Cache",         "Cache",
-    "stream_copy",     "STREAM",        "Copy",
-    "stream_scale",    "STREAM",        "Scale",
-    "stream_add",      "STREAM",        "Add",
-    "stream_triad",    "STREAM",        "Triad",
-    "seq_read_bw",     "Disco",         "Leitura seq.",
-    "seq_write_bw",    "Disco",         "Escrita seq.",
-    "rand_read_iops",  "Disco",         "IOPS aleat. leitura",
-    "rand_write_iops", "Disco",         "IOPS aleat. escrita",
-    "lat_read_iops",   "Disco",         "IOPS QD=1",
-    "matrix_gflops",   "GPU",           "matrixMul",
-    "nccl_allreduce",  "GPU",           "NCCL all_reduce",
-    "nccl_allgather",  "GPU",           "NCCL all_gather",
-    "nccl_sendrecv",   "GPU",           "NCCL sendrecv"
+    ~metrica_id,       ~grupo,        ~rotulo,
+    "cpu_bogo",        "CPU / Memory", "CPU",
+    "mem_bogo",        "CPU / Memory", "Memory",
+    "cache_bogo",      "Cache",        "Cache",
+    "stream_copy",     "STREAM",       "Copy",
+    "stream_scale",    "STREAM",       "Scale",
+    "stream_add",      "STREAM",       "Add",
+    "stream_triad",    "STREAM",       "Triad",
+    "seq_read_bw",     "Disk",         "Seq. read",
+    "seq_write_bw",    "Disk",         "Seq. write",
+    "rand_read_iops",  "Disk",         "Random IOPS read",
+    "rand_write_iops", "Disk",         "Random IOPS write",
+    "lat_read_iops",   "Disk",         "IOPS QD=1",
+    "matrix_gflops",   "GPU",          "matrixMul",
+    "nccl_allreduce",  "GPU",          "NCCL all_reduce",
+    "nccl_allgather",  "GPU",          "NCCL all_gather",
+    "nccl_sendrecv",   "GPU",          "NCCL sendrecv"
 )
 
 dados <- dados_brutos %>%
     inner_join(mapa, by = "metrica_id") %>%
-    # STREAM e GPU sob QEMU: STREAM é medição inválida sob TCG (timer sem
-    # resolução confiável, sai 0), GPU é fora de escopo (sem passthrough).
-    # Sem este filtro, apareceria um "-100%" enganoso pro QEMU nessas linhas.
+    # STREAM and GPU under QEMU: STREAM is an invalid measurement under
+    # TCG (timer without reliable resolution, comes out 0), GPU is out of
+    # scope (no passthrough). Without this filter, QEMU would show a
+    # misleading "-100%" on these rows.
     filter(!(ambiente == "QEMU" & grupo %in% c("STREAM", "GPU"))) %>%
     mutate(
-        grupo    = factor(grupo, levels = c("CPU / Memória", "Cache", "STREAM", "Disco", "GPU")),
+        grupo    = factor(grupo, levels = c("CPU / Memory", "Cache", "STREAM", "Disk", "GPU")),
         ambiente = factor(ambiente, levels = c("KVM", "QEMU"))
     )
 
-# Ordena cada rótulo pela magnitude média do overhead dentro do seu grupo —
-# leitura mais rápida: do maior overhead pro menor, de cima pra baixo.
+# Orders each label by the mean overhead magnitude within its group —
+# faster to read: from largest overhead to smallest, top to bottom.
 ordem_rotulos <- dados %>%
     group_by(grupo, rotulo) %>%
     summarise(ord = mean(overhead_pct), .groups = "drop") %>%
@@ -94,9 +95,9 @@ p <- ggplot(dados, aes(x = overhead_pct, y = rotulo, fill = ambiente)) +
     scale_fill_manual(values = c(KVM = COR_KVM, QEMU = COR_QEMU)) +
     scale_x_continuous(expand = expansion(mult = 0.28)) +
     labs(
-        x = "Variação relativa ao host (%) — host com pinning equalizado",
+        x = "Variation relative to host (%) — host with matched pinning",
         y = NULL,
-        title = "Panorama consolidado — overhead vs. host"
+        title = "Consolidated overview — overhead vs. host"
     ) +
     theme_classic(base_size = 11) +
     theme(
@@ -112,5 +113,5 @@ p <- ggplot(dados, aes(x = overhead_pct, y = rotulo, fill = ambiente)) +
     )
 
 dir.create("results/figures", showWarnings = FALSE, recursive = TRUE)
-ggsave("results/figures/slide_panorama.png", p, width = 12, height = 6.5, dpi = 220, bg = "white")
-message("Salvo em results/figures/slide_panorama.png")
+ggsave("results/figures/slide_overview.png", p, width = 12, height = 6.5, dpi = 220, bg = "white")
+message("Saved to results/figures/slide_overview.png")

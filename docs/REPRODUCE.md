@@ -1,18 +1,19 @@
-# Como reproduzir
+# How to reproduce
 
-A reprodutibilidade deste trabalho tem dois níveis, com graus de exigência
-de hardware bem diferentes:
+This work's reproducibility has two levels, with very different hardware
+requirements:
 
-1. **Reprodução da ANÁLISE** a partir dos dados brutos já publicados
-   (`data/raw/`) — roda em **qualquer máquina** com Python 3.13 (nenhum
-   requisito de arquitetura/hardware). Este é o nível **garantido** pelo
-   kit de artefatos.
-2. **Reprodução da COLETA** original — requer hardware Power9/ppc64le
-   específico (ver seção 2 abaixo para os requisitos exatos). Documentado
-   aqui por transparência metodológica; é uma limitação de validade
-   externa já registrada no artigo, não uma restrição deste kit em si.
+1. **Reproducing the ANALYSIS** from the already-published raw data
+   (`data/raw/`) — runs on **any machine** with Python 3.13 (no
+   architecture/hardware requirement). This is the level **guaranteed**
+   by the artifact kit.
+2. **Reproducing the original COLLECTION** — requires specific
+   Power9/ppc64le hardware (see section 2 below for the exact
+   requirements). Documented here for methodological transparency; it's
+   an external-validity limitation already noted in the paper, not a
+   restriction of this kit itself.
 
-## 1. Criar o ambiente
+## 1. Set up the environment
 
 ### Python
 
@@ -22,158 +23,169 @@ source venv/bin/activate
 pip install -r environment/requirements.txt --break-system-packages
 ```
 
-(`--break-system-packages` só é necessário se seu Python for gerenciado
-pela distro/PEP 668; dentro de uma venv ativada normalmente não é preciso,
-mas foi assim que este ambiente foi originalmente montado neste projeto.)
+(`--break-system-packages` is only needed if your Python is managed by
+the distro/PEP 668; inside an activated venv it's normally not needed,
+but that's how this environment was originally set up for this project.)
 
-### R (só necessário se for regerar as figuras finais do artigo)
+### R (only needed if you're regenerating the paper's final figures)
 
 ```bash
-Rscript -e 'install.packages(c("ggplot2", "dplyr", "tidyr"))'
+Rscript -e 'install.packages(c("ggplot2", "dplyr", "tidyr", "readr", "tibble"))'
 ```
 
-Versões usadas na verificação desta reorganização (2026-07-15): R 4.6.0,
-ggplot2 4.0.3, dplyr 1.2.1, tidyr 1.3.2 — ver `environment/r_packages.txt`.
+Versions used when this reorganization was verified (2026-07-15): R 4.6.0,
+ggplot2 4.0.3, dplyr 1.2.1, tidyr 1.3.2 — see `environment/r_packages.txt`.
 
-## 2. Coleta dos benchmarks brutos
+## 2. Collecting the raw benchmarks
 
-Os scripts em `src/collect/` foram usados para coletar os logs que estão
-em `data/raw/`:
+The scripts in `src/collect/` were used to collect the logs that are in
+`data/raw/`:
 
-- `benchmark-host.sh` — roda no servidor Power9 físico via Slurm
-  (`sbatch benchmark-host.sh`), gera `data/raw/host/benchmark_host_*.txt`.
-- `benchmark-vm.sh` — roda dentro de cada VM KVM (`./benchmark-vm.sh`),
-  grava em `/root/experimentos/` na própria VM guest; os arquivos
-  resultantes precisam ser copiados manualmente para
-  `data/raw/kvm-<vm>/` (`kvm-gabrielly`, `kvm-lucas`, `kvm-ramalho`) — ver
-  a seção "Etapa manual obrigatória" logo abaixo, **esse passo não é
-  automático**.
-- `benchmark-qemu.sh` — idem, para QEMU puro (TCG); copiado manualmente
-  para `data/raw/qemu-<vm>/`.
-- `submeter_benchmarks_slurm.sh` — laça `sbatch benchmark-host.sh` 15
-  vezes em sequência, esperando cada job terminar antes de submeter o
-  próximo.
-- `troca_gpu.sh` — realoca a GPU (VFIO/hostdev) de uma VM para outra no
-  libvirt; utilitário operacional, não gera dados de benchmark.
+- `benchmark-host.sh` — runs on the physical Power9 server via Slurm
+  (`sbatch benchmark-host.sh`), generates `data/raw/host/benchmark_host_*.txt`.
+- `benchmark-vm.sh` — runs inside each KVM VM (`./benchmark-vm.sh`),
+  writes to `/root/experimentos/` on the guest VM itself; the resulting
+  files need to be copied manually to `data/raw/kvm-<vm>/`
+  (`kvm-gabrielly`, `kvm-lucas`, `kvm-ramalho`) — see the "Required
+  manual step" section right below, **this step is not automatic**.
+- `benchmark-qemu.sh` — same, for plain QEMU (TCG); copied manually to
+  `data/raw/qemu-<vm>/`.
+- `submit_benchmarks_slurm.sh` — loops `sbatch benchmark-host.sh` 15
+  times in sequence, waiting for each job to finish before submitting
+  the next one.
+- `swap_gpu.sh` — reallocates the GPU (VFIO/hostdev) from one VM to
+  another in libvirt; an operational utility, doesn't generate benchmark
+  data.
 
-**Requisitos de hardware:** estes scripts de coleta requerem um servidor
-com arquitetura **ppc64le**, processador **IBM POWER9**, e (para os
-testes de GPU) **GPUs NVIDIA com suporte a NVLink2 e VFIO** para
-passthrough — além de `stress-ng`/`fio`/`STREAM`/CUDA Samples/nccl-tests
-compilados nos caminhos esperados pelos scripts (ex.:
+**Hardware requirements:** these collection scripts require a server
+with **ppc64le** architecture, an **IBM POWER9** processor, and (for the
+GPU tests) **NVIDIA GPUs with NVLink2 and VFIO support** for
+passthrough — plus `stress-ng`/`fio`/`STREAM`/CUDA Samples/nccl-tests
+compiled at the paths the scripts expect (e.g.
 `/usr/local/cuda-12.2`, `~/cuda-samples/...`, `~/nccl-tests/build/...`),
-Slurm configurado (para `benchmark-host.sh`), e VMs KVM/QEMU já
-provisionadas (ver [snapshot_vm.md](snapshot_vm.md) para o procedimento
-de clonagem manual via `virsh`, usado neste experimento; para
-provisionamento e gerenciamento de VMs KVM via Ansible em vez de manual,
-ver https://github.com/llm-pt-ibm/kvm-power9-ansible.git). **Não é
-necessário ser especificamente o
-servidor original do experimento** — qualquer hardware Power9/ppc64le com
-essas características permite a reexecução. A reprodução EXATA dos
-valores absolutos depende, no entanto, de hardware equivalente; a
-reprodução da ANÁLISE estatística a partir dos dados brutos já coletados
-(`data/raw/`) não tem essa restrição e roda em qualquer máquina com
-Python 3.13 (seção 3 abaixo).
+Slurm configured (for `benchmark-host.sh`), and KVM/QEMU VMs already
+provisioned (see [snapshot_vm.md](snapshot_vm.md) for the manual cloning
+procedure via `virsh` used in this experiment; for provisioning and
+managing KVM VMs via Ansible instead of manually, see
+https://github.com/llm-pt-ibm/kvm-power9-ansible.git). **It doesn't have
+to be specifically the experiment's original server** — any
+Power9/ppc64le hardware with those characteristics allows the collection
+to be re-run. Exactly reproducing the absolute values, however, depends
+on equivalent hardware; reproducing the statistical ANALYSIS from the
+already-collected raw data (`data/raw/`) has no such restriction and
+runs on any machine with Python 3.13 (section 3 below).
 
-### Etapa manual obrigatória: copiar logs da VM para o host
+### Required manual step: copying logs from the VM to the host
 
-`benchmark-vm.sh` e `benchmark-qemu.sh` rodam **dentro do convidado**
-(guest) e escrevem em `OUTDIR=/root/experimentos` — um diretório **dentro
-da VM**, sem nenhuma correspondência automática com `data/raw/` no
-checkout deste repositório (que vive no host, ou na sua máquina local).
-**Sem esse passo manual, `data/raw/` fica incompleto e
-`analise_benchmarks.py` simplesmente não encontrará esses logs** (o
-pipeline não sabe que a VM existe — ele só lê o que já estiver em
+`benchmark-vm.sh` and `benchmark-qemu.sh` run **inside the guest** and
+write to `OUTDIR=/root/experimentos` — a directory **inside the VM**,
+with no automatic correspondence to `data/raw/` in this repository's
+checkout (which lives on the host, or on your local machine). **Without
+this manual step, `data/raw/` stays incomplete and
+`analyze_benchmarks.py` simply won't find those logs** (the pipeline
+doesn't know the VM exists — it only reads what's already in
 `data/raw/`).
 
-Depois de rodar a coleta dentro da VM, copie os `.txt` gerados para o
-host/checkout do repositório, ajustando `vm_id` e ambiente conforme o
-caso:
+After running the collection inside the VM, copy the generated `.txt`
+files to the host/repository checkout, adjusting `vm_id` and environment
+as needed:
 
 ```bash
-# rodando de dentro da VM já finalizada a coleta (exemplo: KVM, VM "gabrielly"):
-scp -r root@<ip-da-vm>:/root/experimentos/*.txt \
+# running from inside the VM after collection is done (example: KVM, VM "gabrielly"):
+scp -r root@<vm-ip>:/root/experimentos/*.txt \
     ./data/raw/kvm-gabrielly/
 
-# exemplo: QEMU puro, VM "lucas":
-scp -r root@<ip-da-vm>:/root/experimentos/*.txt \
+# example: plain QEMU, VM "lucas":
+scp -r root@<vm-ip>:/root/experimentos/*.txt \
     ./data/raw/qemu-lucas/
 ```
 
-O mesmo vale para as VMs `lucas` e `ramalho` (ambas em KVM e em QEMU) —
-repita para cada uma das 6 combinações VM × ambiente antes de rodar a
-análise na seção 3.
+The same applies to the `lucas` and `ramalho` VMs (both under KVM and
+QEMU) — repeat for each of the 6 VM x environment combinations before
+running the analysis in section 3.
 
-## 3. Rodar a análise a partir dos dados brutos já coletados
+## 3. Running the analysis from the already-collected raw data
 
-Com o ambiente Python ativado e a partir da raiz do repositório:
+With the Python environment activated and from the repository root:
 
 ```bash
-python3 src/analysis/analise_benchmarks.py --logs-dir data/raw --out-dir data/processed
+python3 src/analysis/analyze_benchmarks.py --logs-dir data/raw --out-dir data/processed
 ```
 
-Gera em `data/processed/`:
+Generates in `data/processed/`:
 
-- `dados_extraidos.csv` — formato tidy, uma linha por (arquivo, métrica)
-- `resumo_descritivo.csv` — média/mediana/desvio/IQR por métrica × ambiente
-- `resultados_estatisticos.csv` — normalidade, homogeneidade, teste global
-  (ANOVA/Kruskal-Wallis), post-hoc de Dunn, effect size, IC bootstrap e
-  `p_fdr_corrigido` (Benjamini-Hochberg entre todas as métricas)
-- `heterogeneidade_entre_vms.csv` — heterogeneidade entre as 3 VMs por
-  métrica × tratamento
-- `avisos_parsing.csv` — casos em que uma métrica esperada não foi
-  encontrada em algum arquivo (ex.: explica diferenças de n entre
-  métricas/ambientes)
-- `alerta_estatisticas_duplicadas.csv` — pares de métricas cujo teste
-  estatístico global produziu resultado exatamente idêntico. Isso pode
-  ser benigno (grupos de mesmo tamanho com separação completa entre
-  ambientes produzem o mesmo H de Kruskal-Wallis por construção
-  matemática, independentemente dos valores brutos) ou indicar um problema
-  de cálculo — revise manualmente antes de aceitar qualquer novo caso que
-  apareça aqui. Gerado automaticamente em TODA execução do pipeline
-  (não é uma checagem pontual/manual).
-- `metadata.json` — commit git, timestamp e seed da execução
-- `relatorio.txt` — resumo legível em português
-- `graficos/*.png` — boxplots exploratórios por métrica (small multiples,
-  1 subplot por ambiente, escala Y independente por painel)
-- `heatmaps/*.png` — 4 arquivos, em dois pares curada/completa:
-  - `heatmap_significancia.png` / `heatmap_heterogeneidade_vm.png` — versão
-    CURADA, com 1 métrica por domínio experimental (CPU, memória, cache,
-    STREAM, disco, GPU — ver `METRICAS_PRINCIPAIS` em
-    `analise_benchmarks.py`), pensada para o corpo do artigo.
-  - `heatmap_significancia_completo.png` / `heatmap_heterogeneidade_vm_completo.png`
-    — mesma figura com as ~19 métricas, para auditoria/apêndice.
+- `extracted_data.csv` — tidy format, one row per (file, metric)
+- `descriptive_summary.csv` — mean/median/std dev/IQR per metric x environment
+- `statistical_results.csv` — normality, homogeneity, global test
+  (ANOVA/Kruskal-Wallis), Dunn post-hoc, effect size, bootstrap CI and
+  `p_fdr_corrigido` (Benjamini-Hochberg across all metrics)
+- `vm_heterogeneity.csv` — heterogeneity between the 3 VMs per
+  metric x treatment
+- `parsing_warnings.csv` — cases where an expected metric wasn't found
+  in some file (e.g. explains n differences between
+  metrics/environments)
+- `duplicate_statistics_alert.csv` — metric pairs whose global
+  statistical test produced an exactly identical result. This can be
+  benign (equally-sized groups with complete separation between
+  environments produce the same Kruskal-Wallis H by mathematical
+  construction, regardless of the raw values) or point to a computation
+  bug — review manually before accepting any new case that shows up
+  here. Generated automatically on EVERY pipeline run (not a one-off/
+  manual check).
+- `metadata.json` — git commit, timestamp and seed of the run
+- `report.txt` — human-readable summary
+- `plots/*.png` — exploratory boxplots per metric (small multiples,
+  1 subplot per environment, independent Y scale per panel)
+- `heatmaps/*.png` — 6 files, in curated/full pairs across three
+  comparison scopes:
+  - `significance_heatmap.png` / `vm_heterogeneity_heatmap.png` —
+    CURATED version, with 1 metric per experimental domain (CPU, memory,
+    cache, STREAM, disk, GPU — see `METRICAS_PRINCIPAIS` in
+    `analyze_benchmarks.py`), meant for the paper body.
+  - `significance_heatmap_full.png` / `vm_heterogeneity_heatmap_full.png`
+    — the same figure with all ~19 metrics, for audit/appendix.
+  - `significance_heatmap_3env.png` / `significance_heatmap_2env.png` —
+    the significance heatmap split by comparison scope: metrics
+    compared across all 3 environments (host/KVM/QEMU) vs. metrics only
+    comparable across host/KVM (STREAM, GPU — QEMU-TCG doesn't run them
+    validly). Mixing both scopes in one figure lets QEMU's huge overhead
+    dominate the Kruskal-Wallis test and hide KVM's more subtle effects.
+- `confidence_intervals/*.png` — 4 files: mean +- 95% CI per metric,
+  curated/full x full-scale (3 environments)/zoomed (host/KVM only, no
+  QEMU — for the same reason as the heatmap split above).
 
-  Em `heatmap_significancia*.png`, as colunas são agrupadas visualmente em
-  "Verificação de pressupostos" (Shapiro host/kvm/qemu, Levene) e "Teste de
-  hipótese" (teste global bruto e `p_fdr_corrigido`) — são naturezas de
-  p-valor diferentes (p baixo em pressupostos motiva o teste não-paramétrico;
-  p baixo no teste de hipótese indica diferença real entre ambientes), por
-  isso não compartilham um único rótulo de eixo x. Complementam os
-  boxplots, não os substituem.
+  In `significance_heatmap*.png`, the columns are visually grouped into
+  "Assumption checks" (Shapiro host/kvm/qemu, Levene) and "Hypothesis
+  test" (raw global test and `p_fdr_corrigido`) — these are different
+  natures of p-value (a low p on assumption checks motivates the
+  non-parametric test; a low p on the hypothesis test indicates a real
+  difference between environments), so they don't share a single x-axis
+  label. They complement the boxplots, not replace them.
 
 ```bash
-rm -rf results/figures/graficos results/figures/heatmaps
-mv data/processed/graficos results/figures/graficos
+rm -rf results/figures/plots results/figures/heatmaps
+mv data/processed/plots results/figures/plots
 mv data/processed/heatmaps results/figures/heatmaps
 ```
 
-## 4. Regenerar as figuras finais do artigo
+## 4. Regenerating the paper's final figures
 
-As figuras finais (`results/figures/fig1..4_variacao_*.pdf`) são geradas
-pelo **R**, não pelo Python — e usam números transcritos manualmente a
-partir de `resumo_descritivo.csv`/`dados_extraidos.csv`, não lidos
-automaticamente do CSV. Se `data/raw/` for atualizado (nova coleta, nova
-réplica), os tibbles no topo de `geracao_graficos.R` precisam ser
-recalculados e atualizados manualmente antes de regerar as figuras.
+The final figures (`results/figures/fig1..5_*_variation.pdf`) are
+generated by **R**, not Python. `generate_plots.R` reads them from
+`data/processed/kvm_summary.csv` and `data/processed/qemu_summary.csv`,
+which are produced by the Python summary scripts
+(`benchmark_summary_overhead.py`, `benchmark_summary_qemu.py`) — see the
+usage examples in the header of `generate_plots.R`. If `data/raw/` is
+updated (new collection, new replicate), re-run those Python scripts to
+refresh the summary CSVs before regenerating the figures.
 
-A partir da RAIZ do repositório (o script usa caminhos relativos
+From the repository ROOT (the script uses relative paths
 `results/figures/...`):
 
 ```bash
-Rscript src/analysis/geracao_graficos.R
+Rscript src/analysis/generate_plots.R
 ```
 
-Os gráficos exploratórios em `results/figures/graficos/*.png` (um PNG por
-métrica) são gerados pelo **Python**, no passo 3 acima — esses sim são
-computados automaticamente a partir dos dados, sem transcrição manual.
+The exploratory plots in `results/figures/plots/*.png` (one PNG per
+metric) are generated by **Python**, in step 3 above — those are
+computed automatically from the data, with no manual transcription.

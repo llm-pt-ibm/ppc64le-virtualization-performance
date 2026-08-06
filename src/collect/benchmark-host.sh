@@ -1,12 +1,12 @@
 #!/bin/bash
 # =============================================================================
 # BENCHMARK HOST — IBM Power9 (ppc64le) | Slurm
-# Cobre: CPU, Memória, Cache, Disco (fio/ext4), STREAM e GPU (CUDA/NCCL)
+# Covers: CPU, Memory, Cache, Disk (fio/ext4), STREAM and GPU (CUDA/NCCL)
 #
-# Uso com Slurm:
+# Usage with Slurm:
 #   sbatch benchmark-host.sh
 #
-# Ou direto (sem Slurm):
+# Or directly (without Slurm):
 #   bash benchmark-host.sh
 # =============================================================================
 #SBATCH --job-name=benchmark_host
@@ -19,7 +19,7 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS VINDOS DO SLURM (ou fallback manual)
+# PARAMETERS FROM SLURM (or manual fallback)
 # ---------------------------------------------------------------------------
 NCPUS=${SLURM_CPUS_PER_TASK:-16}
 MEM_MB=${SLURM_MEM_PER_NODE:-65536}
@@ -28,14 +28,14 @@ VM_WORKERS=8
 VM_BYTES="8G"
 
 # ---------------------------------------------------------------------------
-# PINNING — mesmos CPUs da vm_gabrielly / vm_lucas / vm_ramalho
-# (1 thread SMT por core, cores 20 a 35 do POWER9)
+# PINNING — same CPUs as vm_gabrielly / vm_lucas / vm_ramalho
+# (1 SMT thread per core, cores 20 to 35 of the POWER9)
 # ---------------------------------------------------------------------------
 CPU_LIST="80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140"
 TASKSET="taskset -c $CPU_LIST"
 
 # ---------------------------------------------------------------------------
-# CAMINHOS E VARIÁVEIS GERAIS
+# PATHS AND GENERAL VARIABLES
 # ---------------------------------------------------------------------------
 HOST=$(hostname)
 DATE=$(date +%Y%m%d_%H%M%S)
@@ -43,7 +43,7 @@ WORKDIR=${SLURM_TMPDIR:-/tmp}
 OUT="/home/multiarq/experimentos/host/benchmark_host_${HOST}_${DATE}.txt"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — Disco (fio)
+# PARAMETERS — Disk (fio)
 # ---------------------------------------------------------------------------
 FIO_FILE="${WORKDIR}/fio_testfile_host"
 FIO_SIZE="80G"
@@ -52,12 +52,12 @@ FIO_IODEPTH=32
 FIO_IODEPTH_RAND=64
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — STREAM
+# PARAMETERS — STREAM
 # ---------------------------------------------------------------------------
 STREAM_BIN="/home/multiarq/stream/stream_power9"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — GPU
+# PARAMETERS — GPU
 # ---------------------------------------------------------------------------
 export PATH=/usr/local/cuda-12.2/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64:$LD_LIBRARY_PATH
@@ -79,32 +79,32 @@ log()       { echo "$1" | tee -a "$OUT"; }
 separator() { log ""; log "$(printf '=%.0s' {1..72})"; log ""; }
 
 # ---------------------------------------------------------------------------
-# PRÉ-CHECK: aborta se houver VM ligada (contamina disco compartilhado)
+# PRE-CHECK: aborts if a VM is running (would contaminate shared disk)
 # ---------------------------------------------------------------------------
 mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 
-log "=== PRÉ-CHECK: VMs ativas no host ==="
+log "=== PRE-CHECK: active VMs on host ==="
 if command -v virsh &>/dev/null; then
     VMS_ATIVAS=$(sudo -n virsh list --state-running --name 2>/dev/null | grep -v '^$' | wc -l)
     if [[ "$VMS_ATIVAS" -gt 0 ]]; then
-        log "ERRO: $VMS_ATIVAS VM(s) ativa(s). Desligue com 'sudo virsh shutdown <nome>' e rode de novo."
+        log "ERROR: $VMS_ATIVAS active VM(s). Shut down with 'sudo virsh shutdown <name>' and run again."
         exit 1
     fi
-    log "OK: nenhuma VM ativa."
+    log "OK: no active VMs."
 else
-    log "AVISO: virsh não disponível — continuando sem verificação."
+    log "WARNING: virsh not available — continuing without the check."
 fi
 separator
 
 # ---------------------------------------------------------------------------
-# FUNÇÃO: suite de testes fio
+# FUNCTION: fio test suite
 # ---------------------------------------------------------------------------
 run_fio_suite() {
     local label="$1"
 
     log ""
-    log "=== [$label] PRÉ-ALOCAÇÃO DO ARQUIVO DE TESTE (${FIO_SIZE}) ==="
+    log "=== [$label] PRE-ALLOCATING TEST FILE (${FIO_SIZE}) ==="
     fio --name=precreate \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -118,7 +118,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== [$label] LEITURA SEQUENCIAL ==="
+    log "=== [$label] SEQUENTIAL READ ==="
     fio --name=seq-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -133,7 +133,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== [$label] ESCRITA SEQUENCIAL ==="
+    log "=== [$label] SEQUENTIAL WRITE ==="
     fio --name=seq-write \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -148,7 +148,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== [$label] IOPS ALEATÓRIO (4K randrw 70/30) ==="
+    log "=== [$label] RANDOM IOPS (4K randrw 70/30) ==="
     fio --name=rand-rw \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -164,7 +164,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== [$label] LATÊNCIA (4K randread QD=1) ==="
+    log "=== [$label] LATENCY (4K randread QD=1) ==="
     fio --name=lat-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -179,13 +179,13 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== [$label] REMOVENDO ARQUIVO DE TESTE ==="
+    log "=== [$label] REMOVING TEST FILE ==="
     rm -f "$FIO_FILE"
-    log "Arquivo removido: $FIO_FILE"
+    log "File removed: $FIO_FILE"
 }
 
 # ---------------------------------------------------------------------------
-# FUNÇÃO: suite de testes GPU (sem taskset — passthrough gerencia)
+# FUNCTION: GPU test suite (no taskset — passthrough handles it)
 # ---------------------------------------------------------------------------
 run_gpu_suite() {
 
@@ -197,12 +197,12 @@ run_gpu_suite() {
         "$NCCL_BIN/all_gather_perf" \
         "$NCCL_BIN/sendrecv_perf"; do
         if [[ ! -x "$bin" ]]; then
-            log "AVISO: binário GPU não encontrado: $bin"
+            log "WARNING: GPU binary not found: $bin"
             missing=1
         fi
     done
     if [[ $missing -eq 1 ]]; then
-        log "AVISO: testes GPU ignorados por binários ausentes."
+        log "WARNING: GPU tests skipped due to missing binaries."
         return
     fi
 
@@ -211,7 +211,7 @@ run_gpu_suite() {
     nvidia-smi | tee -a "$OUT"
 
     log ""
-    log "=== GPU — TOPOLOGIA / NVLink ==="
+    log "=== GPU — TOPOLOGY / NVLink ==="
     nvidia-smi topo -m | tee -a "$OUT"
 
     log ""
@@ -228,87 +228,87 @@ run_gpu_suite() {
         2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== GPU — MATRIXMUL — Throughput de Computação (GFlop/s) ==="
+    log "=== GPU — MATRIXMUL — Compute Throughput (GFlop/s) ==="
     for i in 1 2 3 4 5; do
-        log "-- Execução $i --"
+        log "-- Run $i --"
         "$CUDA_BIN/matrixMul" 2>&1 | tee -a "$OUT"
     done
 
     log ""
-    log "=== GPU — NCCL ALL_REDUCE (NVLink inter-GPU) ==="
+    log "=== GPU — NCCL ALL_REDUCE (inter-GPU NVLink) ==="
     log "--- -b 8 -e 256M -f 2 -g 2 ---"
     "$NCCL_BIN/all_reduce_perf" \
         -b 8 -e 256M -f 2 -g 2 \
         2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== GPU — NCCL ALL_GATHER (NVLink inter-GPU) ==="
+    log "=== GPU — NCCL ALL_GATHER (inter-GPU NVLink) ==="
     log "--- -b 8 -e 256M -f 2 -g 2 ---"
     "$NCCL_BIN/all_gather_perf" \
         -b 8 -e 256M -f 2 -g 2 \
         2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== GPU — NCCL SENDRECV (latência ponto a ponto GPU0↔GPU1) ==="
+    log "=== GPU — NCCL SENDRECV (point-to-point latency GPU0<->GPU1) ==="
     log "--- -b 8 -e 4M -f 2 -g 2 ---"
     "$NCCL_BIN/sendrecv_perf" \
         -b 8 -e 4M -f 2 -g 2 \
         2>&1 | tee -a "$OUT"
 
     log ""
-    log "=== GPU — ESTADO PÓS-BENCHMARK ==="
+    log "=== GPU — POST-BENCHMARK STATE ==="
     nvidia-smi --query-gpu=index,name,temperature.gpu,power.draw,memory.used,memory.total,utilization.gpu \
                --format=csv,noheader | tee -a "$OUT"
 }
 
 # =============================================================================
-# INÍCIO — DESATIVAR SWAP
+# START — DISABLE SWAP
 # =============================================================================
-log "=== PRÉ-EXECUÇÃO: desativando swap ==="
-sudo -n swapoff -a 2>&1 | tee -a "$OUT" || log "AVISO: swapoff falhou ou swap já estava desativado."
-log "Estado do swap após swapoff:"
-swapon --show 2>/dev/null | tee -a "$OUT" || log "(nenhum dispositivo de swap ativo)"
+log "=== PRE-RUN: disabling swap ==="
+sudo -n swapoff -a 2>&1 | tee -a "$OUT" || log "WARNING: swapoff failed or swap was already disabled."
+log "Swap state after swapoff:"
+swapon --show 2>/dev/null | tee -a "$OUT" || log "(no active swap device)"
 
 # =============================================================================
-# CABEÇALHO
+# HEADER
 # =============================================================================
 log "=== BENCHMARK HOST: $HOST — $DATE ==="
-log "Ambiente: Host físico — IBM Power9 ppc64le"
-log "CPUs alocadas (Slurm): $NCPUS"
+log "Environment: Physical host — IBM Power9 ppc64le"
+log "CPUs allocated (Slurm): $NCPUS"
 log "CPUs pinned (taskset): $CPU_LIST"
-log "RAM alocada  (Slurm): ${MEM_GB} GB"
-log "GPUs visíveis (CUDA_VISIBLE_DEVICES): ${CUDA_VISIBLE_DEVICES}"
-log "GPUs detectadas: $GPU_AVAILABLE"
+log "RAM allocated (Slurm): ${MEM_GB} GB"
+log "GPUs visible (CUDA_VISIBLE_DEVICES): ${CUDA_VISIBLE_DEVICES}"
+log "GPUs detected: $GPU_AVAILABLE"
 separator
 
 # =============================================================================
-# INFO DO SISTEMA
+# SYSTEM INFO
 # =============================================================================
-log "=== INFO DO SISTEMA ==="
+log "=== SYSTEM INFO ==="
 uname -a                              2>&1 | tee -a "$OUT"
-log "CPUs visíveis (nproc): $(nproc)"
-log "CPUs em uso (Slurm)  : $NCPUS"
+log "CPUs visible (nproc): $(nproc)"
+log "CPUs in use (Slurm)  : $NCPUS"
 free -h                               2>&1 | tee -a "$OUT"
-log "Swap: $(swapon --show 2>/dev/null | tail -n +2 | wc -l) dispositivo(s)"
+log "Swap: $(swapon --show 2>/dev/null | tail -n +2 | wc -l) device(s)"
 separator
 
 # =============================================================================
-# INFO DO FILESYSTEM
+# FILESYSTEM INFO
 # =============================================================================
-log "=== INFO DO FILESYSTEM ==="
+log "=== FILESYSTEM INFO ==="
 df -Th /tmp                           2>&1 | tee -a "$OUT"
 mount | grep -E " / "                 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# CGROUP DO PROCESSO
+# PROCESS CGROUP
 # =============================================================================
-log "=== CGROUP DO PROCESSO ==="
+log "=== PROCESS CGROUP ==="
 cat /proc/self/cgroup                 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# CPU (com taskset — iguala pinning com a VM)
+# CPU (with taskset — matches VM pinning)
 # =============================================================================
 log "=== CPU ==="
 log "(taskset -c $CPU_LIST)"
@@ -319,9 +319,9 @@ $TASKSET stress-ng --cpu "$NCPUS" \
 separator
 
 # =============================================================================
-# MEMÓRIA (com taskset)
+# MEMORY (with taskset)
 # =============================================================================
-log "=== MEMÓRIA ==="
+log "=== MEMORY ==="
 log "(taskset -c $CPU_LIST)"
 $TASKSET stress-ng --vm "$VM_WORKERS" \
           --vm-bytes "$VM_BYTES" \
@@ -330,11 +330,11 @@ $TASKSET stress-ng --vm "$VM_WORKERS" \
 separator
 
 # =============================================================================
-# CACHE (com taskset)
+# CACHE (with taskset)
 # =============================================================================
 log "=== CACHE ==="
 log "(taskset -c $CPU_LIST, --cache-level 1)"
-log "Tamanho de buffer L1 (de /sys/): $(cat /sys/devices/system/cpu/cpu0/cache/index0/size)"
+log "L1 buffer size (from /sys/): $(cat /sys/devices/system/cpu/cpu0/cache/index0/size)"
 $TASKSET stress-ng --cache "$NCPUS" \
           --cache-level 1 \
           --metrics-brief \
@@ -342,26 +342,26 @@ $TASKSET stress-ng --cache "$NCPUS" \
 separator
 
 # =============================================================================
-# STREAM — LARGURA DE BANDA DE MEMÓRIA (com taskset)
+# STREAM — MEMORY BANDWIDTH (with taskset)
 # =============================================================================
-log "=== STREAM — LARGURA DE BANDA DE MEMÓRIA (taskset -c $CPU_LIST) ==="
+log "=== STREAM — MEMORY BANDWIDTH (taskset -c $CPU_LIST) ==="
 if [ -x "$STREAM_BIN" ]; then
     export OMP_NUM_THREADS="$NCPUS"
     $TASKSET "$STREAM_BIN" 2>&1 | tee -a "$OUT"
 else
-    log "AVISO: binário STREAM não encontrado em $STREAM_BIN"
-    log "Compile com: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream_power9"
+    log "WARNING: STREAM binary not found at $STREAM_BIN"
+    log "Compile with: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream_power9"
 fi
 separator
 
 # =============================================================================
-# DISCO (fio — sem taskset)
+# DISK (fio — no taskset)
 # =============================================================================
-run_fio_suite "DISCO_HOST"
+run_fio_suite "DISK_HOST"
 separator
 
 # =============================================================================
-# GPU (CUDA / NCCL) — só executa se GPU disponível
+# GPU (CUDA / NCCL) — only runs if a GPU is available
 # =============================================================================
 if [[ $GPU_AVAILABLE -eq 1 ]]; then
     log "=== GPU ==="
@@ -369,19 +369,19 @@ if [[ $GPU_AVAILABLE -eq 1 ]]; then
     separator
 else
     log "=== GPU ==="
-    log "AVISO: nenhuma GPU detectada — testes GPU ignorados."
+    log "WARNING: no GPU detected — GPU tests skipped."
     separator
 fi
 
 # =============================================================================
-# FIM — REATIVAR SWAP
+# END — RE-ENABLE SWAP
 # =============================================================================
 log ""
-log "=== PÓS-EXECUÇÃO: reativando swap ==="
-sudo -n swapon -a 2>&1 | tee -a "$OUT" || log "AVISO: swapon falhou."
-log "Estado do swap após swapon:"
-swapon --show 2>/dev/null | tee -a "$OUT" || log "(nenhum dispositivo de swap ativo)"
+log "=== POST-RUN: re-enabling swap ==="
+sudo -n swapon -a 2>&1 | tee -a "$OUT" || log "WARNING: swapon failed."
+log "Swap state after swapon:"
+swapon --show 2>/dev/null | tee -a "$OUT" || log "(no active swap device)"
 
 log ""
-log "=== FIM ==="
-log "Resultados salvos em: $OUT"
+log "=== END ==="
+log "Results saved to: $OUT"

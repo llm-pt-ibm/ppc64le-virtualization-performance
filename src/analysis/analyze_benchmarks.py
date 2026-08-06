@@ -1,50 +1,50 @@
 #!/usr/bin/env python3
 """
-analise_benchmarks.py
+analyze_benchmarks.py
 
-Parser + pipeline estatístico para os logs de benchmark
-(host / KVM / QEMU puro) do experimento de virtualização ppc64le.
+Parser + statistical pipeline for the benchmark logs
+(host / KVM / plain QEMU) of the ppc64le virtualization experiment.
 
-USO:
-    python3 analise_benchmarks.py --logs-dir /caminho/para/pasta_com_host_kvm_qemu \
-                                   --out-dir /caminho/para/saida
+USAGE:
+    python3 analyze_benchmarks.py --logs-dir /path/to/folder_with_host_kvm_qemu \
+                                   --out-dir /path/to/output
 
-Espera encontrar, dentro de --logs-dir, três subpastas:
+Expects three subfolders inside --logs-dir:
     host/           -> benchmark_host_*.txt
     kvm-results/     -> benchmark_vm_*.txt
     qemu-results/    -> benchmark_qemu_*.txt
 
-DEPENDÊNCIAS (instalar com pip):
+DEPENDENCIES (install with pip):
     pip install pandas numpy scipy scikit-posthocs matplotlib seaborn statsmodels --break-system-packages
 
-SAÍDAS (em --out-dir):
-    dados_extraidos.csv       -> uma linha por (arquivo, métrica), formato "tidy"
-    resumo_descritivo.csv     -> média, mediana, desvio, IQR por métrica x ambiente
-    resultados_estatisticos.csv -> normalidade, homogeneidade, teste global (+ p_fdr_corrigido
-                                    via Benjamini-Hochberg entre todas as métricas), post-hoc,
-                                    IC bootstrap
-    avisos_parsing.csv          -> arquivos onde uma métrica esperada não foi encontrada
-    alerta_estatisticas_duplicadas.csv -> pares de métricas com teste_global_estat/p/epsilon²
-                                           EXATAMENTE idênticos (ver checar_estatisticas_duplicadas())
-    metadata.json                -> versão/commit git, timestamp e seed da execução
-    relatorio.txt              -> resumo legível em português (avisos de heterogeneidade entre
-                                    VMs referenciam "pseudo-replicação" — ver
-                                    docs/GLOSSARIO_METODOLOGICO.md para o que isso significa)
-    graficos/*.png              -> boxplot/stripplot por métrica (small multiples, 1 subplot por
-                                    ambiente, escala Y independente por painel)
-    heatmaps/*.png              -> resumo compacto dos testes formais e da heterogeneidade entre
-                                    VMs, em par curada/completa: heatmap_significancia.png e
-                                    heatmap_heterogeneidade_vm.png (1 métrica por domínio
-                                    experimental, ver METRICAS_PRINCIPAIS) + as versões
-                                    "_completo" com as ~19 métricas (auditoria/apêndice)
+OUTPUTS (in --out-dir):
+    extracted_data.csv       -> one row per (file, metric), "tidy" format
+    descriptive_summary.csv  -> mean, median, std dev, IQR per metric x environment
+    statistical_results.csv -> normality, homogeneity, global test (+ p_fdr_corrected
+                                    via Benjamini-Hochberg across all metrics), post-hoc,
+                                    bootstrap CI
+    parsing_warnings.csv        -> files where an expected metric was not found
+    duplicate_statistics_alert.csv -> metric pairs with EXACTLY identical
+                                           global_test_stat/p/epsilon² (see checar_estatisticas_duplicadas())
+    metadata.json                -> git version/commit, timestamp and seed of the run
+    report.txt              -> human-readable summary (VM heterogeneity warnings
+                                    mention "pseudo-replication" — see
+                                    docs/METHODOLOGICAL_GLOSSARY.md for what that means)
+    plots/*.png              -> boxplot/stripplot per metric (small multiples, 1 subplot per
+                                    environment, independent Y scale per panel)
+    heatmaps/*.png              -> compact summary of the formal tests and of VM
+                                    heterogeneity, as curated/full pairs: significance_heatmap.png
+                                    and vm_heterogeneity_heatmap.png (1 metric per
+                                    experimental domain, see METRICAS_PRINCIPAIS) + the
+                                    "_full" versions with all ~19 metrics (audit/appendix)
 
-NOTA METODOLÓGICA — pseudo-replicação: os tratamentos KVM/QEMU usam 3 VMs
-× 5 execuções (não 15 VMs independentes). Isso é um desenho aninhado
-correto e esperado (ver docs/GLOSSARIO_METODOLOGICO.md, com exemplo
-numérico real), não um erro de coleta — o pipeline já trata isso via
-bootstrap estratificado por VM (bootstrap_ci_estratificado_por_vm) e via
-checar_heterogeneidade_vms, que sinaliza explicitamente quando as VMs de
-um tratamento divergem entre si o suficiente pra merecer cautela.
+METHODOLOGICAL NOTE — pseudo-replication: the KVM/QEMU treatments use 3 VMs
+x 5 runs each (not 15 independent VMs). This is a correct and expected
+nested design (see docs/METHODOLOGICAL_GLOSSARY.md, with a real numeric
+example), not a collection error — the pipeline already accounts for it via
+VM-stratified bootstrap (bootstrap_ci_estratificado_por_vm) and via
+checar_heterogeneidade_vms, which explicitly flags when the VMs of a
+treatment diverge from each other enough to warrant caution.
 """
 
 import argparse
@@ -72,13 +72,13 @@ from statsmodels.stats.multitest import multipletests
 warnings.filterwarnings("ignore")
 
 # --------------------------------------------------------------------------
-# Métricas esperadas por ambiente, usadas por `avisos_parsing` para detectar
-# quando um arquivo deveria ter produzido uma métrica e não produziu (ex.:
-# arquivo de host sem "Avg bus bandwidth" para NCCL). GPU e STREAM só são
-# esperados em host/kvm: QEMU puro (TCG) não faz passthrough de GPU, e a
-# saída STREAM sob QEMU é descartada de propósito por ser numericamente
-# inválida (ver comentário no bloco STREAM de parse_file) — portanto a
-# ausência dessas métricas em arquivos QEMU não é um aviso de parsing.
+# Expected metrics per environment, used by `parsing_warnings` to detect
+# when a file should have produced a metric and didn't (e.g. a host file
+# missing "Avg bus bandwidth" for NCCL). GPU and STREAM are only expected
+# on host/kvm: plain QEMU (TCG) doesn't do GPU passthrough, and STREAM
+# output under QEMU is deliberately discarded for being numerically
+# invalid (see comment in the STREAM block of parse_file) — so the
+# absence of these metrics in QEMU files is not a parsing warning.
 METRICAS_ESPERADAS_COMUNS = [
     "cpu_bogo_ops_s_real", "cpu_bogo_ops_s_cpu",
     "mem_bogo_ops_s_real", "mem_bogo_ops_s_cpu",
@@ -94,9 +94,9 @@ METRICAS_ESPERADAS_HOST_KVM = [
 ]
 
 # --------------------------------------------------------------------------
-# 1. REGEX DE EXTRAÇÃO
+# 1. EXTRACTION REGEXES
 # --------------------------------------------------------------------------
-# stress-ng linha de métricas, ex:
+# stress-ng metrics line, e.g.:
 # stress-ng: info:  [8864] cpu             123456     60.01    409.02     10.27     16463.20        2356.34
 STRESSNG_LINE = re.compile(
     r"^stress-ng:\s*info:\s*\[\d+\]\s+(?P<stressor>\S+)\s+"
@@ -104,7 +104,7 @@ STRESSNG_LINE = re.compile(
     r"(?P<sys_time>[\d.]+)\s+(?P<bogo_ops_s_real>[\d.]+)\s+(?P<bogo_ops_s_cpu>[\d.]+)\s*$"
 )
 
-# fio: linhas de IOPS e latência (formato "read:" / "write:" seguido de bw=...)
+# fio: IOPS and latency lines (format "read:" / "write:" followed by bw=...)
 FIO_IOPS_LINE = re.compile(
     r"^\s*(read|write):\s+IOPS=([\d.]+k?),\s+BW=([\d.]+)(KiB|MiB)/s"
 )
@@ -115,20 +115,20 @@ FIO_LAT_LINE_MSEC = re.compile(
     r"^\s*(?:clat|lat)\s*\(msec\):\s*min=\d+,\s*max=\d+,\s*avg=\s*([\d.]+)"
 )
 
-# STREAM: Copy:  117565.93 ...   (ajuste conforme formato real do seu log)
+# STREAM: Copy:  117565.93 ...   (adjust to match your log's actual format)
 STREAM_LINE = re.compile(
     r"^(Copy|Scale|Add|Triad):\s+([\d.]+)"
 )
 
-# CUDA matrixMul: procura por algo como "GFlop/s" na linha
+# CUDA matrixMul: looks for something like "GFlop/s" in the line
 MATRIXMUL_LINE = re.compile(r"([\d.]+)\s*GFlop/s", re.IGNORECASE)
 
 NCCL_AVG_LINE = re.compile(r"Avg bus bandwidth\s*:\s*([\d.]+)")
 
 
 def parse_stressng_block(lines: list[str], stressor_name: str) -> Optional[dict]:
-    """Procura a linha de métricas do stress-ng para um stressor específico
-    (cpu, memória/vm, cache) dentro de uma lista de linhas."""
+    """Looks for the stress-ng metrics line for a specific stressor
+    (cpu, memory/vm, cache) within a list of lines."""
     for ln in lines:
         m = STRESSNG_LINE.match(ln.strip())
         if m and stressor_name in m.group("stressor"):
@@ -142,15 +142,15 @@ def parse_stressng_block(lines: list[str], stressor_name: str) -> Optional[dict]
 
 
 def parse_fio_block(lines: list[str]) -> dict:
-    """Extrai IOPS (read/write), BW e latência média (usec) de um bloco de
-    saída do fio. Retorna dict com o que encontrar."""
+    """Extracts IOPS (read/write), BW and average latency (usec) from a
+    fio output block. Returns a dict with whatever it finds."""
     out = {}
     for ln in lines:
         m = FIO_IOPS_LINE.match(ln)
         if m:
             direction, iops_raw, bw, bw_unit = m.groups()
             iops = float(iops_raw.replace("k", "")) * (1000 if "k" in iops_raw else 1)
-            bw_val = float(bw) * (1024 if bw_unit == "MiB" else 1)  # normaliza p/ KiB/s
+            bw_val = float(bw) * (1024 if bw_unit == "MiB" else 1)  # normalize to KiB/s
             out[f"iops_{direction}"] = iops
             out[f"bw_kibs_{direction}"] = bw_val
         m2 = FIO_LAT_LINE.match(ln)
@@ -163,13 +163,13 @@ def parse_fio_block(lines: list[str]) -> dict:
 
 
 def extract_section(text: str, header_regex: str, next_header_regex: str = r"^={10,}\s*$") -> list[str]:
-    """Retorna as linhas entre um cabeçalho '=== ... ===' que bate com
-    header_regex e o próximo separador '===...===' OU o próximo cabeçalho
-    '=== [...] ===' / '=== ... ===' de qualquer tipo (importante: nos logs,
-    subseções de disco consecutivas -- ex. IOPS ALEATÓRIO seguida de
-    LATÊNCIA -- não têm um separador '========' entre si, só entre blocos
-    maiores; sem essa checagem extra o parser vaza de uma subseção pra
-    outra)."""
+    """Returns the lines between a '=== ... ===' header matching
+    header_regex and the next '===...===' separator OR the next header
+    of any kind, '=== [...] ===' / '=== ... ===' (important: in the logs,
+    consecutive disk subsections -- e.g. RANDOM IOPS followed by
+    LATENCY -- don't have a '========' separator between them, only
+    between larger blocks; without this extra check the parser leaks
+    from one subsection into the next)."""
     lines = text.splitlines()
     collecting = False
     block = []
@@ -188,13 +188,13 @@ def extract_section(text: str, header_regex: str, next_header_regex: str = r"^={
 
 def parse_file(path: str, ambiente: str, vm_id: str = "host",
                 avisos: Optional[list[dict]] = None) -> list[dict]:
-    """Faz o parsing de um arquivo de log completo e retorna uma lista de
-    dicts no formato tidy: {arquivo, ambiente, vm_id, metrica, valor}.
+    """Parses a full log file and returns a list of dicts in tidy
+    format: {arquivo, ambiente, vm_id, metrica, valor}.
 
-    Se `avisos` (lista) for passado, qualquer métrica esperada para este
-    ambiente que não aparecer nas linhas extraídas deste arquivo é
-    registrada nele (ver METRICAS_ESPERADAS_COMUNS/_HOST_KVM), para virar
-    data/processed/avisos_parsing.csv em main()."""
+    If `avisos` (a list) is passed, any metric expected for this
+    environment that doesn't show up in the lines extracted from this
+    file is recorded there (see METRICAS_ESPERADAS_COMUNS/_HOST_KVM), to
+    become data/processed/parsing_warnings.csv in main()."""
     with open(path, "r", errors="ignore") as f:
         text = f.read()
 
@@ -216,8 +216,8 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
         add("cpu_bogo_ops_s_real", cpu_res["bogo_ops_s_real"])
         add("cpu_bogo_ops_s_cpu", cpu_res["bogo_ops_s_cpu"])
 
-    # --- MEMÓRIA ---
-    mem_block = extract_section(text, r"^=== MEMÓRIA\b")
+    # --- MEMORY (logs before this translation say "MEMÓRIA") ---
+    mem_block = extract_section(text, r"^=== (?:MEMÓRIA|MEMORY)\b")
     mem_res = None
     for stressor_guess in ("vm", "memhotplug", "malloc", "mem"):
         mem_res = parse_stressng_block(mem_block, stressor_guess)
@@ -240,44 +240,46 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
         m = STREAM_LINE.match(ln.strip())
         if m:
             valor = float(m.group(2))
-            # STREAM sob QEMU/TCG frequentemente "roda" mas produz saída
-            # numericamente inválida (Best Rate = 0.0 MB/s, Max time com
-            # overflow de float ~3.4e38) devido à falta de resolução
-            # confiável do timer sob emulação TCG. Isso NÃO é um dado real
-            # de bandwidth — é uma falha de medição e deve ser descartado,
-            # conforme já documentado na Seção 6.1 do artigo.
+            # STREAM under QEMU/TCG often "runs" but produces numerically
+            # invalid output (Best Rate = 0.0 MB/s, Max time overflowing
+            # to ~3.4e38) due to the lack of reliable timer resolution
+            # under TCG emulation. This is NOT real bandwidth data — it's
+            # a measurement failure and must be discarded, as already
+            # documented in Section 6.1 of the paper.
             if valor <= 0.0:
                 continue
             add(f"stream_{m.group(1).lower()}_mbs", valor)
 
-    # --- DISCO (host usa [DISCO_HOST], VMs usam [DISCO_EXT4]) ---
-    disk_prefix = "DISCO_HOST" if ambiente == "host" else "DISCO_EXT4"
+    # --- DISK (host uses [DISCO_HOST]/[DISK_HOST], VMs use
+    # [DISCO_EXT4]/[DISK_EXT4] — both spellings matched below since older
+    # logs predate the English rewrite of the collection scripts) ---
+    disk_prefix = "DISCO_HOST|DISK_HOST" if ambiente == "host" else "DISCO_EXT4|DISK_EXT4"
 
-    seq_read = extract_section(text, rf"^=== \[{disk_prefix}\] LEITURA SEQUENCIAL")
+    seq_read = extract_section(text, rf"^=== \[(?:{disk_prefix})\] (?:LEITURA SEQUENCIAL|SEQUENTIAL READ)")
     fr = parse_fio_block(seq_read)
     if "bw_kibs_read" in fr:
         add("disk_seqread_MiBs", fr["bw_kibs_read"] / 1024)
 
-    seq_write = extract_section(text, rf"^=== \[{disk_prefix}\] ESCRITA SEQUENCIAL")
+    seq_write = extract_section(text, rf"^=== \[(?:{disk_prefix})\] (?:ESCRITA SEQUENCIAL|SEQUENTIAL WRITE)")
     fw = parse_fio_block(seq_write)
     if "bw_kibs_write" in fw:
         add("disk_seqwrite_MiBs", fw["bw_kibs_write"] / 1024)
 
-    randrw = extract_section(text, rf"^=== \[{disk_prefix}\] IOPS ALEAT")
+    randrw = extract_section(text, rf"^=== \[(?:{disk_prefix})\] (?:IOPS ALEAT|RANDOM IOPS)")
     frw = parse_fio_block(randrw)
     if "iops_read" in frw:
         add("disk_iops_randread", frw["iops_read"])
     if "iops_write" in frw:
         add("disk_iops_randwrite", frw["iops_write"])
 
-    latblk = extract_section(text, rf"^=== \[{disk_prefix}\] LAT[ÊE]NCIA")
+    latblk = extract_section(text, rf"^=== \[(?:{disk_prefix})\] (?:LAT[ÊE]NCIA|LATENCY)")
     flat = parse_fio_block(latblk)
     if "iops_read" in flat:
         add("disk_iops_qd1", flat["iops_read"])
     if "lat_avg_usec" in flat:
         add("disk_lat_avg_usec", flat["lat_avg_usec"])
 
-    # --- GPU (host e KVM apenas) ---
+    # --- GPU (host and KVM only) ---
     if ambiente in ("host", "kvm"):
         mm_block = extract_section(text, r"^=== GPU — MATRIXMUL")
         valores_mm = [float(m.group(1)) for ln in mm_block
@@ -307,20 +309,20 @@ def parse_file(path: str, ambiente: str, vm_id: str = "host",
                 avisos.append({
                     "arquivo": fname, "ambiente": ambiente, "vm_id": vm_id,
                     "metrica_esperada": metrica_esperada,
-                    "motivo": "seção/regex correspondente não encontrou dado válido no arquivo",
+                    "motivo": "matching section/regex found no valid data in the file",
                 })
 
     return rows
 
 
 # --------------------------------------------------------------------------
-# 2. PIPELINE ESTATÍSTICO
+# 2. STATISTICAL PIPELINE
 # --------------------------------------------------------------------------
 def _ci_delta_star_a_partir_de(M: float, boot_means: np.ndarray, alpha: float) -> tuple[float, float, float]:
-    """Núcleo comum às duas funções de bootstrap abaixo: dado o vetor de
-    médias reamostradas e a média observada M, aplica o método delta*
-    (M - u*) para obter (M, ci_lower, ci_upper). Extraído para não repetir
-    a mesma conta em bootstrap_ci_delta_star e
+    """Core shared by the two bootstrap functions below: given the vector
+    of resampled means and the observed mean M, applies the delta*
+    method (M - u*) to get (M, ci_lower, ci_upper). Extracted to avoid
+    repeating the same math in bootstrap_ci_delta_star and
     bootstrap_ci_estratificado_por_vm."""
     if np.allclose(boot_means, boot_means[0]):
         return M, M, M
@@ -333,15 +335,15 @@ def _ci_delta_star_a_partir_de(M: float, boot_means: np.ndarray, alpha: float) -
 def bootstrap_ci_delta_star(
     sample: np.ndarray, n_boot: int = 10000, alpha: float = 0.05, seed: int = 42
 ) -> tuple[float, float, float]:
-    """IC via bootstrap, método delta* (M - u*), conforme material do
-    professor (slide 'Calculando Intervalos de Confiança').
-    Retorna (M, ci_lower, ci_upper)."""
+    """Bootstrap CI, delta* method (M - u*), following the course
+    material (slide 'Calculating Confidence Intervals').
+    Returns (M, ci_lower, ci_upper)."""
     rng = np.random.default_rng(seed)
     sample = np.asarray(sample, dtype=float)
     M = sample.mean()
     n = len(sample)
     if n < 2 or np.allclose(sample, sample[0]):
-        # amostra degenerada (n<2 ou todos os valores idênticos) -> IC colapsa no próprio valor
+        # degenerate sample (n<2 or all values identical) -> CI collapses to the value itself
         return M, M, M
     boot_means = np.empty(n_boot)
     for i in range(n_boot):
@@ -353,13 +355,13 @@ def bootstrap_ci_delta_star(
 def bootstrap_ci_estratificado_por_vm(
     df_metric: pd.DataFrame, n_boot: int = 10000, alpha: float = 0.05, seed: int = 42
 ) -> tuple[float, float, float]:
-    """IC via bootstrap RESPEITANDO a estrutura aninhada (3 VMs x 5 réplicas):
-    a cada iteração, sorteia VMs COM reposição (nível 1), depois sorteia
-    réplicas COM reposição dentro de cada VM sorteada (nível 2). Isso evita
-    tratar as 15 execuções como i.i.d. quando há heterogeneidade real entre
-    VMs (ver checar_heterogeneidade_vms). Espera df_metric com colunas
-    ['vm_id', 'valor']. Se houver só 1 VM (ex.: host), cai no bootstrap
-    simples de bootstrap_ci_delta_star."""
+    """Bootstrap CI RESPECTING the nested structure (3 VMs x 5 replicates):
+    each iteration draws VMs WITH replacement (level 1), then draws
+    replicates WITH replacement within each drawn VM (level 2). This
+    avoids treating the 15 runs as i.i.d. when there's real heterogeneity
+    between VMs (see checar_heterogeneidade_vms). Expects df_metric with
+    columns ['vm_id', 'valor']. Falls back to the plain
+    bootstrap_ci_delta_star when there's only 1 VM (e.g. host)."""
     vms = df_metric["vm_id"].unique()
     if len(vms) < 2:
         return bootstrap_ci_delta_star(df_metric["valor"].values, n_boot, alpha, seed)
@@ -383,19 +385,19 @@ def bootstrap_ci_estratificado_por_vm(
 
 def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
                       metrica_nome: str = "?") -> dict:
-    """Recebe um DataFrame com colunas ['ambiente', 'vm_id', 'valor'] para
-    UMA métrica, e roda o pipeline: descritiva, Shapiro-Wilk, Levene,
-    ANOVA ou Kruskal-Wallis, post-hoc de Dunn (se aplicável), IC bootstrap
-    por ambiente (estratificado por VM quando aplicável).
+    """Takes a DataFrame with columns ['ambiente', 'vm_id', 'valor'] for
+    ONE metric, and runs the pipeline: descriptive stats, Shapiro-Wilk,
+    Levene, ANOVA or Kruskal-Wallis, Dunn post-hoc (if applicable),
+    bootstrap CI per environment (VM-stratified when applicable).
 
-    `metrica_nome` só é usado para identificar a métrica em warnings de
-    console quando Shapiro-Wilk/Levene falham (ex.: amostra degenerada) —
-    antes essas falhas eram silenciosas (fallback direto para "não
-    normal"/"variância não homogênea" sem aviso nenhum)."""
+    `metrica_nome` is only used to identify the metric in console
+    warnings when Shapiro-Wilk/Levene fail (e.g. degenerate sample) —
+    previously these failures were silent (falling straight back to
+    "not normal"/"heteroscedastic" with no warning at all)."""
     resultado = {}
     grupos = {amb: g["valor"].values for amb, g in df_metric.groupby("ambiente")}
 
-    # Descritiva + IC bootstrap por ambiente (estratificado por VM se houver >1 VM)
+    # Descriptive stats + bootstrap CI per environment (VM-stratified if >1 VM)
     for amb, g in df_metric.groupby("ambiente"):
         vals = g["valor"].values
         if len(vals) < 2:
@@ -414,7 +416,7 @@ def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
         resultado[f"{amb}_ic95_lo"] = lo
         resultado[f"{amb}_ic95_hi"] = hi
 
-    # Normalidade (Shapiro-Wilk) por grupo
+    # Normality (Shapiro-Wilk) per group
     normal_flags = []
     for amb, vals in grupos.items():
         if len(vals) >= 3:
@@ -423,13 +425,13 @@ def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
                 resultado[f"{amb}_shapiro_p"] = p
                 normal_flags.append(p > alpha)
             except Exception as exc:
-                print(f"[aviso] Shapiro-Wilk falhou em '{metrica_nome}'/{amb} "
-                      f"(assumindo não-normal): {exc}")
+                print(f"[warning] Shapiro-Wilk failed on '{metrica_nome}'/{amb} "
+                      f"(assuming non-normal): {exc}")
                 normal_flags.append(False)
 
     todos_normais = all(normal_flags) if normal_flags else False
 
-    # Homogeneidade de variância (Levene)
+    # Variance homogeneity (Levene)
     vals_list = [v for v in grupos.values() if len(v) >= 2]
     if len(vals_list) >= 2:
         try:
@@ -437,14 +439,14 @@ def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
             resultado["levene_p"] = lev_p
             variancias_homogeneas = lev_p > alpha
         except Exception as exc:
-            print(f"[aviso] Levene falhou em '{metrica_nome}' "
-                  f"(assumindo variâncias não homogêneas): {exc}")
+            print(f"[warning] Levene failed on '{metrica_nome}' "
+                  f"(assuming heteroscedastic): {exc}")
             resultado["levene_p"] = np.nan
             variancias_homogeneas = False
     else:
         variancias_homogeneas = False
 
-    # Teste global: ANOVA se normal + homogêneo, senão Kruskal-Wallis
+    # Global test: ANOVA if normal + homoscedastic, otherwise Kruskal-Wallis
     if len(vals_list) >= 2:
         if todos_normais and variancias_homogeneas:
             f_stat, p_val = stats.f_oneway(*vals_list)
@@ -457,7 +459,7 @@ def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
             resultado["teste_global_estat"] = h_stat
             resultado["teste_global_p"] = p_val
 
-        # Post-hoc de Dunn + Bonferroni, só se o teste global rejeitar H0
+        # Dunn + Bonferroni post-hoc, only if the global test rejects H0
         if p_val < alpha and len(vals_list) > 2:
             try:
                 import scikit_posthocs as sp
@@ -465,9 +467,9 @@ def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
                                         p_adjust="bonferroni")
                 resultado["posthoc_dunn"] = dunn.to_dict()
             except ImportError:
-                resultado["posthoc_dunn"] = "scikit-posthocs não instalado (pip install scikit-posthocs --break-system-packages)"
+                resultado["posthoc_dunn"] = "scikit-posthocs not installed (pip install scikit-posthocs --break-system-packages)"
 
-        # Effect size (epsilon-squared para Kruskal-Wallis)
+        # Effect size (epsilon-squared for Kruskal-Wallis)
         if resultado["teste_global"] == "Kruskal-Wallis":
             n_total = sum(len(v) for v in vals_list)
             resultado["effect_size_epsilon2"] = h_stat / (n_total - 1) if n_total > 1 else np.nan
@@ -476,9 +478,9 @@ def analisar_metrica(df_metric: pd.DataFrame, alpha: float = 0.05,
 
 
 def checar_heterogeneidade_vms(df: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
-    """Para cada métrica e cada tratamento (kvm/qemu), testa se as 3 VMs
-    de origem diferem entre si (Kruskal-Wallis vm_A vs vm_B vs vm_C).
-    Retorna um DataFrame com o resultado por métrica x tratamento."""
+    """For each metric and each treatment (kvm/qemu), tests whether the
+    3 source VMs differ from each other (Kruskal-Wallis vm_A vs vm_B vs
+    vm_C). Returns a DataFrame with the result per metric x treatment."""
     linhas = []
     for (metrica, ambiente), sub in df[df["ambiente"] != "host"].groupby(["metrica", "ambiente"]):
         vms = sub["vm_id"].unique()
@@ -490,7 +492,7 @@ def checar_heterogeneidade_vms(df: pd.DataFrame, alpha: float = 0.05) -> pd.Data
             continue
         todos_valores = np.concatenate(grupos)
         if np.allclose(todos_valores, todos_valores[0]):
-            # todos os valores idênticos entre todas as VMs -> sem evidência de diferença
+            # all values identical across all VMs -> no evidence of a difference
             h, p = 0.0, 1.0
         else:
             try:
@@ -506,10 +508,10 @@ def checar_heterogeneidade_vms(df: pd.DataFrame, alpha: float = 0.05) -> pd.Data
 
 
 def aplicar_correcao_fdr(df_stats: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
-    """Aplica correção de Benjamini-Hochberg (FDR) sobre teste_global_p
-    através de TODAS as métricas simultaneamente (distinto do post-hoc de
-    Dunn, que já usa Bonferroni mas só DENTRO de uma métrica). Adiciona a
-    coluna p_fdr_corrigido a df_stats (NaN nas linhas sem teste global)."""
+    """Applies the Benjamini-Hochberg (FDR) correction to teste_global_p
+    across ALL metrics simultaneously (distinct from the Dunn post-hoc,
+    which already uses Bonferroni but only WITHIN a metric). Adds the
+    p_fdr_corrigido column to df_stats (NaN on rows without a global test)."""
     df_stats = df_stats.copy()
     df_stats["p_fdr_corrigido"] = np.nan
     mask = df_stats["teste_global_p"].notna() if "teste_global_p" in df_stats else pd.Series(dtype=bool)
@@ -522,17 +524,16 @@ def aplicar_correcao_fdr(df_stats: pd.DataFrame, alpha: float = 0.05) -> pd.Data
 
 
 def checar_estatisticas_duplicadas(df_stats: pd.DataFrame) -> pd.DataFrame:
-    """Sanidade: compara teste_global_estat, teste_global_p e
-    effect_size_epsilon2 entre TODOS os pares de métricas diferentes. Se
-    algum par tiver os três valores EXATAMENTE idênticos, imprime um
-    WARNING (estatísticas idênticas entre métricas conceitualmente
-    distintas são um forte indício de bug de reuso de array, mas também
-    podem ser benignas: propriedade matemática do Kruskal-Wallis sob
-    separação completa entre grupos de mesmo tamanho — como ocorre entre
-    cache e memória neste experimento — produz H idêntico
-    independentemente dos valores brutos). Retorna um DataFrame (uma linha
-    por par colidente) que também é salvo em
-    data/processed/alerta_estatisticas_duplicadas.csv."""
+    """Sanity check: compares teste_global_estat, teste_global_p and
+    effect_size_epsilon2 across ALL pairs of distinct metrics. If any
+    pair has all three values EXACTLY identical, prints a WARNING
+    (identical statistics between conceptually distinct metrics is a
+    strong sign of an array-reuse bug, but can also be benign: a
+    mathematical property of Kruskal-Wallis under complete separation
+    between equally-sized groups — as happens between cache and memory
+    in this experiment — produces an identical H regardless of the raw
+    values). Returns a DataFrame (one row per colliding pair) that is
+    also saved to data/processed/duplicate_statistics_alert.csv."""
     cols = ["teste_global_estat", "teste_global_p", "effect_size_epsilon2"]
     if not all(c in df_stats.columns for c in cols):
         return pd.DataFrame(columns=["metrica_a", "metrica_b"] + cols)
@@ -552,10 +553,10 @@ def checar_estatisticas_duplicadas(df_stats: pd.DataFrame) -> pd.DataFrame:
 
     df_alerta = pd.DataFrame(linhas, columns=["metrica_a", "metrica_b"] + cols)
     if not df_alerta.empty:
-        print(f"\n[AVISO] {len(df_alerta)} par(es) de métricas com estatística de teste global "
-              f"IDÊNTICA (teste_global_estat, teste_global_p e effect_size_epsilon2 batendo "
-              f"exatamente) — ver data/processed/alerta_estatisticas_duplicadas.csv e revisar "
-              f"manualmente antes de assumir que é coincidência benigna:")
+        print(f"\n[WARNING] {len(df_alerta)} metric pair(s) with IDENTICAL global test "
+              f"statistics (teste_global_estat, teste_global_p and effect_size_epsilon2 all "
+              f"matching exactly) — see data/processed/duplicate_statistics_alert.csv and review "
+              f"manually before assuming it's a benign coincidence:")
         for _, row in df_alerta.iterrows():
             print(f"    {row['metrica_a']}  ==  {row['metrica_b']}  "
                   f"(H={row['teste_global_estat']:.4f}, p={row['teste_global_p']:.4g})")
@@ -563,10 +564,10 @@ def checar_estatisticas_duplicadas(df_stats: pd.DataFrame) -> pd.DataFrame:
 
 
 def obter_metadata_execucao(args: argparse.Namespace, seed_bootstrap: int = 42) -> dict:
-    """Coleta metadados da execução (commit git do script, timestamp UTC,
-    seed usada na randomização) para metadata.json ao lado das saídas —
-    permite reproduzir/auditar exatamente qual versão do código e dos
-    dados gerou um dado resultados_estatisticos.csv."""
+    """Collects run metadata (script's git commit, UTC timestamp, seed
+    used for randomization) for metadata.json alongside the outputs —
+    lets you reproduce/audit exactly which code and data version
+    produced a given statistical_results.csv."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     try:
         commit = subprocess.check_output(
@@ -583,7 +584,7 @@ def obter_metadata_execucao(args: argparse.Namespace, seed_bootstrap: int = 42) 
         "git_commit": commit,
         "git_dirty": dirty,
         "git_commit_nota": (
-            "null porque o diretório não era um repositório git no momento da execução"
+            "null because the directory was not a git repository at run time"
             if commit is None else None
         ),
         "seed_bootstrap": seed_bootstrap,
@@ -592,9 +593,9 @@ def obter_metadata_execucao(args: argparse.Namespace, seed_bootstrap: int = 42) 
     }
 
 
-# Estilo enxuto, no espírito de figura de artigo científico: pouco ruído
-# visual, contraste adequado, fontes/tamanhos consistentes entre todas as
-# figuras. Aplicado uma única vez, no import — não repetido por gráfico.
+# Lean style, in the spirit of a scientific-paper figure: low visual
+# noise, adequate contrast, consistent fonts/sizes across all figures.
+# Applied once, at import time — not repeated per plot.
 plt.rcParams.update({
     "font.size": 10,
     "axes.titlesize": 11,
@@ -615,109 +616,112 @@ plt.rcParams.update({
 })
 
 # ---------------------------------------------------------------------------
-# GRÁFICOS — um arquivo por métrica, cada um um painel de pequenos
-# múltiplos com um subplot POR AMBIENTE, e escala Y independente em cada
-# subplot (ver docstring de _plot_metrica). Isso substitui uma versão
-# anterior com um único Axes por métrica e eixo compartilhado entre
-# ambientes: quando QEMU é 10-90x mais lento que host/KVM (CPU, memória,
-# cache), forçar os três num mesmo eixo (mesmo com escala log) reduzia o(s)
-# ambiente(s) de menor variância absoluta a uma linha reta sem caixa
-# visível — um boxplot que não informava nada sobre aquele grupo.
+# PLOTS — one file per metric, each a small-multiples panel with one
+# subplot PER ENVIRONMENT, and an independent Y scale per subplot (see
+# _plot_metrica docstring). This replaces an earlier version with a
+# single Axes per metric and a shared axis across environments: when
+# QEMU is 10-90x slower than host/KVM (CPU, memory, cache), forcing all
+# three onto the same axis (even with a log scale) reduced the
+# environment(s) with lower absolute variance to a flat line with no
+# visible box — a boxplot that told you nothing about that group.
 # ---------------------------------------------------------------------------
 
-# Mapa: metrica interna -> (rótulo legível, unidade)
+# Map: internal metric -> (readable label, unit)
 ROTULOS = {
-    "cpu_bogo_ops_s_real":  ("CPU — tempo real",        "bogo ops/s"),
-    "cpu_bogo_ops_s_cpu":   ("CPU — tempo de CPU",       "bogo ops/s"),
-    "mem_bogo_ops_s_real":  ("Memória — tempo real",     "bogo ops/s"),
-    "mem_bogo_ops_s_cpu":   ("Memória — tempo de CPU",   "bogo ops/s"),
+    "cpu_bogo_ops_s_real":  ("CPU — real time",         "bogo ops/s"),
+    "cpu_bogo_ops_s_cpu":   ("CPU — CPU time",           "bogo ops/s"),
+    "mem_bogo_ops_s_real":  ("Memory — real time",       "bogo ops/s"),
+    "mem_bogo_ops_s_cpu":   ("Memory — CPU time",        "bogo ops/s"),
     "stream_copy_mbs":      ("STREAM — Copy",            "MB/s"),
     "stream_scale_mbs":     ("STREAM — Scale",           "MB/s"),
     "stream_add_mbs":       ("STREAM — Add",             "MB/s"),
     "stream_triad_mbs":     ("STREAM — Triad",           "MB/s"),
-    "cache_bogo_ops_s_real":("Cache — tempo real",       "bogo ops/s"),
-    "cache_bogo_ops_s_cpu": ("Cache — tempo de CPU",     "bogo ops/s"),
-    "disk_seqread_MiBs":    ("Leitura sequencial",       "MiB/s"),
-    "disk_seqwrite_MiBs":   ("Escrita sequencial",       "MiB/s"),
-    "disk_iops_qd1":        ("IOPS QD=1 (leitura)",      "IOPS"),
-    "disk_lat_avg_usec":    ("Latência média",           "µs"),
-    "disk_iops_randread":   ("IOPS aleatório — leitura", "IOPS"),
-    "disk_iops_randwrite":  ("IOPS aleatório — escrita", "IOPS"),
+    "cache_bogo_ops_s_real":("Cache — real time",        "bogo ops/s"),
+    "cache_bogo_ops_s_cpu": ("Cache — CPU time",         "bogo ops/s"),
+    "disk_seqread_MiBs":    ("Sequential read",          "MiB/s"),
+    "disk_seqwrite_MiBs":   ("Sequential write",         "MiB/s"),
+    "disk_iops_qd1":        ("IOPS QD=1 (read)",         "IOPS"),
+    "disk_lat_avg_usec":    ("Average latency",          "µs"),
+    "disk_iops_randread":   ("Random IOPS — read",       "IOPS"),
+    "disk_iops_randwrite":  ("Random IOPS — write",      "IOPS"),
     "gpu_matrixmul_gflops": ("matrixMul",                "GFlop/s"),
     "gpu_nccl_allreduce_busbw_gbs": ("NCCL all_reduce",  "GB/s (busbw)"),
     "gpu_nccl_allgather_busbw_gbs": ("NCCL all_gather",  "GB/s (busbw)"),
     "gpu_nccl_sendrecv_busbw_gbs":  ("NCCL sendrecv",    "GB/s (busbw)"),
 }
 
-# metrica -> subpasta (só organiza a saída em disco; cada figura continua
-# sendo 1 arquivo independente, com título já indicando a seção do artigo)
+# metric -> subfolder (just organizes the on-disk output; each figure is
+# still 1 standalone file, with a title that already indicates the paper
+# section)
 SECAO = {
-    "cpu_bogo_ops_s_real": ("cpu", "Seção 5.2"), "cpu_bogo_ops_s_cpu": ("cpu", "Seção 5.2"),
-    "mem_bogo_ops_s_real": ("memoria", "Seção 5.3"), "mem_bogo_ops_s_cpu": ("memoria", "Seção 5.3"),
-    "stream_copy_mbs": ("memoria", "Seção 5.3"), "stream_scale_mbs": ("memoria", "Seção 5.3"),
-    "stream_add_mbs": ("memoria", "Seção 5.3"), "stream_triad_mbs": ("memoria", "Seção 5.3"),
-    "cache_bogo_ops_s_real": ("cache", "Seção 5.4"), "cache_bogo_ops_s_cpu": ("cache", "Seção 5.4"),
-    "disk_seqread_MiBs": ("disco_seq", "Seção 5.5"), "disk_seqwrite_MiBs": ("disco_seq", "Seção 5.5"),
-    "disk_iops_qd1": ("disco_seq", "Seção 5.5"), "disk_lat_avg_usec": ("disco_seq", "Seção 5.5"),
-    "disk_iops_randread": ("disco_iops", "Seção 5.6"), "disk_iops_randwrite": ("disco_iops", "Seção 5.6"),
-    "gpu_matrixmul_gflops": ("gpu", "Seção 5.7"),
-    "gpu_nccl_allreduce_busbw_gbs": ("gpu", "Seção 5.7"),
-    "gpu_nccl_allgather_busbw_gbs": ("gpu", "Seção 5.7"),
-    "gpu_nccl_sendrecv_busbw_gbs": ("gpu", "Seção 5.7"),
+    "cpu_bogo_ops_s_real": ("cpu", "Section 5.2"), "cpu_bogo_ops_s_cpu": ("cpu", "Section 5.2"),
+    "mem_bogo_ops_s_real": ("memory", "Section 5.3"), "mem_bogo_ops_s_cpu": ("memory", "Section 5.3"),
+    "stream_copy_mbs": ("memory", "Section 5.3"), "stream_scale_mbs": ("memory", "Section 5.3"),
+    "stream_add_mbs": ("memory", "Section 5.3"), "stream_triad_mbs": ("memory", "Section 5.3"),
+    "cache_bogo_ops_s_real": ("cache", "Section 5.4"), "cache_bogo_ops_s_cpu": ("cache", "Section 5.4"),
+    "disk_seqread_MiBs": ("disk_seq", "Section 5.5"), "disk_seqwrite_MiBs": ("disk_seq", "Section 5.5"),
+    "disk_iops_qd1": ("disk_seq", "Section 5.5"), "disk_lat_avg_usec": ("disk_seq", "Section 5.5"),
+    "disk_iops_randread": ("disk_iops", "Section 5.6"), "disk_iops_randwrite": ("disk_iops", "Section 5.6"),
+    "gpu_matrixmul_gflops": ("gpu", "Section 5.7"),
+    "gpu_nccl_allreduce_busbw_gbs": ("gpu", "Section 5.7"),
+    "gpu_nccl_allgather_busbw_gbs": ("gpu", "Section 5.7"),
+    "gpu_nccl_sendrecv_busbw_gbs": ("gpu", "Section 5.7"),
 }
 
-# Motivo da ausência de QEMU numa métrica — NÃO é o mesmo motivo pra STREAM
-# e pra GPU, então usamos um dict em vez de uma string fixa condicional:
-#   - STREAM: falha real de build/execução sob TCG (métrica é coletada, mas
-#     sai numericamente inválida — Best Rate=0.0, Max time com overflow de
-#     float — e é descartada em parse_file; ver comentário no bloco STREAM).
-#   - GPU (matrixMul/NCCL): QEMU puro nunca foi testado aqui por DESENHO
-#     experimental (RQ4 restringe GPU a host/KVM), e também não teria como
-#     funcionar sem VFIO/passthrough (TCG não expõe driver NVIDIA à VM) —
-#     isso é uma limitação de escopo conhecida, não uma falha de execução.
+# Reason QEMU is missing from a metric — NOT the same reason for STREAM
+# and for GPU, so we use a dict instead of a fixed conditional string:
+#   - STREAM: a real build/execution failure under TCG (the metric is
+#     collected, but comes out numerically invalid — Best Rate=0.0, Max
+#     time overflowing to float — and is discarded in parse_file; see
+#     the comment in the STREAM block).
+#   - GPU (matrixMul/NCCL): plain QEMU was never tested here by
+#     experimental DESIGN (RQ4 restricts GPU to host/KVM), and it also
+#     couldn't work without VFIO/passthrough (TCG doesn't expose the
+#     NVIDIA driver to the VM) — this is a known scope limitation, not
+#     an execution failure.
 MOTIVO_EXCLUSAO_QEMU = {
-    "stream_copy_mbs": "QEMU excluído — falha de build/execução sob TCG (SIMD/VSX não implementado)",
-    "stream_scale_mbs": "QEMU excluído — falha de build/execução sob TCG (SIMD/VSX não implementado)",
-    "stream_add_mbs": "QEMU excluído — falha de build/execução sob TCG (SIMD/VSX não implementado)",
-    "stream_triad_mbs": "QEMU excluído — falha de build/execução sob TCG (SIMD/VSX não implementado)",
-    "gpu_matrixmul_gflops": "QEMU fora de escopo (RQ4) — driver NVIDIA não suportado sem VFIO/passthrough",
-    "gpu_nccl_allreduce_busbw_gbs": "QEMU fora de escopo (RQ4) — driver NVIDIA não suportado sem VFIO/passthrough",
-    "gpu_nccl_allgather_busbw_gbs": "QEMU fora de escopo (RQ4) — driver NVIDIA não suportado sem VFIO/passthrough",
-    "gpu_nccl_sendrecv_busbw_gbs": "QEMU fora de escopo (RQ4) — driver NVIDIA não suportado sem VFIO/passthrough",
+    "stream_copy_mbs": "QEMU excluded — build/execution failure under TCG (SIMD/VSX not implemented)",
+    "stream_scale_mbs": "QEMU excluded — build/execution failure under TCG (SIMD/VSX not implemented)",
+    "stream_add_mbs": "QEMU excluded — build/execution failure under TCG (SIMD/VSX not implemented)",
+    "stream_triad_mbs": "QEMU excluded — build/execution failure under TCG (SIMD/VSX not implemented)",
+    "gpu_matrixmul_gflops": "QEMU out of scope (RQ4) — NVIDIA driver unsupported without VFIO/passthrough",
+    "gpu_nccl_allreduce_busbw_gbs": "QEMU out of scope (RQ4) — NVIDIA driver unsupported without VFIO/passthrough",
+    "gpu_nccl_allgather_busbw_gbs": "QEMU out of scope (RQ4) — NVIDIA driver unsupported without VFIO/passthrough",
+    "gpu_nccl_sendrecv_busbw_gbs": "QEMU out of scope (RQ4) — NVIDIA driver unsupported without VFIO/passthrough",
 }
 
-# Cor por AMBIENTE — consistente com o resto do artigo (não por VM)
+# Color per ENVIRONMENT — consistent across the paper (not per VM)
 COR_AMBIENTE = {"host": "#4d4d4d", "kvm": "#1f77b4", "qemu": "#d97706"}
 ORDEM_AMBIENTES = ["host", "kvm", "qemu"]
 
 
 def _cor_vm_map(sub: pd.DataFrame) -> dict:
-    """Mapa VM -> cor, consistente entre chamadas (mesma VM = mesma cor
-    em qualquer figura que a coloriza)."""
+    """VM -> color map, consistent across calls (same VM = same color
+    in any figure that colors it)."""
     paleta = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
     vms = sorted(v for v in sub["vm_id"].unique() if v != "host")
     return {vm: paleta[i % len(paleta)] for i, vm in enumerate(vms)}
 
 
-# jitter horizontal discreto — só o suficiente pra separar pontos
-# sobrepostos, sem espalhar a nuvem a ponto de competir com o boxplot
+# small horizontal jitter — just enough to separate overlapping points,
+# without spreading the cloud so much it competes with the boxplot
 _JITTER_STD = 0.035
 
-# Dentro de UM ambiente (não mais entre ambientes — ver nota em
-# _plot_metrica), acima dessa razão entre o maior e o menor valor
-# positivo, a escala linear comprime demais a própria distribuição desse
-# ambiente e passamos pra log.
+# Within ONE environment (no longer across environments — see the note
+# in _plot_metrica), above this ratio between the largest and smallest
+# positive value, the linear scale compresses that environment's own
+# distribution too much and we switch to log.
 RAZAO_LOG = 8.0
 
 
 def _pontos_do_ambiente(ax, vals_por_vm: dict, ambiente_heterogeneo: bool,
                          vm_color_map: dict, rng: np.random.Generator, legend_handles: dict) -> None:
-    """Desenha os pontos individuais de UM ambiente, centrados em x=1 (cada
-    ambiente agora tem seu próprio Axes — ver _plot_metrica). Cor neutra
-    (cinza) por padrão; cor por VM só quando esse ambiente tem
-    heterogeneidade significativa entre VMs (`ambiente_heterogeneo`).
-    Pontos ficam em zorder baixo — servem só para mostrar dispersão, o
-    boxplot é desenhado por cima e é o elemento visual dominante."""
+    """Draws the individual points of ONE environment, centered at x=1
+    (each environment now has its own Axes — see _plot_metrica). Neutral
+    (gray) color by default; color by VM only when that environment has
+    significant heterogeneity between VMs (`ambiente_heterogeneo`).
+    Points sit at a low zorder — they're only there to show spread, the
+    boxplot is drawn on top and is the dominant visual element."""
     if ambiente_heterogeneo:
         for vm, vvals in vals_por_vm.items():
             jitter = rng.normal(0, _JITTER_STD, size=len(vvals))
@@ -735,18 +739,19 @@ def _pontos_do_ambiente(ax, vals_por_vm: dict, ambiente_heterogeneo: bool,
 def _plot_ambiente(ax, sub_amb: pd.DataFrame, amb: str, cor: str, unidade: str,
                     ambiente_heterogeneo: bool, vm_color_map: dict,
                     rng: np.random.Generator, legend_handles: dict) -> None:
-    """Desenha o boxplot + pontos de UM ambiente num Axes só dele, com
-    escala Y dimensionada apenas pelos dados deste ambiente (ver
-    _plot_metrica para o porquê disso ser essencial aqui).
+    """Draws the boxplot + points of ONE environment in its own Axes,
+    with the Y scale sized only from this environment's data (see
+    _plot_metrica for why that's essential here).
 
-    `legend_handles` é um dict COMPARTILHADO entre todos os ambientes da
-    mesma figura (populado aqui, mas a legenda em si é desenhada uma vez
-    só, fora deste Axes — ver _plot_metrica). Isso evita que a legenda de
-    um ambiente no meio da linha (ex.: KVM, quando há 3 painéis) fique
-    presa às coordenadas daquele Axes especificamente e acabe encostando
-    ou sobrepondo o painel vizinho (ex.: QEMU) — na prática a maioria dos
-    casos de heterogeneidade entre VMs deste experimento ocorre sob KVM,
-    que fica no painel do meio quando os 3 ambientes estão presentes."""
+    `legend_handles` is a dict SHARED across all environments in the
+    same figure (populated here, but the legend itself is drawn once,
+    outside any specific Axes — see _plot_metrica). This keeps the
+    legend for an environment in the middle of the row (e.g. KVM, when
+    there are 3 panels) from being pinned to that specific Axes'
+    coordinates and ending up touching or overlapping the neighboring
+    panel (e.g. QEMU) — in practice most VM-heterogeneity cases in this
+    experiment occur under KVM, which sits in the middle panel when all
+    3 environments are present."""
     vals = sub_amb["valor"].values
     vals_por_vm = {vm: g["valor"].values for vm, g in sub_amb.groupby("vm_id")}
 
@@ -761,47 +766,46 @@ def _plot_ambiente(ax, sub_amb: pd.DataFrame, amb: str, cor: str, unidade: str,
     bp["boxes"][0].set_facecolor(cor)
     bp["boxes"][0].set_alpha(0.6)
 
-    # Escala log só quando OS PRÓPRIOS valores deste ambiente variam muito
-    # entre si (decisão local — cada ambiente tem seu eixo independente).
+    # Log scale only when THIS environment's OWN values vary a lot among
+    # themselves (a local decision — each environment has its own axis).
     positivos = vals[vals > 0]
     if len(positivos) >= 2 and (positivos.max() / positivos.min()) > RAZAO_LOG:
         ax.set_yscale("log")
 
     ax.set_ylabel(unidade)
     ax.grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.35, zorder=0)
-    # Cada painel tem sua própria escala Y (ver _plot_metrica) — o número de
-    # ordem de grandeza plotado varia entre painéis, então cravamos margem
-    # extra pra caixa/whiskers nunca encostarem na borda do painel.
+    # Each panel has its own Y scale (see _plot_metrica) — the order of
+    # magnitude plotted varies between panels, so we add extra margin so
+    # the box/whiskers never touch the panel border.
     ax.margins(y=0.08)
 
 
 def _plot_metrica(df: pd.DataFrame, metrica: str, df_heterog: Optional[pd.DataFrame] = None):
-    """Gera a Figure de UMA métrica como um painel de pequenos múltiplos:
-    UM subplot por ambiente presente, cada um com escala Y INDEPENDENTE.
+    """Generates the Figure for ONE metric as a small-multiples panel:
+    ONE subplot per environment present, each with an INDEPENDENT Y scale.
 
-    Por quê: um único eixo compartilhado entre host/KVM/QEMU só funciona
-    quando os três têm magnitude parecida. Neste experimento isso é a
-    exceção, não a regra — QEMU costuma ser 10-90x mais lento que
-    host/KVM em CPU/memória/cache. Com um eixo linear compartilhado, o(s)
-    grupo(s) de menor variância absoluta (normalmente host) fica(m)
-    reduzido(s) a uma linha reta sem caixa visível — um boxplot que não
-    informa nada sobre aquele grupo. Trocar só a escala (linear -> log)
-    no eixo compartilhado não resolve: o problema não é a escala em si, é
-    que a AMPLITUDE de cada grupo precisa do seu próprio referencial pra
-    ficar legível, e amplitude entre grupos difere tanto quanto a
-    magnitude. A solução padrão pra esse cenário (grupos com
-    localização/escala muito diferentes) é small multiples: cada ambiente
-    ganha seu próprio Axes, dimensionado só para os seus dados — dessa
-    forma a caixa, os whiskers e os pontos de QUALQUER ambiente, grande ou
-    pequeno, ficam sempre legíveis.
+    Why: a single axis shared across host/KVM/QEMU only works when all
+    three have similar magnitude. In this experiment that's the
+    exception, not the rule — QEMU is typically 10-90x slower than
+    host/KVM on CPU/memory/cache. With a shared linear axis, the
+    group(s) with lower absolute variance (usually host) get reduced to
+    a flat line with no visible box — a boxplot that tells you nothing
+    about that group. Just switching the shared axis's scale (linear ->
+    log) doesn't fix it: the problem isn't the scale itself, it's that
+    each group's SPREAD needs its own reference frame to stay legible,
+    and spread differs between groups just as much as magnitude does.
+    The standard solution for this scenario (groups with very different
+    location/scale) is small multiples: each environment gets its own
+    Axes, sized only for its own data — this way the box, whiskers and
+    points of ANY environment, large or small, stay legible.
 
-    A comparação de MAGNITUDE relativa entre ambientes (o "quantos % mais
-    lento") já é coberta pelas figuras finais do artigo
-    (results/figures/fig1..4, geradas por geracao_graficos.R). Esta figura
-    aqui é deliberadamente sobre a
-    FORMA de cada distribuição (IQR, caudas, outliers, heterogeneidade
-    entre VMs), não sobre comparar alturas de caixa entre painéis — por
-    isso a nota no título abaixo avisando que os eixos são independentes.
+    The relative-MAGNITUDE comparison between environments (the "how
+    many % slower") is already covered by the paper's final figures
+    (results/figures/fig1..4, generated by generate_plots.R). This
+    figure here is deliberately about the SHAPE of each distribution
+    (IQR, tails, outliers, VM heterogeneity), not about comparing box
+    heights across panels — hence the note in the title below warning
+    that the axes are independent.
     """
     sub = df[df["metrica"] == metrica]
     rotulo, unidade = ROTULOS.get(metrica, (metrica, ""))
@@ -822,9 +826,9 @@ def _plot_metrica(df: pd.DataFrame, metrica: str, df_heterog: Optional[pd.DataFr
     rng = np.random.default_rng(0)
     vm_color_map = _cor_vm_map(sub)
 
-    # Compartilhado entre todos os ambientes desta figura — a legenda é
-    # desenhada UMA vez, fora de qualquer Axes específico (ver docstring
-    # de _plot_ambiente e o fig.legend mais abaixo).
+    # Shared across all environments in this figure — the legend is
+    # drawn ONCE, outside any specific Axes (see the _plot_ambiente
+    # docstring and the fig.legend further below).
     legend_handles = {}
     for ax, amb in zip(axes, ambientes_presentes):
         sub_amb = sub[sub["ambiente"] == amb]
@@ -836,16 +840,16 @@ def _plot_metrica(df: pd.DataFrame, metrica: str, df_heterog: Optional[pd.DataFr
     if secao:
         titulo_fig += f" ({secao})"
     if "qemu" not in ambientes_presentes and "kvm" in ambientes_presentes:
-        titulo_fig += f"\n{MOTIVO_EXCLUSAO_QEMU.get(metrica, 'QEMU excluído — motivo não catalogado')}"
-    titulo_fig += "\nescala Y independente por painel — não compare alturas de caixa entre ambientes"
+        titulo_fig += f"\n{MOTIVO_EXCLUSAO_QEMU.get(metrica, 'QEMU excluded — reason not catalogued')}"
+    titulo_fig += "\nindependent Y scale per panel — do not compare box heights across environments"
     fig.suptitle(titulo_fig, fontsize=10.5)
 
-    # Legenda de VM fora da área de plotagem (à direita da figura inteira),
-    # em vez de dentro de um Axes específico — evita sobrepor a caixa/os
-    # pontos de dados, e evita colidir com o painel vizinho quando o
-    # ambiente heterogêneo é o do meio (tipicamente KVM, quando os 3
-    # ambientes estão presentes). bbox_inches="tight" no savefig (ver
-    # gerar_graficos) garante que a legenda não seja cortada ao salvar.
+    # VM legend outside the plotting area (to the right of the whole
+    # figure), instead of inside a specific Axes — avoids overlapping the
+    # box/data points, and avoids colliding with the neighboring panel
+    # when the heterogeneous environment is the middle one (typically
+    # KVM, when all 3 environments are present). bbox_inches="tight" in
+    # savefig (see gerar_graficos) keeps the legend from being cut off.
     if legend_handles:
         fig.legend(legend_handles.values(), legend_handles.keys(),
                    loc="upper left", bbox_to_anchor=(1.0, 0.95), bbox_transform=fig.transFigure,
@@ -855,16 +859,16 @@ def _plot_metrica(df: pd.DataFrame, metrica: str, df_heterog: Optional[pd.DataFr
 
 
 def gerar_graficos(df: pd.DataFrame, out_dir: str, df_heterog: Optional[pd.DataFrame] = None) -> None:
-    """Gera 1 figura por métrica (painel de pequenos múltiplos, um subplot
-    por ambiente — ver _plot_metrica), organizadas em subpastas por seção
-    do artigo: out_dir/graficos/<secao>/<metrica>.png"""
-    graf_dir_base = os.path.join(out_dir, "graficos")
+    """Generates 1 figure per metric (small-multiples panel, one subplot
+    per environment — see _plot_metrica), organized into subfolders by
+    paper section: out_dir/plots/<section>/<metrica>.png"""
+    graf_dir_base = os.path.join(out_dir, "plots")
     os.makedirs(graf_dir_base, exist_ok=True)
 
     for metrica in df["metrica"].unique():
         if metrica not in ROTULOS:
-            continue  # métrica sem rótulo mapeado (ex.: nova métrica futura) — pula
-        pasta, _ = SECAO.get(metrica, ("outros", None))
+            continue  # metric with no mapped label (e.g. a future new metric) — skip
+        pasta, _ = SECAO.get(metrica, ("other", None))
         graf_dir = os.path.join(graf_dir_base, pasta)
         os.makedirs(graf_dir, exist_ok=True)
 
@@ -875,26 +879,26 @@ def gerar_graficos(df: pd.DataFrame, out_dir: str, df_heterog: Optional[pd.DataF
         fig.savefig(os.path.join(graf_dir, f"{metrica}.png"),
                     dpi=200, bbox_inches="tight")
         plt.close(fig)
-        print(f"  salvo: {pasta}/{metrica}.png")
+        print(f"  saved: {pasta}/{metrica}.png")
 
 
 # ---------------------------------------------------------------------------
-# HEATMAPS — resumo compacto dos testes formais das ~19 métricas de uma vez
-# só (hoje isso só existe espalhado em resultados_estatisticos.csv/
-# relatorio.txt). Estes heatmaps COMPLEMENTAM os boxplots de gerar_graficos
-# (que mostram a distribuição dos dados brutos por ambiente) — não os
-# substituem.
+# HEATMAPS — a compact summary of the formal tests for all ~19 metrics at
+# once (today this only exists scattered across statistical_results.csv/
+# report.txt). These heatmaps COMPLEMENT the boxplots from gerar_graficos
+# (which show the raw data distribution per environment) — they don't
+# replace them.
 # ---------------------------------------------------------------------------
 
-# Faixas de significância usadas nos dois heatmaps abaixo. Código 0 é
-# reservado a "sem dado" (NaN — ex.: teste não aplicável) e fica cinza,
-# nunca verde/vermelho, pra não ser confundido com "não significativo".
+# Significance bands used in the two heatmaps below. Code 0 is reserved
+# for "no data" (NaN — e.g. test not applicable) and is gray, never
+# green/red, so it isn't mistaken for "not significant".
 _CORES_P = ["#d9d9d9", "#2ca25f", "#fee08b", "#fc8d59", "#d73027"]
-_LEGENDA_P = ["sem dado", "n.s. (p≥0.05)", "p<0.05", "p<0.01", "p<0.001"]
+_LEGENDA_P = ["no data", "n.s. (p≥0.05)", "p<0.05", "p<0.01", "p<0.001"]
 
 
 def _bin_p_valor(p: float) -> int:
-    """Categoriza um p-valor nas faixas de _CORES_P/_LEGENDA_P."""
+    """Buckets a p-value into the _CORES_P/_LEGENDA_P bands."""
     if pd.isna(p):
         return 0
     if p < 0.001:
@@ -915,9 +919,9 @@ def _formatar_p(p: float) -> str:
 
 
 def _ordem_metricas_presentes(metricas_disponiveis) -> list[str]:
-    """Ordena métricas seguindo a mesma ordem de seção do artigo usada em
-    ROTULOS/SECAO (não a ordem alfabética do CSV), com qualquer métrica
-    não catalogada em ROTULOS anexada ao final."""
+    """Orders metrics following the same paper-section order used in
+    ROTULOS/SECAO (not the CSV's alphabetical order), with any metric
+    not catalogued in ROTULOS appended at the end."""
     disponiveis = set(metricas_disponiveis)
     ordenadas = [m for m in ROTULOS if m in disponiveis]
     restantes = sorted(disponiveis - set(ordenadas))
@@ -928,22 +932,23 @@ def _rotulo_curto(metrica: str) -> str:
     return ROTULOS.get(metrica, (metrica, ""))[0]
 
 
-# Uma métrica por domínio experimental, para a figura "principal" (corpo do
-# artigo) — a versão "_completo" com as ~19 métricas continua sendo gerada
-# à parte, para auditoria/apêndice; nada é escondido, só reordenado por
-# relevância editorial. Critério de escolha (registrar no texto, não só
-# aqui, porque é uma decisão de conteúdo, não só de código):
-#   - cpu/mem: tempo REAL (não tempo de CPU) — é o tempo de parede que capta
-#     overhead de escalonamento do hipervisor; tempo de CPU tende a subestimar
-#     esse efeito.
-#   - cache: liga à anomalia "Cache (RESOLVIDA)" já documentada em
-#     docs/METHODOLOGY.md (topologia de cache incompleta exposta ao guest).
-#   - stream: Triad é a métrica-resumo mais citada na literatura do STREAM
-#     (McCalpin) — combina leitura+escrita+multiplicação num único número.
-#   - disco: latência QD=1 liga à anomalia "EM ABERTO" também documentada em
-#     docs/METHODOLOGY.md (latência menor sob virtualização — contraintuitivo).
-#   - gpu: matrixMul é o benchmark de computação pura; os 3 NCCL medem
-#     interconexão entre GPUs, uma pergunta distinta (fica no "_completo").
+# One metric per experimental domain, for the "main" figure (paper body)
+# — the "_full" version with all ~19 metrics is still generated
+# separately, for audit/appendix; nothing is hidden, just reordered by
+# editorial relevance. Selection criteria (recorded in the text too, not
+# just here, because it's a content decision, not only a code one):
+#   - cpu/mem: REAL time (not CPU time) — it's the wall-clock time that
+#     captures hypervisor scheduling overhead; CPU time tends to
+#     underestimate that effect.
+#   - cache: ties to the "Cache (RESOLVED)" anomaly already documented in
+#     docs/METHODOLOGY.md (incomplete cache topology exposed to the guest).
+#   - stream: Triad is the most commonly cited summary metric in the
+#     STREAM literature (McCalpin) — combines read+write+multiply into a
+#     single number.
+#   - disk: QD=1 latency ties to the "OPEN" anomaly also documented in
+#     docs/METHODOLOGY.md (lower latency under virtualization — counterintuitive).
+#   - gpu: matrixMul is the pure-compute benchmark; the 3 NCCL ones
+#     measure inter-GPU interconnect, a distinct question (stays in "_full").
 METRICAS_PRINCIPAIS = [
     "cpu_bogo_ops_s_real",
     "mem_bogo_ops_s_real",
@@ -980,29 +985,29 @@ METRICAS_2_AMBIENTES = [
 def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
                             metricas_alvo: Optional[list] = None,
                             sufixo: str = "") -> None:
-    """heatmap_significancia{sufixo}.png — métricas (linha) x testes formais
-    (coluna). As colunas NÃO formam um único eixo homogêneo — são dois
-    grupos conceitualmente diferentes, separados por uma linha vertical e
-    rótulos de grupo:
+    """significance_heatmap{sufixo}.png — metrics (row) x formal tests
+    (column). The columns do NOT form a single homogeneous axis — they
+    are two conceptually different groups, separated by a vertical line
+    and group labels:
 
-      1) "Verificação de pressupostos" (Shapiro host/kvm/qemu, Levene): aqui
-         p BAIXO (vermelho) significa pressuposto VIOLADO (não-normalidade
-         ou heterocedasticidade) — é o que decide ANOVA vs. Kruskal-Wallis,
-         não é uma "diferença real" entre ambientes.
-      2) "Teste de hipótese" (teste global bruto e p_fdr_corrigido): aqui
-         p BAIXO (vermelho) significa diferença estatisticamente
-         significativa detectada entre host/KVM/QEMU — é o resultado
-         substantivo. p_fdr_corrigido (Benjamini-Hochberg entre todas as
-         métricas) é o valor que deve orientar conclusões ao comparar
-         várias métricas simultaneamente.
+      1) "Assumption checks" (Shapiro host/kvm/qemu, Levene): here a LOW
+         p-value (red) means the assumption was VIOLATED (non-normality
+         or heteroscedasticity) — this decides ANOVA vs. Kruskal-Wallis,
+         it is not a "real difference" between environments.
+      2) "Hypothesis test" (raw global test and p_fdr_corrigido): here a
+         LOW p-value (red) means a statistically significant difference
+         was detected between host/KVM/QEMU — this is the substantive
+         result. p_fdr_corrigido (Benjamini-Hochberg across all metrics)
+         is the value that should guide conclusions when comparing
+         several metrics at once.
 
-    Misturar os dois grupos sob um único rótulo de eixo x (ex.: "p-valor")
-    seria enganoso, porque teria o leitor lendo "muito vermelho" como
-    "muitas diferenças reais", quando parte do vermelho pode ser só
-    "dados não são normais" — daí a separação visual explícita.
+    Mixing the two groups under a single x-axis label (e.g. "p-value")
+    would be misleading, because it would have the reader reading "lots
+    of red" as "lots of real differences", when part of the red might
+    just be "data isn't normal" — hence the explicit visual separation.
 
-    Effect size (ε²) fica num terceiro subplot à parte, com colormap
-    contínuo próprio (não é p-valor, é magnitude)."""
+    Effect size (ε²) sits in a separate third subplot, with its own
+    continuous colormap (it isn't a p-value, it's a magnitude)."""
     disponiveis = _ordem_metricas_presentes(df_stats["metrica"])
     metricas = ([m for m in disponiveis if m in set(metricas_alvo)]
                 if metricas_alvo is not None else disponiveis)
@@ -1013,8 +1018,8 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
         "Shapiro\nKVM": "kvm_shapiro_p",
         "Shapiro\nQEMU": "qemu_shapiro_p",
         "Levene": "levene_p",
-        "Teste\nglobal (p)": "teste_global_p",
-        "p FDR-\ncorrigido": "p_fdr_corrigido",
+        "Global\ntest (p)": "teste_global_p",
+        "FDR-\ncorrected p": "p_fdr_corrigido",
     }
     if "qemu_shapiro_p" not in idx.columns or idx["qemu_shapiro_p"].isna().all():
         colunas_p.pop("Shapiro\nQEMU", None)
@@ -1028,19 +1033,19 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
 
     rotulos_linha = [_rotulo_curto(m) for m in metricas]
     n = len(metricas)
-    # Sem título/legenda-texto embutidos na imagem: em artigo (caption via
-    # LaTeX), título e texto interpretativo duplicado dentro da figura são
-    # redundantes/não-usuais.
-    # Fonte grande (11-12pt) porque a figura tende a ser incluída em largura
-    # de coluna/página menor que o tamanho nativo (ex.: 2 colunas ACM).
+    # No title/text-legend embedded in the image: in a paper (caption via
+    # LaTeX), a title and interpretive text duplicated inside the figure
+    # are redundant/unusual.
+    # Large font (11-12pt) because the figure tends to be included at a
+    # column/page width smaller than its native size (e.g. 2-column ACM).
     fig = plt.figure(figsize=(8.5, 0.40 * n + 1.5))
     gs = fig.add_gridspec(1, 2, width_ratios=[6, 1.1], wspace=0.3)
     ax_p = fig.add_subplot(gs[0, 0])
-    # Sem sharey de propósito: os dois `sns.heatmap` abaixo já recebem o
-    # mesmo número de linhas (n) e a mesma altura de figura, então as
-    # linhas ficam alinhadas de qualquer forma — compartilhar o eixo Y
-    # aqui faz o segundo `sns.heatmap` (chamado com yticklabels=False)
-    # sobrescrever/ocultar os rótulos de métrica desenhados pelo primeiro.
+    # No sharey on purpose: the two `sns.heatmap` calls below already get
+    # the same number of rows (n) and the same figure height, so the
+    # rows stay aligned regardless — sharing the Y axis here would make
+    # the second `sns.heatmap` (called with yticklabels=False) overwrite/
+    # hide the metric labels drawn by the first one.
     ax_e = fig.add_subplot(gs[0, 1])
 
     cmap_p = ListedColormap(_CORES_P)
@@ -1052,13 +1057,13 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
     ax_p.tick_params(axis="x", rotation=0, labelsize=11)
     ax_p.tick_params(axis="y", labelsize=11)
 
-    # Divisor visual + rótulos de grupo entre "pressupostos" e "teste de
-    # hipótese" (ver docstring acima — são naturezas de p-valor diferentes).
+    # Visual divider + group labels between "assumption checks" and
+    # "hypothesis test" (see docstring above — different natures of p-value).
     n_cols_p = len(colunas_p)
     ax_p.axvline(x=n_pressupostos, color="#333333", linewidth=1.8, clip_on=False)
-    ax_p.text(n_pressupostos / 2, -0.55, "Verificação de pressupostos",
+    ax_p.text(n_pressupostos / 2, -0.55, "Assumption checks",
               ha="center", va="bottom", fontsize=11.5, fontweight="bold", clip_on=False)
-    ax_p.text(n_pressupostos + (n_cols_p - n_pressupostos) / 2, -0.55, "Teste de hipótese",
+    ax_p.text(n_pressupostos + (n_cols_p - n_pressupostos) / 2, -0.55, "Hypothesis test",
               ha="center", va="bottom", fontsize=11.5, fontweight="bold", clip_on=False)
 
     sns.heatmap(effect, annot=True, fmt=".3f", cmap="Blues", vmin=0,
@@ -1066,6 +1071,7 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
                 mask=effect.isna(), cbar=True, cbar_kws={"label": "ε² (Kruskal-Wallis)"},
                 linewidths=0.6, linecolor="white", ax=ax_e,
                 yticklabels=False, annot_kws={"fontsize": 11})
+    ax_e.set_ylabel("")
     ax_e.tick_params(axis="x", rotation=0, labelsize=11)
     ax_e.text(0.5, -0.55, "Magnitude",
               ha="center", va="bottom", fontsize=11.5, fontweight="bold", clip_on=False)
@@ -1075,25 +1081,25 @@ def _heatmap_significancia(df_stats: pd.DataFrame, heat_dir: str,
     fig.legend(handles=legend_elems, loc="lower center", ncol=3,
                bbox_to_anchor=(0.5, -0.14), frameon=False, fontsize=10.5)
 
-    nome_arquivo = f"heatmap_significancia{sufixo}.png"
+    nome_arquivo = f"significance_heatmap{sufixo}.png"
     fig.savefig(os.path.join(heat_dir, nome_arquivo), dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print(f"  salvo: heatmaps/{nome_arquivo}")
+    print(f"  saved: heatmaps/{nome_arquivo}")
 
 
 def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
                               metricas_alvo: Optional[list] = None,
                               sufixo: str = "") -> None:
-    """heatmap_heterogeneidade_vm{sufixo}.png — métricas (linha) x [Het. KVM,
-    Het. QEMU] (coluna): testa se as 3 VMs de origem de cada tratamento
-    diferem entre si (ver checar_heterogeneidade_vms). Complementa
-    heatmap_significancia{sufixo}.png, que é sobre host vs. KVM vs. QEMU, não
-    sobre VM vs. VM dentro do mesmo tratamento. Aqui as duas colunas (KVM,
-    QEMU) são da mesma natureza — o mesmo teste aplicado a dois tratamentos
-    — então, ao contrário de heatmap_significancia, não há necessidade de
-    separar em grupos: um único rótulo de eixo x já é suficiente."""
+    """vm_heterogeneity_heatmap{sufixo}.png — metrics (row) x [KVM Het.,
+    QEMU Het.] (column): tests whether the 3 source VMs of each treatment
+    differ from each other (see checar_heterogeneidade_vms). Complements
+    significance_heatmap{sufixo}.png, which is about host vs. KVM vs.
+    QEMU, not about VM vs. VM within the same treatment. Here the two
+    columns (KVM, QEMU) are of the same nature — the same test applied to
+    two treatments — so, unlike significance_heatmap, there's no need to
+    split into groups: a single x-axis label is already enough."""
     if df_heterog is None or df_heterog.empty:
-        print(f"  [aviso] heterogeneidade_entre_vms vazio — heatmap_heterogeneidade_vm{sufixo}.png não gerado")
+        print(f"  [warning] heterogeneidade_entre_vms empty — vm_heterogeneity_heatmap{sufixo}.png not generated")
         return
 
     pivot_p = df_heterog.pivot(index="metrica", columns="ambiente", values="kruskal_p")
@@ -1107,8 +1113,8 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
     pivot_het = pivot_het.reindex(index=metricas, columns=colunas)
 
     cores = ["#d9d9d9", "#2ca25f", "#d73027"]
-    legenda = ["sem dado (<2 VMs válidas)", "homogêneo (p≥0.05)",
-               "heterogêneo (p<0.05)"]
+    legenda = ["no data (<2 valid VMs)", "homogeneous (p≥0.05)",
+               "heterogeneous (p<0.05)"]
 
     def _bin_het(v):
         if pd.isna(v):
@@ -1118,12 +1124,12 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
     codes = pivot_het.map(_bin_het)
     textos = pivot_p.map(lambda p: "—" if pd.isna(p) else _formatar_p(p))
     rotulos_linha = [_rotulo_curto(m) for m in metricas]
-    rotulos_coluna = ["Het. KVM" if c == "kvm" else "Het. QEMU" for c in colunas]
+    rotulos_coluna = ["KVM Het." if c == "kvm" else "QEMU Het." for c in colunas]
 
     n = len(metricas)
-    # Sem título embutido (caption via LaTeX no artigo). Fonte grande (13pt)
-    # pelo mesmo motivo do heatmap de significância: a imagem costuma ser
-    # incluída menor que o tamanho nativo.
+    # No embedded title (caption via LaTeX in the paper). Large font (13pt)
+    # for the same reason as the significance heatmap: the image tends to
+    # be included smaller than its native size.
     fig, ax = plt.subplots(figsize=(5.2, 0.45 * n + 1.3))
     cmap = ListedColormap(cores)
     norm = BoundaryNorm([-0.5, 0.5, 1.5, 2.5], len(cores))
@@ -1140,25 +1146,25 @@ def _heatmap_heterogeneidade(df_heterog: Optional[pd.DataFrame], heat_dir: str,
     fig.legend(handles=legend_elems, loc="upper left", bbox_to_anchor=(1.0, 0.9),
                bbox_transform=fig.transFigure, frameon=False, fontsize=11)
 
-    nome_arquivo = f"heatmap_heterogeneidade_vm{sufixo}.png"
+    nome_arquivo = f"vm_heterogeneity_heatmap{sufixo}.png"
     fig.savefig(os.path.join(heat_dir, nome_arquivo), dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print(f"  salvo: heatmaps/{nome_arquivo}")
+    print(f"  saved: heatmaps/{nome_arquivo}")
 
 
 def _plot_ic_painel(df_stats: pd.DataFrame, metricas: list, out_path: str,
                      ncol: int = 3, apenas_host_kvm: bool = False) -> None:
-    """Painel de pequenos múltiplos com média +- IC95%, um subplot por
-    métrica, host/KVM/QEMU como categorias no eixo X. Reaproveita ROTULOS
-    e COR_AMBIENTE já definidos no script. Métricas sem QEMU (STREAM, GPU)
-    simplesmente não desenham esse ponto.
+    """Small-multiples panel with mean +- 95% CI, one subplot per metric,
+    host/KVM/QEMU as categories on the X axis. Reuses ROTULOS and
+    COR_AMBIENTE already defined in the script. Metrics without QEMU
+    (STREAM, GPU) simply don't draw that point.
 
-    apenas_host_kvm=True omite o ponto QEMU: seu overhead força o eixo Y a
-    cobrir uma faixa tão grande que a diferença host-vs-KVM, mais sutil,
-    fica ilegível."""
+    apenas_host_kvm=True omits the QEMU point: its overhead forces the Y
+    axis to cover such a large range that the more subtle host-vs-KVM
+    difference becomes illegible."""
     disponiveis = [m for m in metricas if m in df_stats["metrica"].values]
     if not disponiveis:
-        print(f"  [aviso] nenhuma métrica disponível para {out_path}")
+        print(f"  [warning] no metric available for {out_path}")
         return
     idx = df_stats.set_index("metrica")
     n = len(disponiveis)
@@ -1191,43 +1197,43 @@ def _plot_ic_painel(df_stats: pd.DataFrame, metricas: list, out_path: str,
     for ax in axes[n:]:
         ax.axis("off")
 
-    titulo = "Média com intervalo de confiança de 95% (bootstrap)"
+    titulo = "Mean with 95% confidence interval (bootstrap)"
     if apenas_host_kvm:
-        titulo += " — zoom Host vs. KVM (sem QEMU)"
+        titulo += " — Host vs. KVM zoom (no QEMU)"
     fig.suptitle(titulo, fontsize=13, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(out_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
-    print(f"  salvo: {out_path}")
+    print(f"  saved: {out_path}")
 
 
 def gerar_paineis_ic(df_stats: pd.DataFrame, out_dir: str) -> None:
-    """Gera quatro painéis de IC95%: curado x completo, cada um em escala
-    completa (3 ambientes) e em zoom (só host/KVM)."""
-    ic_dir = os.path.join(out_dir, "intervalos_confianca")
+    """Generates four 95% CI panels: curated x full, each at full scale
+    (3 environments) and zoomed (host/KVM only)."""
+    ic_dir = os.path.join(out_dir, "confidence_intervals")
     os.makedirs(ic_dir, exist_ok=True)
     todas_metricas = _ordem_metricas_presentes(df_stats["metrica"])
-    _plot_ic_painel(df_stats, METRICAS_PRINCIPAIS, os.path.join(ic_dir, "ic95_curado.png"), ncol=3)
-    _plot_ic_painel(df_stats, todas_metricas, os.path.join(ic_dir, "ic95_completo.png"), ncol=4)
-    _plot_ic_painel(df_stats, METRICAS_PRINCIPAIS, os.path.join(ic_dir, "ic95_curado_2ambientes.png"),
+    _plot_ic_painel(df_stats, METRICAS_PRINCIPAIS, os.path.join(ic_dir, "ci95_curated.png"), ncol=3)
+    _plot_ic_painel(df_stats, todas_metricas, os.path.join(ic_dir, "ci95_full.png"), ncol=4)
+    _plot_ic_painel(df_stats, METRICAS_PRINCIPAIS, os.path.join(ic_dir, "ci95_curated_2env.png"),
                      ncol=3, apenas_host_kvm=True)
-    _plot_ic_painel(df_stats, todas_metricas, os.path.join(ic_dir, "ic95_completo_2ambientes.png"),
+    _plot_ic_painel(df_stats, todas_metricas, os.path.join(ic_dir, "ci95_full_2env.png"),
                      ncol=4, apenas_host_kvm=True)
 
 
 def gerar_heatmap_resumo(df_stats, df_heterog, out_dir: str) -> None:
-    """Gera seis figuras de heatmap em out_dir/heatmaps/. A divisão
-    3-ambientes vs 2-ambientes evita que o overhead do QEMU domine o
-    Kruskal-Wallis e esconda os efeitos mais sutis do KVM."""
+    """Generates six heatmap figures in out_dir/heatmaps/. The 3-env vs
+    2-env split keeps QEMU's overhead from dominating the Kruskal-Wallis
+    test and hiding the more subtle KVM effects."""
     heat_dir = os.path.join(out_dir, "heatmaps")
     os.makedirs(heat_dir, exist_ok=True)
 
-    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=None, sufixo="_completo")
-    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_3_AMBIENTES, sufixo="_3ambientes")
-    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_2_AMBIENTES, sufixo="_2ambientes")
+    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=None, sufixo="_full")
+    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_3_AMBIENTES, sufixo="_3env")
+    _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_2_AMBIENTES, sufixo="_2env")
     _heatmap_significancia(df_stats, heat_dir, metricas_alvo=METRICAS_PRINCIPAIS, sufixo="")
 
-    _heatmap_heterogeneidade(df_heterog, heat_dir, metricas_alvo=None, sufixo="_completo")
+    _heatmap_heterogeneidade(df_heterog, heat_dir, metricas_alvo=None, sufixo="_full")
     _heatmap_heterogeneidade(df_heterog, heat_dir, metricas_alvo=METRICAS_PRINCIPAIS, sufixo="")
 
 
@@ -1235,12 +1241,12 @@ def gerar_heatmap_resumo(df_stats, df_heterog, out_dir: str) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--logs-dir", required=True,
-                     help="Pasta contendo host/, kvm-<vm>/, qemu-<vm>/ (ex.: kvm-gabrielly, kvm-lucas, kvm-ramalho, qemu-gabrielly, ...)")
+                     help="Folder containing host/, kvm-<vm>/, qemu-<vm>/ (e.g. kvm-gabrielly, kvm-lucas, kvm-ramalho, qemu-gabrielly, ...)")
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
-    os.makedirs(os.path.join(args.out_dir, "graficos"), exist_ok=True)
+    os.makedirs(os.path.join(args.out_dir, "plots"), exist_ok=True)
 
     all_rows = []
     avisos_parsing = []
@@ -1260,52 +1266,52 @@ def main():
         elif pasta.startswith("qemu-"):
             ambiente, vm_id = "qemu", pasta[len("qemu-"):]
         else:
-            print(f"[aviso] pasta '{pasta}' não reconhecida (esperado: host, kvm-<vm>, qemu-<vm>) — ignorando")
+            print(f"[warning] folder '{pasta}' not recognized (expected: host, kvm-<vm>, qemu-<vm>) — skipping")
             continue
 
-        print(f"[{ambiente}/{vm_id}] {len(arquivos)} arquivos em {full_pasta}")
+        print(f"[{ambiente}/{vm_id}] {len(arquivos)} files in {full_pasta}")
         for f in arquivos:
             all_rows.extend(parse_file(f, ambiente, vm_id, avisos=avisos_parsing))
 
     df = pd.DataFrame(all_rows)
     if df.empty:
-        print("ERRO: nenhum dado extraído. Confira os caminhos e os regex de parsing.")
+        print("ERROR: no data extracted. Check the paths and the parsing regexes.")
         sys.exit(1)
 
     df_avisos = pd.DataFrame(
         avisos_parsing, columns=["arquivo", "ambiente", "vm_id", "metrica_esperada", "motivo"]
     )
-    df_avisos.to_csv(os.path.join(args.out_dir, "avisos_parsing.csv"), index=False)
+    df_avisos.to_csv(os.path.join(args.out_dir, "parsing_warnings.csv"), index=False)
     if not df_avisos.empty:
-        print(f"\n[AVISO] {len(df_avisos)} caso(s) de métrica esperada não encontrada em algum "
-              f"arquivo — ver {os.path.join(args.out_dir, 'avisos_parsing.csv')} "
-              f"(explica eventuais diferenças de n entre métricas/ambientes, ex.: n=14 vs n=15).")
+        print(f"\n[WARNING] {len(df_avisos)} case(s) of an expected metric not found in some "
+              f"file — see {os.path.join(args.out_dir, 'parsing_warnings.csv')} "
+              f"(explains any n differences between metrics/environments, e.g. n=14 vs n=15).")
 
-    df.to_csv(os.path.join(args.out_dir, "dados_extraidos.csv"), index=False)
-    print(f"\nExtraídos {len(df)} valores de {df['arquivo'].nunique()} arquivos.")
+    df.to_csv(os.path.join(args.out_dir, "extracted_data.csv"), index=False)
+    print(f"\nExtracted {len(df)} values from {df['arquivo'].nunique()} files.")
     print(df.groupby(["ambiente", "vm_id"])["arquivo"].nunique().to_string())
 
-    # Heterogeneidade entre VMs — calculada ANTES dos gráficos, porque a
-    # decisão de colorir pontos por VM em cada subplot depende deste
-    # resultado (só usamos cor por VM onde a diferença entre VMs é real).
+    # VM heterogeneity — computed BEFORE the plots, because the decision
+    # to color points by VM in each subplot depends on this result (we
+    # only use per-VM color where the difference between VMs is real).
     df_heterog = checar_heterogeneidade_vms(df)
-    df_heterog.to_csv(os.path.join(args.out_dir, "heterogeneidade_entre_vms.csv"), index=False)
+    df_heterog.to_csv(os.path.join(args.out_dir, "vm_heterogeneity.csv"), index=False)
     n_heterog = df_heterog["heterogeneo"].sum() if not df_heterog.empty else 0
-    print(f"\nChecagem de heterogeneidade entre VMs: {n_heterog}/{len(df_heterog)} "
-          f"combinações métrica x tratamento mostram diferença significativa entre VMs (p<0.05)")
+    print(f"\nVM heterogeneity check: {n_heterog}/{len(df_heterog)} "
+          f"metric x treatment combinations show a significant difference between VMs (p<0.05)")
 
     gerar_graficos(df, args.out_dir, df_heterog=df_heterog)
-    print(f"Gráficos salvos em {os.path.join(args.out_dir, 'graficos')}/")
+    print(f"Plots saved to {os.path.join(args.out_dir, 'plots')}/")
 
-    # Descritiva
+    # Descriptive stats
     desc = df.groupby(["metrica", "ambiente"])["valor"].agg(
         n="count", media="mean", mediana="median", desvio="std",
         q1=lambda s: s.quantile(0.25), q3=lambda s: s.quantile(0.75)
     )
     desc["iqr"] = desc["q3"] - desc["q1"]
-    desc.to_csv(os.path.join(args.out_dir, "resumo_descritivo.csv"))
+    desc.to_csv(os.path.join(args.out_dir, "descriptive_summary.csv"))
 
-    # Pipeline estatístico por métrica (ambiente vs ambiente, agrupando as 3 VMs)
+    # Statistical pipeline per metric (environment vs environment, pooling the 3 VMs)
     linhas_stats = []
     for metrica, sub in df.groupby("metrica"):
         if sub["ambiente"].nunique() < 2:
@@ -1316,45 +1322,45 @@ def main():
 
     df_stats = pd.DataFrame(linhas_stats)
 
-    # FDR (Benjamini-Hochberg) através de TODAS as métricas simultaneamente
-    # — distinto do post-hoc de Dunn (Bonferroni), que corrige comparações
-    # dentro de uma métrica, não entre métricas.
+    # FDR (Benjamini-Hochberg) across ALL metrics simultaneously — distinct
+    # from the Dunn post-hoc (Bonferroni), which corrects comparisons
+    # within a metric, not across metrics.
     df_stats = aplicar_correcao_fdr(df_stats)
 
-    # Sanidade: métricas conceitualmente distintas com estatística de teste
-    # global EXATAMENTE idêntica.
+    # Sanity check: conceptually distinct metrics with an EXACTLY
+    # identical global test statistic.
     df_alerta_dup = checar_estatisticas_duplicadas(df_stats)
-    df_alerta_dup.to_csv(os.path.join(args.out_dir, "alerta_estatisticas_duplicadas.csv"), index=False)
+    df_alerta_dup.to_csv(os.path.join(args.out_dir, "duplicate_statistics_alert.csv"), index=False)
 
-    df_stats.to_csv(os.path.join(args.out_dir, "resultados_estatisticos.csv"), index=False)
+    df_stats.to_csv(os.path.join(args.out_dir, "statistical_results.csv"), index=False)
 
-    # Heatmaps-resumo dos testes formais (complementam os boxplots de
-    # gerar_graficos — ver docstring de gerar_heatmap_resumo).
+    # Summary heatmaps of the formal tests (complement the boxplots from
+    # gerar_graficos — see the gerar_heatmap_resumo docstring).
     gerar_heatmap_resumo(df_stats, df_heterog, args.out_dir)
 
     gerar_paineis_ic(df_stats, args.out_dir)
 
-    # Metadata da execução (commit git, timestamp, seed) para auditoria/reprodutibilidade
+    # Run metadata (git commit, timestamp, seed) for audit/reproducibility
     metadata = obter_metadata_execucao(args)
     with open(os.path.join(args.out_dir, "metadata.json"), "w") as f:
         json.dump(metadata, f, indent=2, ensure_ascii=False)
 
-    # Relatório legível
-    with open(os.path.join(args.out_dir, "relatorio.txt"), "w") as f:
-        f.write("RELATÓRIO DE ANÁLISE ESTATÍSTICA — BENCHMARKS ppc64le\n")
+    # Human-readable report
+    with open(os.path.join(args.out_dir, "report.txt"), "w") as f:
+        f.write("STATISTICAL ANALYSIS REPORT — ppc64le BENCHMARKS\n")
         f.write("=" * 70 + "\n\n")
         f.write(
-            "NOTA sobre alerta_estatisticas_duplicadas.csv: este arquivo lista pares de\n"
-            "métricas cujo teste estatístico global produziu resultado exatamente idêntico.\n"
-            "Isso pode ser benigno (grupos de mesmo tamanho com separação completa entre\n"
-            "ambientes produzem o mesmo H de Kruskal-Wallis por construção matemática,\n"
-            "independentemente dos valores brutos) ou indicar um problema de cálculo —\n"
-            "revise manualmente antes de aceitar qualquer novo caso que apareça aqui.\n"
-            "É gerado automaticamente em toda execução deste pipeline, não é uma\n"
-            "checagem pontual/manual.\n\n"
-            "NOTA sobre \"(cuidado: pseudo-replicação)\" abaixo: ver\n"
-            "docs/GLOSSARIO_METODOLOGICO.md para o que esse aviso significa e por que é uma\n"
-            "consequência esperada do desenho aninhado (3 VMs x 5 execuções), não um erro.\n"
+            "NOTE on duplicate_statistics_alert.csv: this file lists pairs of\n"
+            "metrics whose global statistical test produced an exactly identical\n"
+            "result. This can be benign (equally-sized groups with complete\n"
+            "separation between environments produce the same Kruskal-Wallis H by\n"
+            "mathematical construction, regardless of the raw values) or point to a\n"
+            "computation bug — review manually before accepting any new case that\n"
+            "shows up here. It's generated automatically on every run of this\n"
+            "pipeline, not a one-off/manual check.\n\n"
+            "NOTE on \"(caution: pseudo-replication)\" below: see\n"
+            "docs/METHODOLOGICAL_GLOSSARY.md for what that warning means and why it's\n"
+            "an expected consequence of the nested design (3 VMs x 5 runs), not an error.\n"
         )
         f.write("-" * 70 + "\n\n")
         for _, row in df_stats.iterrows():
@@ -1363,36 +1369,36 @@ def main():
                 if f"{amb}_media" in row and pd.notna(row.get(f"{amb}_media")):
                     f.write(
                         f"  {amb}: n={int(row.get(f'{amb}_n', 0))}, "
-                        f"média={row.get(f'{amb}_media'):.3f}, "
-                        f"mediana={row.get(f'{amb}_mediana'):.3f}, "
-                        f"IC95%=[{row.get(f'{amb}_ic95_lo'):.3f}, {row.get(f'{amb}_ic95_hi'):.3f}], "
+                        f"mean={row.get(f'{amb}_media'):.3f}, "
+                        f"median={row.get(f'{amb}_mediana'):.3f}, "
+                        f"95% CI=[{row.get(f'{amb}_ic95_lo'):.3f}, {row.get(f'{amb}_ic95_hi'):.3f}], "
                         f"Shapiro p={row.get(f'{amb}_shapiro_p', float('nan')):.4f}\n"
                     )
             f.write(f"  Levene p={row.get('levene_p', float('nan')):.4f}\n")
-            f.write(f"  Teste global: {row.get('teste_global', '-')}, "
-                    f"estatística={row.get('teste_global_estat', float('nan')):.4f}, "
+            f.write(f"  Global test: {row.get('teste_global', '-')}, "
+                    f"statistic={row.get('teste_global_estat', float('nan')):.4f}, "
                     f"p={row.get('teste_global_p', float('nan')):.4g}\n")
             if pd.notna(row.get("p_fdr_corrigido")):
-                f.write(f"  p corrigido (FDR/Benjamini-Hochberg, entre todas as métricas): "
+                f.write(f"  Corrected p (FDR/Benjamini-Hochberg, across all metrics): "
                         f"{row.get('p_fdr_corrigido'):.4g}\n")
             if pd.notna(row.get("effect_size_epsilon2")):
                 f.write(f"  Effect size (epsilon^2): {row.get('effect_size_epsilon2'):.4f}\n")
             het_row = df_heterog[df_heterog["metrica"] == row["metrica"]]
             for _, hr in het_row.iterrows():
-                flag = "SIM (cuidado: pseudo-replicação)" if hr["heterogeneo"] else "não"
-                f.write(f"  Heterogeneidade entre VMs ({hr['ambiente']}): "
-                        f"H={hr['kruskal_h']:.3f}, p={hr['kruskal_p']:.4f} -> diferem entre si? {flag}\n")
+                flag = "YES (caution: pseudo-replication)" if hr["heterogeneo"] else "no"
+                f.write(f"  Heterogeneity between VMs ({hr['ambiente']}): "
+                        f"H={hr['kruskal_h']:.3f}, p={hr['kruskal_p']:.4f} -> differ from each other? {flag}\n")
             f.write("\n")
 
-    print(f"\nConcluído. Saídas em: {args.out_dir}")
-    print("  - dados_extraidos.csv")
-    print("  - resumo_descritivo.csv")
-    print("  - resultados_estatisticos.csv (com p_fdr_corrigido)")
-    print("  - heterogeneidade_entre_vms.csv")
-    print("  - avisos_parsing.csv")
-    print("  - alerta_estatisticas_duplicadas.csv")
+    print(f"\nDone. Outputs in: {args.out_dir}")
+    print("  - extracted_data.csv")
+    print("  - descriptive_summary.csv")
+    print("  - statistical_results.csv (with p_fdr_corrigido)")
+    print("  - vm_heterogeneity.csv")
+    print("  - parsing_warnings.csv")
+    print("  - duplicate_statistics_alert.csv")
     print("  - metadata.json")
-    print("  - relatorio.txt")
+    print("  - report.txt")
 
 
 if __name__ == "__main__":
