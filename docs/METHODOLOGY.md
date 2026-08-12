@@ -1,128 +1,130 @@
-# Metodologia (resumo)
+# Methodology (summary)
 
-Este documento resume a metodologia experimental para orientar quem for
-reproduzir ou auditar este repositório. Para a redação completa e
-formal, ver a Seção de Metodologia do artigo (link/DOI a preencher).
+This document summarizes the experimental methodology to guide anyone
+reproducing or auditing this repository. For the full, formal write-up,
+see the Methodology section of the paper (link/DOI to be filled in).
 
-## Contexto
+## Context
 
-Projeto de pesquisa em virtualização na arquitetura IBM Power9 (ppc64le),
-conduzido no Laboratório de Sistemas Distribuídos (LSD/UFCG) em parceria
-com a IBM (projeto IBM-MULTIARQUITETURAS), usando um servidor IBM Power9
-AC922. Também serve como entregável de duas disciplinas de pós-graduação
-(Sistemas Distribuídos/Virtualização e Inferência Estatística).
+Research project on virtualization on the IBM Power9 (ppc64le)
+architecture, conducted at the Distributed Systems Lab (LSD/UFCG) in
+partnership with IBM (IBM-MULTIARQUITETURAS project), using an IBM
+Power9 AC922 server. It also serves as a deliverable for two graduate
+courses (Distributed Systems/Virtualization and Statistical Inference).
 
-## Objetivo
+## Objective
 
-Caracterizar o overhead de desempenho introduzido por dois mecanismos de
-virtualização — **KVM** (virtualização com aceleração de hardware) e
-**QEMU puro** (emulação via TCG, sem aceleração) — em relação a um
-baseline **bare-metal (host físico)**, sobre cargas representativas de
-HPC: CPU, memória, cache, disco e GPU.
+Characterize the performance overhead introduced by two virtualization
+mechanisms — **KVM** (hardware-accelerated virtualization) and **plain
+QEMU** (TCG emulation, no acceleration) — relative to a **bare-metal
+(physical host)** baseline, on representative HPC workloads: CPU,
+memory, cache, disk and GPU.
 
-## Ambientes comparados
+## Environments compared
 
-| Ambiente | Descrição | Réplicas |
+| Environment | Description | Replicates |
 |---|---|---|
-| `host` | Execução direta no servidor Power9 físico | 15 execuções |
-| `kvm` | 3 VMs distintas (`gabrielly`, `lucas`, `ramalho`) sob KVM | 5 execuções × 3 VMs = 15 |
-| `qemu` | As mesmas 3 VMs sob QEMU puro (TCG, sem KVM) | 5 execuções × 3 VMs = 15 |
+| `host` | Direct execution on the physical Power9 server | 15 runs |
+| `kvm` | 3 distinct VMs (`gabrielly`, `lucas`, `ramalho`) under KVM | 5 runs x 3 VMs = 15 |
+| `qemu` | The same 3 VMs under plain QEMU (TCG, no KVM) | 5 runs x 3 VMs = 15 |
 
-> **identificadores de VM** (`vm_id`), usados nos nomes de pasta
-> `kvm-lucas/`, `kvm-ramalho/`, `qemu-lucas/` etc. em `data/raw/`. 
-> A lista de autoria completa está em [`CITATION.cff`](../CITATION.cff);
-> "lucas" e "ramalho" não são autores nem colaboradores.
+> **VM identifiers** (`vm_id`), used in the folder names `kvm-lucas/`,
+> `kvm-ramalho/`, `qemu-lucas/`, etc. in `data/raw/`.
+> The full author list is in [`CITATION.cff`](../CITATION.cff);
+> "lucas" and "ramalho" are neither authors nor collaborators.
 
-A estrutura aninhada (3 VMs × 5 réplicas por tratamento) é tratada
-explicitamente no pipeline estatístico — ver `bootstrap_ci_estratificado_por_vm`
-e `checar_heterogeneidade_vms` em `src/analysis/analise_benchmarks.py` — para
-não tratar as 15 execuções de KVM/QEMU como i.i.d. quando há heterogeneidade
-real entre VMs de origem (pseudo-replicação).
+The nested structure (3 VMs x 5 replicates per treatment) is handled
+explicitly in the statistical pipeline — see
+`bootstrap_ci_estratificado_por_vm` and `checar_heterogeneidade_vms` in
+`src/analysis/analyze_benchmarks.py` — so the 15 KVM/QEMU runs aren't
+treated as i.i.d. when there's real heterogeneity between the source VMs
+(pseudo-replication).
 
-## Ferramentas de benchmark e o que cada métrica mede
+## Benchmark tools and what each metric measures
 
-- **stress-ng** (`--cpu`, `--vm`, `--cache`): CPU, memória e cache, via
-  contagem de "bogo operations" por segundo (tempo real e tempo de CPU).
-  Consultar `man stress-ng` / documentação oficial para a definição exata
-  de cada stressor.
-- **STREAM**: largura de banda de memória (Copy/Scale/Add/Triad, MB/s).
-  Sob QEMU/TCG, a saída é numericamente inválida (falta de resolução
-  confiável de timer sob emulação) e é descartada por design — ver
-  comentário no bloco STREAM de `parse_file()` em `analise_benchmarks.py`.
-- **fio**: disco (`ext4` nas VMs, dispositivo físico no host) — leitura/escrita
-  sequencial, IOPS aleatório (mix 70/30 leitura/escrita) e latência (fila
-  unitária, QD=1, `ioengine=libaio`, `iodepth=1`, `numjobs=1` — **não** é
-  `ioengine=sync`; mesmo em QD=1 passa por `io_submit()`/`io_getevents()`).
-- **CUDA Samples (matrixMul)** e **NCCL (nccl-tests)**: GPU — GFlop/s e
-  largura de banda de bus (`Avg bus bandwidth`) para `all_reduce`,
-  `all_gather` e `sendrecv`. Só coletado em `host` e `kvm` (QEMU/TCG puro
-  não faz passthrough de PCIe/GPU).
+- **stress-ng** (`--cpu`, `--vm`, `--cache`): CPU, memory and cache, via
+  a count of "bogo operations" per second (real time and CPU time).
+  See `man stress-ng` / the official documentation for the exact
+  definition of each stressor.
+- **STREAM**: memory bandwidth (Copy/Scale/Add/Triad, MB/s). Under
+  QEMU/TCG, the output is numerically invalid (lack of reliable timer
+  resolution under emulation) and is discarded by design — see the
+  comment in the STREAM block of `parse_file()` in `analyze_benchmarks.py`.
+- **fio**: disk (`ext4` on the VMs, physical device on the host) —
+  sequential read/write, random IOPS (70/30 read/write mix) and latency
+  (single queue, QD=1, `ioengine=libaio`, `iodepth=1`, `numjobs=1` —
+  **not** `ioengine=sync`; even at QD=1 it still goes through
+  `io_submit()`/`io_getevents()`).
+- **CUDA Samples (matrixMul)** and **NCCL (nccl-tests)**: GPU — GFlop/s
+  and bus bandwidth (`Avg bus bandwidth`) for `all_reduce`,
+  `all_gather` and `sendrecv`. Only collected on `host` and `kvm`
+  (plain QEMU/TCG doesn't do PCIe/GPU passthrough).
 
-## Pipeline estatístico (`src/analysis/analise_benchmarks.py`)
+## Statistical pipeline (`src/analysis/analyze_benchmarks.py`)
 
-Por métrica, comparando os 3 ambientes:
+Per metric, comparing the 3 environments:
 
-1. Estatística descritiva + IC 95% via bootstrap (estratificado por VM
-   quando há mais de uma VM no tratamento).
-2. Teste de normalidade por grupo (Shapiro-Wilk) e de homogeneidade de
-   variância entre grupos (Levene).
-3. Teste global: ANOVA se todos os grupos forem normais e homocedásticos;
-   caso contrário, **Kruskal-Wallis**.
-4. Post-hoc de Dunn (Bonferroni) quando o teste global rejeita H0, com
-   mais de 2 grupos.
-5. Effect size (epsilon²) para Kruskal-Wallis.
-6. **Correção de Benjamini-Hochberg (FDR)** sobre `teste_global_p` de
-   TODAS as métricas simultaneamente (coluna `p_fdr_corrigido`) — controla
-   a taxa de falsos positivos ao testar múltiplas métricas independentes,
-   adicionada na reorganização de 2026-07-15.
-7. Checagem de heterogeneidade entre VMs de origem (Kruskal-Wallis
-   VM A vs. B vs. C), para sinalizar quando a "diferença entre
-   ambientes" pode estar confundida com diferença entre VMs específicas.
+1. Descriptive statistics + 95% CI via bootstrap (VM-stratified when
+   there's more than one VM in the treatment).
+2. Normality test per group (Shapiro-Wilk) and variance homogeneity
+   test between groups (Levene).
+3. Global test: ANOVA if all groups are normal and homoscedastic;
+   otherwise, **Kruskal-Wallis**.
+4. Dunn post-hoc (Bonferroni) when the global test rejects H0, with
+   more than 2 groups.
+5. Effect size (epsilon²) for Kruskal-Wallis.
+6. **Benjamini-Hochberg (FDR) correction** on `teste_global_p` across
+   ALL metrics simultaneously (`p_fdr_corrigido` column) — controls the
+   false-positive rate when testing multiple independent metrics, added
+   in the 2026-07-15 reorganization.
+7. Heterogeneity check between source VMs (Kruskal-Wallis VM A vs. B
+   vs. C), to flag when the "difference between environments" might be
+   confounded with a difference between specific VMs.
 
-## Anomalias investigadas
+## Anomalies investigated
 
-### Cache (RESOLVIDA)
+### Cache (RESOLVED)
 
-`stress-ng --cache` inicialmente reportou ganhos fisicamente implausíveis
-sob virtualização (KVM ~+324%, QEMU ~+46% em relação ao host). A hipótese
-de PMU (Performance Monitoring Unit) não exposto ao guest foi testada e
-não explicava o efeito sozinha. A causa raiz identificada foi
-**topologia de cache incompleta exposta ao guest**: o host Power9 expõe
-4 níveis de cache (L1i, L1d, L2, L3), mas a VM só enxerga L1i/L1d.
-Forçar `stress-ng --cache-level 1` (já incorporado em
-`src/collect/benchmark-host.sh` e `benchmark-vm.sh`) reduziu o efeito de
-+324% para ~+132% — o resíduo remanescente ainda não tem causa raiz
-100% fechada, mas a maior parte da discrepância foi explicada por uma
-limitação de topologia de cache em ambientes PAPR/POWER9, não
-documentada nas referências consultadas até o momento.
+`stress-ng --cache` initially reported physically implausible gains
+under virtualization (KVM ~+324%, QEMU ~+46% relative to host). The
+hypothesis of a PMU (Performance Monitoring Unit) not exposed to the
+guest was tested and didn't explain the effect on its own. The root
+cause identified was an **incomplete cache topology exposed to the
+guest**: the Power9 host exposes 4 cache levels (L1i, L1d, L2, L3), but
+the VM only sees L1i/L1d. Forcing `stress-ng --cache-level 1` (already
+incorporated into `src/collect/benchmark-host.sh` and
+`benchmark-vm.sh`) reduced the effect from +324% to ~+132% — the
+remaining residual doesn't yet have a fully closed root cause, but most
+of the discrepancy was explained by a cache-topology limitation in
+PAPR/POWER9 environments, not documented in the references consulted so
+far.
 
-### Latência de disco QD=1 (EM ABERTO)
+### QD=1 disk latency (OPEN)
 
-No teste de fila unitária (leitura aleatória síncrona, QD=1), tanto KVM
-quanto QEMU mostraram latência média **menor** e IOPS **maior** que o
-host físico — contraintuitivo, já que a virtualização deveria adicionar
-overhead, não removê-lo. Hipóteses formuladas (nenhuma delas é resultado
-de literatura citada — são hipóteses operacionais a confirmar
-experimentalmente):
+In the single-queue test (synchronous random read, QD=1), both KVM and
+QEMU showed **lower** average latency and **higher** IOPS than the
+physical host — counterintuitive, since virtualization should add
+overhead, not remove it. Hypotheses formulated (none of them come from
+cited literature — they are operational hypotheses to be confirmed
+experimentally):
 
-- **Jitter/baixa concorrência**: o teste QD=1 pode ser mais sensível a
-  ruído transitório do sistema do que ao custo estrutural da
-  virtualização.
-- **Contenção assimétrica via Slurm**: o benchmark do host roda via
-  `sbatch` sem `--exclusive` (não garante exclusividade do nó), enquanto
-  o benchmark de VM roda como script manual — se outros jobs Slurm
-  competirem pelo disco físico durante a rodada de host, isso infla
-  artificialmente a latência do host, sem que exista vantagem real de
-  virtualização.
-- **Ausência de pinning de vCPU**: confirmado via XML da VM
-  (`virsh dumpxml`) — sem `<cputune><vcpupin.../></cputune>`, o
-  escalonador do host é livre para mover vCPUs entre cores físicos.
-  Não descarta nem confirma, mas é uma variável de confusão não
-  controlada.
-- **Indireção de snapshot/backing file** no disco da VM (qcow2 com
-  backing store) adiciona uma camada de indireção ausente no host — mas
-  esse efeito tenderia a *piorar*, não melhorar, a latência da VM, então
-  não explica sozinho a anomalia.
+- **Jitter/low contention**: the QD=1 test may be more sensitive to
+  transient system noise than to the structural cost of virtualization.
+- **Asymmetric contention via Slurm**: the host benchmark runs via
+  `sbatch` without `--exclusive` (doesn't guarantee node exclusivity),
+  while the VM benchmark runs as a manual script — if other Slurm jobs
+  compete for the physical disk during the host run, that artificially
+  inflates host latency, without any real virtualization advantage
+  existing.
+- **No vCPU pinning**: confirmed via the VM's XML (`virsh dumpxml`) —
+  without `<cputune><vcpupin.../></cputune>`, the host scheduler is
+  free to move vCPUs between physical cores. This neither rules out nor
+  confirms the hypothesis, but it is an uncontrolled confounding
+  variable.
+- **Snapshot/backing-file indirection** on the VM's disk (qcow2 with a
+  backing store) adds a layer of indirection absent on the host — but
+  this effect would tend to *worsen*, not improve, the VM's latency, so
+  it doesn't explain the anomaly on its own.
 
-Esta investigação permanece **em aberto** e é registrada como ameaça à
-validade não conclusiva.
+This investigation remains **open** and is recorded as an inconclusive
+threat to validity.

@@ -1,23 +1,23 @@
 #!/bin/bash
 # =============================================================================
-# BENCHMARK QEMU PURO — IBM Power9 (ppc64le)
-# Cobre: CPU, Memória, Cache, Disco (fio/ext4) e STREAM
-# (Sem testes de GPU — QEMU puro/TCG não suporta passthrough PCIe)
+# BENCHMARK PLAIN QEMU — IBM Power9 (ppc64le)
+# Covers: CPU, Memory, Cache, Disk (fio/ext4) and STREAM
+# (No GPU tests — plain QEMU/TCG doesn't support PCIe passthrough)
 #
-# Uso:
+# Usage:
 #   chmod +x benchmark-qemu.sh
 #   ./benchmark-qemu.sh
 #
-# Pré-requisitos na VM:
+# Prerequisites on the VM:
 #   - stress-ng     (dnf install -y stress-ng)
 #   - fio           (dnf install -y fio)
-#   - ~/stream      compilado
+#   - ~/stream      compiled
 # =============================================================================
 
 set -uo pipefail
 
 # ---------------------------------------------------------------------------
-# CAMINHOS E VARIÁVEIS GERAIS
+# PATHS AND GENERAL VARIABLES
 # ---------------------------------------------------------------------------
 HOST=$(hostname)
 DATE=$(date +%Y%m%d_%H%M%S)
@@ -27,14 +27,14 @@ OUT="${OUTDIR}/benchmark_qemu_${HOST}_${DATE}.txt"
 mkdir -p "$OUTDIR"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — CPU / Memória / Cache
+# PARAMETERS — CPU / Memory / Cache
 # ---------------------------------------------------------------------------
 NCPUS=16
 VM_WORKERS=8
 VM_BYTES="8G"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — Disco (fio)
+# PARAMETERS — Disk (fio)
 # ---------------------------------------------------------------------------
 FIO_FILE="/root/fio_testfile"
 FIO_SIZE="80G"
@@ -43,7 +43,7 @@ FIO_IODEPTH=32
 FIO_IODEPTH_RAND=64
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — STREAM
+# PARAMETERS — STREAM
 # ---------------------------------------------------------------------------
 STREAM_BIN="/root/stream"
 
@@ -54,13 +54,13 @@ log()       { echo "$1" | tee -a "$OUT"; }
 separator() { log ""; log "$(printf '=%.0s' {1..72})"; log ""; }
 
 # ---------------------------------------------------------------------------
-# FUNÇÃO: suite de testes fio
+# FUNCTION: fio test suite
 # ---------------------------------------------------------------------------
 run_fio_suite() {
     local label="$1"
 
     log ""
-    log "=== [$label] PRÉ-ALOCAÇÃO DO ARQUIVO DE TESTE (${FIO_SIZE}) ==="
+    log "=== [$label] PRE-ALLOCATING TEST FILE (${FIO_SIZE}) ==="
     fio --name=precreate \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -74,7 +74,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] LEITURA SEQUENCIAL ==="
+    log "=== [$label] SEQUENTIAL READ ==="
     fio --name=seq-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -89,7 +89,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] ESCRITA SEQUENCIAL ==="
+    log "=== [$label] SEQUENTIAL WRITE ==="
     fio --name=seq-write \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -104,7 +104,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] IOPS ALEATÓRIO (4K randrw 70/30) ==="
+    log "=== [$label] RANDOM IOPS (4K randrw 70/30) ==="
     fio --name=rand-rw \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -120,7 +120,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] LATÊNCIA (4K randread síncrono) ==="
+    log "=== [$label] LATENCY (4K randread synchronous) ==="
     fio --name=lat-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -135,39 +135,39 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] REMOVENDO ARQUIVO DE TESTE ==="
-    rm -f "$FIO_FILE" && log "Arquivo removido: $FIO_FILE" || true
+    log "=== [$label] REMOVING TEST FILE ==="
+    rm -f "$FIO_FILE" && log "File removed: $FIO_FILE" || true
 }
 
 # =============================================================================
-# CABEÇALHO
+# HEADER
 # =============================================================================
-log "=== BENCHMARK QEMU PURO: $HOST — $DATE ==="
-log "Ambiente: QEMU puro (TCG) — IBM Power9 ppc64le — SEM testes de GPU"
+log "=== BENCHMARK PLAIN QEMU: $HOST — $DATE ==="
+log "Environment: Plain QEMU (TCG) — IBM Power9 ppc64le — NO GPU tests"
 separator
 
 # =============================================================================
-# INFO DO SISTEMA
+# SYSTEM INFO
 # =============================================================================
-log "=== INFO DO SISTEMA ==="
+log "=== SYSTEM INFO ==="
 uname -a                              2>&1 | tee -a "$OUT"
-log "CPUs disponíveis: $(nproc)"
+log "CPUs available: $(nproc)"
 free -h                               2>&1 | tee -a "$OUT"
-log "Swap: $(swapon --show 2>/dev/null | tail -n +2 | wc -l) dispositivo(s)"
+log "Swap: $(swapon --show 2>/dev/null | tail -n +2 | wc -l) device(s)"
 separator
 
 # =============================================================================
-# INFO DO FILESYSTEM
+# FILESYSTEM INFO
 # =============================================================================
-log "=== INFO DO FILESYSTEM ==="
+log "=== FILESYSTEM INFO ==="
 df -Th /root                          2>&1 | tee -a "$OUT"
 mount | grep -E " / "                 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# CGROUP DO PROCESSO
+# PROCESS CGROUP
 # =============================================================================
-log "=== CGROUP DO PROCESSO ==="
+log "=== PROCESS CGROUP ==="
 cat /proc/self/cgroup                 2>&1 | tee -a "$OUT"
 separator
 
@@ -182,9 +182,9 @@ stress-ng --cpu "$NCPUS" \
 separator
 
 # =============================================================================
-# MEMÓRIA
+# MEMORY
 # =============================================================================
-log "=== MEMÓRIA ==="
+log "=== MEMORY ==="
 stress-ng --vm "$VM_WORKERS" \
           --vm-bytes "$VM_BYTES" \
           --metrics-brief \
@@ -201,26 +201,26 @@ stress-ng --cache "$NCPUS" \
 separator
 
 # =============================================================================
-# STREAM — LARGURA DE BANDA DE MEMÓRIA
+# STREAM — MEMORY BANDWIDTH
 # =============================================================================
-log "=== STREAM — LARGURA DE BANDA DE MEMÓRIA ==="
+log "=== STREAM — MEMORY BANDWIDTH ==="
 if [ -x "$STREAM_BIN" ]; then
     "$STREAM_BIN" 2>&1 | tee -a "$OUT" || true
 else
-    log "AVISO: STREAM não encontrado em $STREAM_BIN"
-    log "Compile: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream"
+    log "WARNING: STREAM not found at $STREAM_BIN"
+    log "Compile with: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream"
 fi
 separator
 
 # =============================================================================
-# DISCO (fio — ext4)
+# DISK (fio — ext4)
 # =============================================================================
-run_fio_suite "DISCO_EXT4"
+run_fio_suite "DISK_EXT4"
 separator
 
 # =============================================================================
-# FIM
+# END
 # =============================================================================
 log ""
-log "=== FIM ==="
-log "Resultados salvos em: $OUT"
+log "=== END ==="
+log "Results saved to: $OUT"

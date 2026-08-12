@@ -1,27 +1,27 @@
 #!/bin/bash
 # =============================================================================
 # BENCHMARK VM — IBM Power9 (ppc64le) | KVM Guest
-# Cobre: CPU, Memória, Cache, Disco (fio/ext4), STREAM e GPU (CUDA/NCCL)
+# Covers: CPU, Memory, Cache, Disk (fio/ext4), STREAM and GPU (CUDA/NCCL)
 #
-# Uso:
+# Usage:
 #   chmod +x benchmark_vm.sh
 #   ./benchmark_vm.sh
 #
-# Pré-requisitos na VM:
+# Prerequisites on the VM:
 #   - stress-ng     (dnf install -y stress-ng)
 #   - fio           (dnf install -y fio)
-#   - ~/stream      compilado
-#   - CUDA 12.2     em /usr/local/cuda-12.2
-#   - NCCL 2.21.5   em /lib64
-#   - bandwidthTest e matrixMul em ~/cuda-samples/bin/ppc64le/linux/release/
-#   - all_reduce_perf / all_gather_perf / sendrecv_perf em ~/nccl-tests/build/
+#   - ~/stream      compiled
+#   - CUDA 12.2     at /usr/local/cuda-12.2
+#   - NCCL 2.21.5   at /lib64
+#   - bandwidthTest and matrixMul at ~/cuda-samples/bin/ppc64le/linux/release/
+#   - all_reduce_perf / all_gather_perf / sendrecv_perf at ~/nccl-tests/build/
 # =============================================================================
 
-# NOTA: sem -e para evitar abort em falha de teste GPU
+# NOTE: no -e, to avoid aborting on a GPU test failure
 set -uo pipefail
 
 # ---------------------------------------------------------------------------
-# CAMINHOS E VARIÁVEIS GERAIS
+# PATHS AND GENERAL VARIABLES
 # ---------------------------------------------------------------------------
 HOST=$(hostname)
 DATE=$(date +%Y%m%d_%H%M%S)
@@ -31,14 +31,14 @@ OUT="${OUTDIR}/benchmark_vm_${HOST}_${DATE}.txt"
 mkdir -p "$OUTDIR"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — CPU / Memória / Cache
+# PARAMETERS — CPU / Memory / Cache
 # ---------------------------------------------------------------------------
 NCPUS=16
 VM_WORKERS=8
 VM_BYTES="8G"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — Disco (fio)
+# PARAMETERS — Disk (fio)
 # ---------------------------------------------------------------------------
 FIO_FILE="/root/fio_testfile"
 FIO_SIZE="80G"
@@ -47,13 +47,13 @@ FIO_IODEPTH=32
 FIO_IODEPTH_RAND=64
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — STREAM
+# PARAMETERS — STREAM
 # ---------------------------------------------------------------------------
 STREAM_BIN="/root/stream"
 
 # ---------------------------------------------------------------------------
-# PARÂMETROS — GPU
-# Sem detecção automática — nvidia-smi só roda dentro de run_gpu_suite()
+# PARAMETERS — GPU
+# No auto-detection — nvidia-smi only runs inside run_gpu_suite()
 # ---------------------------------------------------------------------------
 export PATH=/usr/local/cuda-12.2/bin${PATH:+:$PATH}
 export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
@@ -67,26 +67,26 @@ NCCL_BIN="$HOME/nccl-tests/build"
 log()       { echo "$1" | tee -a "$OUT"; }
 separator() { log ""; log "$(printf '=%.0s' {1..72})"; log ""; }
 
-# Roda um comando e loga — nunca aborta o script em caso de falha
+# Runs a command and logs it — never aborts the script on failure
 run_logged() {
     local label="$1"
     shift
     log ""
     log "--- $label ---"
-    # O || true impede que -e aborte em falha
+    # The || true keeps -e from aborting on failure
     "$@" 2>&1 | tee -a "$OUT" || {
-        log "[AVISO] '$label' retornou erro — continuando benchmark."
+        log "[WARNING] '$label' returned an error — continuing benchmark."
     }
 }
 
 # ---------------------------------------------------------------------------
-# FUNÇÃO: suite de testes fio
+# FUNCTION: fio test suite
 # ---------------------------------------------------------------------------
 run_fio_suite() {
     local label="$1"
 
     log ""
-    log "=== [$label] PRÉ-ALOCAÇÃO DO ARQUIVO DE TESTE (${FIO_SIZE}) ==="
+    log "=== [$label] PRE-ALLOCATING TEST FILE (${FIO_SIZE}) ==="
     fio --name=precreate \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -100,7 +100,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] LEITURA SEQUENCIAL ==="
+    log "=== [$label] SEQUENTIAL READ ==="
     fio --name=seq-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -115,7 +115,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] ESCRITA SEQUENCIAL ==="
+    log "=== [$label] SEQUENTIAL WRITE ==="
     fio --name=seq-write \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -130,7 +130,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] IOPS ALEATÓRIO (4K randrw 70/30) ==="
+    log "=== [$label] RANDOM IOPS (4K randrw 70/30) ==="
     fio --name=rand-rw \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -146,7 +146,7 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] LATÊNCIA (4K randread síncrono) ==="
+    log "=== [$label] LATENCY (4K randread synchronous) ==="
     fio --name=lat-read \
         --filename="$FIO_FILE" \
         --size="$FIO_SIZE" \
@@ -161,18 +161,18 @@ run_fio_suite() {
         --group_reporting 2>&1 | tee -a "$OUT" || true
 
     log ""
-    log "=== [$label] REMOVENDO ARQUIVO DE TESTE ==="
-    rm -f "$FIO_FILE" && log "Arquivo removido: $FIO_FILE" || true
+    log "=== [$label] REMOVING TEST FILE ==="
+    rm -f "$FIO_FILE" && log "File removed: $FIO_FILE" || true
 }
 
 # ---------------------------------------------------------------------------
-# FUNÇÃO: suite de testes GPU
-# nvidia-smi só é chamado aqui dentro — nunca no início do script
-# Cada teste tem || true para nunca abortar o benchmark completo
+# FUNCTION: GPU test suite
+# nvidia-smi is only called in here — never at script start
+# Every test has || true so it never aborts the whole benchmark
 # ---------------------------------------------------------------------------
 run_gpu_suite() {
 
-    # Verifica binários antes de qualquer chamada de GPU
+    # Checks binaries before any GPU call
     local missing=0
     for bin in \
         "$CUDA_BIN/bandwidthTest" \
@@ -181,120 +181,120 @@ run_gpu_suite() {
         "$NCCL_BIN/all_gather_perf" \
         "$NCCL_BIN/sendrecv_perf"; do
         if [[ ! -x "$bin" ]]; then
-            log "AVISO: binário não encontrado: $bin"
+            log "WARNING: binary not found: $bin"
             missing=1
         fi
     done
 
     if [[ $missing -eq 1 ]]; then
-        log "AVISO: um ou mais binários GPU ausentes — abortando suite GPU."
+        log "WARNING: one or more GPU binaries missing — aborting GPU suite."
         return
     fi
 
-    # --- Info das GPUs -------------------------------------------------------
+    # --- GPU info -------------------------------------------------------
     log ""
     log "=== GPU — INFO (nvidia-smi) ==="
     nvidia-smi 2>&1 | tee -a "$OUT" || {
-        log "[ERRO] nvidia-smi falhou — abortando suite GPU."
+        log "[ERROR] nvidia-smi failed — aborting GPU suite."
         return
     }
 
-    # --- Topologia — nvidia-smi topo pode travar em VFIO, protegido com timeout
+    # --- Topology — nvidia-smi topo can hang under VFIO, guarded with a timeout
     log ""
-    log "=== GPU — TOPOLOGIA / NVLink ==="
+    log "=== GPU — TOPOLOGY / NVLink ==="
     timeout 15 nvidia-smi topo -m 2>&1 | tee -a "$OUT" || \
-        log "[AVISO] nvidia-smi topo -m falhou ou expirou — ignorando."
+        log "[WARNING] nvidia-smi topo -m failed or timed out — skipping."
 
     # --- Bandwidth Test ------------------------------------------------------
-    # H2D/D2H: ref bare metal V100 SXM2 ~12-16 GB/s | via VFIO ~1-6 GB/s
-    # D2D HBM2: ref bare metal ~700-800 GB/s | VFIO praticamente sem overhead
+    # H2D/D2H: bare-metal V100 SXM2 reference ~12-16 GB/s | via VFIO ~1-6 GB/s
+    # D2D HBM2: bare-metal reference ~700-800 GB/s | VFIO essentially no overhead
     log ""
     log "=== GPU — BANDWIDTH TEST (H2D / D2H / D2D) ==="
     log "--- GPU 0 ---"
     "$CUDA_BIN/bandwidthTest" --device=0 --mode=range \
         --start=1048576 --end=268435456 --increment=33554432 \
-        2>&1 | tee -a "$OUT" || log "[AVISO] bandwidthTest GPU 0 falhou."
+        2>&1 | tee -a "$OUT" || log "[WARNING] bandwidthTest GPU 0 failed."
 
     log ""
     log "--- GPU 1 ---"
     "$CUDA_BIN/bandwidthTest" --device=1 --mode=range \
         --start=1048576 --end=268435456 --increment=33554432 \
-        2>&1 | tee -a "$OUT" || log "[AVISO] bandwidthTest GPU 1 falhou."
+        2>&1 | tee -a "$OUT" || log "[WARNING] bandwidthTest GPU 1 failed."
 
     # --- MatrixMul -----------------------------------------------------------
-    # 5 execuções para média estatística; cada uma protegida individualmente
+    # 5 runs for a statistical average; each individually guarded
     log ""
-    log "=== GPU — MATRIXMUL — Throughput de Computação (GFlop/s) ==="
+    log "=== GPU — MATRIXMUL — Compute Throughput (GFlop/s) ==="
     for i in 1 2 3 4 5; do
-        log "-- Execução $i --"
+        log "-- Run $i --"
         "$CUDA_BIN/matrixMul" 2>&1 | tee -a "$OUT" || \
-            log "[AVISO] matrixMul execução $i falhou."
+            log "[WARNING] matrixMul run $i failed."
     done
 
     # --- NCCL all_reduce -----------------------------------------------------
-    # Ref NVLink 2.0 bare metal AC922: pico ~100-130 GB/s (busbw)
-    # Via VFIO esperado: ~60-80% do bare metal (~60-66 GB/s medido)
+    # Ref bare-metal NVLink 2.0 AC922: peak ~100-130 GB/s (busbw)
+    # Expected via VFIO: ~60-80% of bare metal (~60-66 GB/s measured)
     log ""
-    log "=== GPU — NCCL ALL_REDUCE (NVLink inter-GPU) ==="
+    log "=== GPU — NCCL ALL_REDUCE (inter-GPU NVLink) ==="
     log "--- -b 8 -e 256M -f 2 -g 2 ---"
     "$NCCL_BIN/all_reduce_perf" \
         -b 8 -e 256M -f 2 -g 2 \
-        2>&1 | tee -a "$OUT" || log "[AVISO] all_reduce_perf falhou."
+        2>&1 | tee -a "$OUT" || log "[WARNING] all_reduce_perf failed."
 
     # --- NCCL all_gather -----------------------------------------------------
     log ""
-    log "=== GPU — NCCL ALL_GATHER (NVLink inter-GPU) ==="
+    log "=== GPU — NCCL ALL_GATHER (inter-GPU NVLink) ==="
     log "--- -b 8 -e 256M -f 2 -g 2 ---"
     "$NCCL_BIN/all_gather_perf" \
         -b 8 -e 256M -f 2 -g 2 \
-        2>&1 | tee -a "$OUT" || log "[AVISO] all_gather_perf falhou."
+        2>&1 | tee -a "$OUT" || log "[WARNING] all_gather_perf failed."
 
-    # --- NCCL sendrecv — latência ponto a ponto ------------------------------
-    # Latência baixa = NVLink ativo; latência alta = fallback PCIe
+    # --- NCCL sendrecv — point-to-point latency ------------------------------
+    # Low latency = NVLink active; high latency = PCIe fallback
     log ""
-    log "=== GPU — NCCL SENDRECV (latência GPU0↔GPU1) ==="
+    log "=== GPU — NCCL SENDRECV (latency GPU0<->GPU1) ==="
     log "--- -b 8 -e 4M -f 2 -g 2 ---"
     "$NCCL_BIN/sendrecv_perf" \
         -b 8 -e 4M -f 2 -g 2 \
-        2>&1 | tee -a "$OUT" || log "[AVISO] sendrecv_perf falhou."
+        2>&1 | tee -a "$OUT" || log "[WARNING] sendrecv_perf failed."
 
-    # --- Estado pós-benchmark ------------------------------------------------
+    # --- Post-benchmark state ------------------------------------------------
     log ""
-    log "=== GPU — ESTADO PÓS-BENCHMARK ==="
+    log "=== GPU — POST-BENCHMARK STATE ==="
     nvidia-smi --query-gpu=index,name,temperature.gpu,power.draw,\
 memory.used,memory.total,utilization.gpu \
         --format=csv,noheader 2>&1 | tee -a "$OUT" || true
 }
 
 # =============================================================================
-# CABEÇALHO
+# HEADER
 # =============================================================================
 log "=== BENCHMARK VM: $HOST — $DATE ==="
-log "Ambiente: VM KVM — IBM Power9 ppc64le"
+log "Environment: KVM VM — IBM Power9 ppc64le"
 separator
 
 # =============================================================================
-# INFO DO SISTEMA
+# SYSTEM INFO
 # =============================================================================
-log "=== INFO DO SISTEMA ==="
+log "=== SYSTEM INFO ==="
 uname -a                              2>&1 | tee -a "$OUT"
-log "CPUs disponíveis: $(nproc)"
+log "CPUs available: $(nproc)"
 free -h                               2>&1 | tee -a "$OUT"
-log "Swap: $(swapon --show 2>/dev/null | tail -n +2 | wc -l) dispositivo(s)"
+log "Swap: $(swapon --show 2>/dev/null | tail -n +2 | wc -l) device(s)"
 separator
 
 # =============================================================================
-# INFO DO FILESYSTEM
+# FILESYSTEM INFO
 # =============================================================================
-log "=== INFO DO FILESYSTEM ==="
+log "=== FILESYSTEM INFO ==="
 df -Th /root                          2>&1 | tee -a "$OUT"
 mount | grep -E " / "                 2>&1 | tee -a "$OUT"
 separator
 
 # =============================================================================
-# CGROUP DO PROCESSO
+# PROCESS CGROUP
 # =============================================================================
-log "=== CGROUP DO PROCESSO ==="
+log "=== PROCESS CGROUP ==="
 cat /proc/self/cgroup                 2>&1 | tee -a "$OUT"
 separator
 
@@ -309,9 +309,9 @@ stress-ng --cpu "$NCPUS" \
 separator
 
 # =============================================================================
-# MEMÓRIA
+# MEMORY
 # =============================================================================
-log "=== MEMÓRIA ==="
+log "=== MEMORY ==="
 stress-ng --vm "$VM_WORKERS" \
           --vm-bytes "$VM_BYTES" \
           --metrics-brief \
@@ -329,21 +329,21 @@ stress-ng --cache "$NCPUS" \
 separator
 
 # =============================================================================
-# STREAM — LARGURA DE BANDA DE MEMÓRIA
+# STREAM — MEMORY BANDWIDTH
 # =============================================================================
-log "=== STREAM — LARGURA DE BANDA DE MEMÓRIA ==="
+log "=== STREAM — MEMORY BANDWIDTH ==="
 if [ -x "$STREAM_BIN" ]; then
     "$STREAM_BIN" 2>&1 | tee -a "$OUT" || true
 else
-    log "AVISO: STREAM não encontrado em $STREAM_BIN"
-    log "Compile: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream"
+    log "WARNING: STREAM not found at $STREAM_BIN"
+    log "Compile with: gcc -O3 -mcpu=native -fopenmp -DSTREAM_ARRAY_SIZE=80000000 stream.c -o stream"
 fi
 separator
 
 # =============================================================================
-# DISCO (fio — ext4)
+# DISK (fio — ext4)
 # =============================================================================
-run_fio_suite "DISCO_EXT4"
+run_fio_suite "DISK_EXT4"
 separator
 
 # =============================================================================
@@ -354,8 +354,8 @@ run_gpu_suite
 separator
 
 # =============================================================================
-# FIM
+# END
 # =============================================================================
 log ""
-log "=== FIM ==="
-log "Resultados salvos em: $OUT"
+log "=== END ==="
+log "Results saved to: $OUT"
