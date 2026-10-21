@@ -1,0 +1,27 @@
+ambiente,metrica,rotulo,overhead_p9_pct,overhead_x86_pct,delta_pp,ic95_inf,ic95_sup,ic_exclui_zero,conclusao,obs
+kvm,cpu_bogo_ops_s_real,"CPU (stress-ng, bogo ops/s)",0.456886898096287,-23.80372909921764,-24.260615997313927,-24.33704477569769,-24.104306668159996,True,diferença relevante,
+qemu,cpu_bogo_ops_s_real,"CPU (stress-ng, bogo ops/s)",,,,,,,,faltam dados válidos em uma das arquiteturas
+kvm,mem_bogo_ops_s_real,"Memória (stress-ng vm, bogo ops/s)",-2.908308753560518,1.3687133780565963,4.277022131617114,3.2467526544972847,5.183539336559435,True,diferença pequena (< 5 p.p.),
+qemu,mem_bogo_ops_s_real,"Memória (stress-ng vm, bogo ops/s)",-92.13399453712573,-93.29642609243497,-1.1624315553092401,-1.2466791140139062,-1.10733030822,True,diferença pequena (< 5 p.p.),
+kvm,cache_bogo_ops_s_real,"Cache L1 (stress-ng, bogo ops/s)",-5.226499225833492,-3.4300412973860106,1.7964579284474813,0.684194563423679,41.64077147625359,True,diferença pequena (< 5 p.p.),
+qemu,cache_bogo_ops_s_real,"Cache L1 (stress-ng, bogo ops/s)",-85.43736096748083,-92.59487625447565,-7.157515286994823,-7.524147218085531,-3.431886197526541,True,diferença relevante,
+kvm,stream_copy_mbs,STREAM Copy (MB/s),-3.1679648582555897,-0.611908684396334,2.5560561738592558,0.46173917774456397,2.7896090501801973,True,diferença pequena (< 5 p.p.),
+qemu,stream_copy_mbs,STREAM Copy (MB/s),,,,,,,,faltam dados válidos em uma das arquiteturas
+kvm,stream_scale_mbs,STREAM Scale (MB/s),-3.2023016613818567,0.1422179682244451,3.344519629606302,3.1185326608577406,3.9582273642582377,True,diferença pequena (< 5 p.p.),
+qemu,stream_scale_mbs,STREAM Scale (MB/s),,,,,,,,faltam dados válidos em uma das arquiteturas
+kvm,stream_add_mbs,STREAM Add (MB/s),-2.34088503984623,-0.4020360137079848,1.9388490261382452,1.1449224727061023,2.089166144632282,True,diferença pequena (< 5 p.p.),
+qemu,stream_add_mbs,STREAM Add (MB/s),,,,,,,,faltam dados válidos em uma das arquiteturas
+kvm,stream_triad_mbs,STREAM Triad (MB/s),-1.7898552598684447,-0.24281650990659598,1.5470387499618488,0.3001358264280097,2.1171520950153186,True,diferença pequena (< 5 p.p.),
+qemu,stream_triad_mbs,STREAM Triad (MB/s),,,,,,,,faltam dados válidos em uma das arquiteturas
+kvm,disk_seqread_MiBs,Leitura sequencial (MiB/s),0.8230452674897082,16.74208144796381,15.919036180474102,15.292806085644962,16.802303743583316,True,diferença relevante,
+qemu,disk_seqread_MiBs,Leitura sequencial (MiB/s),0.6172839506172867,14.479638009049767,13.86235405843248,12.317488454541214,14.534310992156431,True,diferença relevante,
+kvm,disk_seqwrite_MiBs,Escrita sequencial (MiB/s),-0.7792207792207795,-14.051522248243565,-13.272301469022786,-20.23735583632873,-4.448612837244116,True,diferença relevante,
+qemu,disk_seqwrite_MiBs,Escrita sequencial (MiB/s),-0.7792207792207795,-0.8196721311475419,-0.04045135192676241,-7.373847526519283,9.164548815645157,False,sem diferença detectável,
+kvm,disk_iops_randread,IOPS aleatório leitura,-5.855855855855852,6.120434353405724,11.976290209261576,7.136690770466847,17.663101876776576,True,diferença relevante,
+qemu,disk_iops_randread,IOPS aleatório leitura,-67.25225225225225,4.5409674234945685,71.79321967574681,66.9173852625994,79.04641488929376,True,diferença relevante,
+kvm,disk_iops_randwrite,IOPS aleatório escrita,-5.944421228583363,6.414662084765177,12.35908331334854,7.093202750881516,17.042407670032038,True,diferença relevante,
+qemu,disk_iops_randwrite,IOPS aleatório escrita,-67.34224822398662,4.696449026345939,72.03869725033256,67.04054546699969,79.19498045770752,True,diferença relevante,
+kvm,disk_iops_qd1,IOPS QD=1,-85.47838756677999,-8.41121495327103,77.06717261350896,67.9108843871207,80.90169997511528,True,diferença relevante,
+qemu,disk_iops_qd1,IOPS QD=1,-65.61437591063624,-19.698058950395403,45.916316960240835,21.422089422165236,55.49687006789226,True,diferença relevante,
+kvm,disk_lat_avg_usec,Latência média QD=1 (µs),611.216239463272,9.009938783877391,-602.2063006793946,-864.0119936361081,-318.87272881916135,True,diferença relevante,
+qemu,disk_lat_avg_usec,Latência média QD=1 (µs),103.52227765353517,10.607495794042388,-92.91478185949278,-178.60984279449409,4.420147021142284,False,sem diferença detectável,

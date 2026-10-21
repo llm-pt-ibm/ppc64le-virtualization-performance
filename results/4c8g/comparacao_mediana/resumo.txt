@@ -1,0 +1,91 @@
+Overhead vs host (mediana, IC95% bootstrap, p FDR-BH)
+  ppc64le  kvm  CPU (stress-ng, bogo ops/s)               +0.46% [+0.42; +0.50] p_fdr=7.69e-05 cliff=+0.87
+  ppc64le  qemu CPU (stress-ng, bogo ops/s)            sem dados válidos (ex.: falha sob TCG)
+  ppc64le  kvm  Memória (stress-ng vm, bogo ops/s)        -2.91% [-3.77; -1.85] p_fdr=6.6e-06 cliff=-0.99
+  ppc64le  qemu Memória (stress-ng vm, bogo ops/s)       -92.13% [-92.20; -92.08] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  kvm  Cache L1 (stress-ng, bogo ops/s)          -5.23% [-44.42; -4.66] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  qemu Cache L1 (stress-ng, bogo ops/s)         -85.44% [-89.34; -85.12] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  kvm  STREAM Copy (MB/s)                        -3.17% [-3.38; -0.98] p_fdr=6.6e-06 cliff=-0.99
+  ppc64le  qemu STREAM Copy (MB/s)                     sem dados válidos (ex.: falha sob TCG)
+  ppc64le  kvm  STREAM Scale (MB/s)                       -3.20% [-3.80; -2.99] p_fdr=6.6e-06 cliff=-0.99
+  ppc64le  qemu STREAM Scale (MB/s)                    sem dados válidos (ex.: falha sob TCG)
+  ppc64le  kvm  STREAM Add (MB/s)                         -2.34% [-2.46; -1.50] p_fdr=9.12e-06 cliff=-0.97
+  ppc64le  qemu STREAM Add (MB/s)                      sem dados válidos (ex.: falha sob TCG)
+  ppc64le  kvm  STREAM Triad (MB/s)                       -1.79% [-2.33; -0.50] p_fdr=1.04e-05 cliff=-0.96
+  ppc64le  qemu STREAM Triad (MB/s)                    sem dados válidos (ex.: falha sob TCG)
+  ppc64le  kvm  Leitura sequencial (MiB/s)                +0.82% [+0.20; +1.45] p_fdr=0.00625 cliff=+0.60
+  ppc64le  qemu Leitura sequencial (MiB/s)                +0.62% [+0.20; +1.45] p_fdr=0.00349 cliff=+0.64
+  ppc64le  kvm  Escrita sequencial (MiB/s)                -0.78% [-1.81; +0.52] p_fdr=0.216 cliff=-0.27
+  ppc64le  qemu Escrita sequencial (MiB/s)                -0.78% [-2.07; +0.52] p_fdr=0.192 cliff=-0.29
+  ppc64le  kvm  IOPS aleatório leitura                    -5.86% [-9.17; -4.95] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  qemu IOPS aleatório leitura                   -67.25% [-71.46; -66.09] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  kvm  IOPS aleatório escrita                    -5.94% [-8.76; -4.77] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  qemu IOPS aleatório escrita                   -67.34% [-71.43; -66.03] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  kvm  IOPS QD=1                                -85.48% [-89.25; -76.40] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  qemu IOPS QD=1                                -65.61% [-74.85; -40.97] p_fdr=6.34e-06 cliff=-1.00
+  ppc64le  kvm  Latência média QD=1 (µs)                +611.22% [+327.67; +873.72] p_fdr=6.34e-06 cliff=+1.00
+  ppc64le  qemu Latência média QD=1 (µs)                +103.52% [+6.19; +189.03] p_fdr=0.00271 cliff=+0.66
+  x86_64   kvm  CPU (stress-ng, bogo ops/s)              -23.80% [-23.87; -23.65] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   qemu CPU (stress-ng, bogo ops/s)              -94.74% [-94.77; -94.72] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   kvm  Memória (stress-ng vm, bogo ops/s)        +1.37% [+1.30; +1.47] p_fdr=6.34e-06 cliff=+1.00
+  x86_64   qemu Memória (stress-ng vm, bogo ops/s)       -93.30% [-93.33; -93.28] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   kvm  Cache L1 (stress-ng, bogo ops/s)          -3.43% [-4.27; -3.01] p_fdr=9.12e-06 cliff=-0.97
+  x86_64   qemu Cache L1 (stress-ng, bogo ops/s)         -92.59% [-92.90; -92.47] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   kvm  STREAM Copy (MB/s)                        -0.61% [-0.83; -0.49] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   qemu STREAM Copy (MB/s)                     sem dados válidos (ex.: falha sob TCG)
+  x86_64   kvm  STREAM Scale (MB/s)                       +0.14% [+0.08; +0.22] p_fdr=1.04e-05 cliff=+0.96
+  x86_64   qemu STREAM Scale (MB/s)                    sem dados válidos (ex.: falha sob TCG)
+  x86_64   kvm  STREAM Add (MB/s)                         -0.40% [-0.42; -0.33] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   qemu STREAM Add (MB/s)                      sem dados válidos (ex.: falha sob TCG)
+  x86_64   kvm  STREAM Triad (MB/s)                       -0.24% [-0.31; -0.18] p_fdr=6.6e-06 cliff=-0.99
+  x86_64   qemu STREAM Triad (MB/s)                    sem dados válidos (ex.: falha sob TCG)
+  x86_64   kvm  Leitura sequencial (MiB/s)               +16.74% [+16.52; +17.23] p_fdr=6.34e-06 cliff=+1.00
+  x86_64   qemu Leitura sequencial (MiB/s)               +14.48% [+13.35; +15.16] p_fdr=6.34e-06 cliff=+1.00
+  x86_64   kvm  Escrita sequencial (MiB/s)               -14.05% [-20.54; -4.71] p_fdr=0.000872 cliff=-0.73
+  x86_64   qemu Escrita sequencial (MiB/s)                -0.82% [-8.18; +8.93] p_fdr=0.983 cliff=+0.01
+  x86_64   kvm  IOPS aleatório leitura                    +6.12% [+0.98; +10.30] p_fdr=0.00385 cliff=+0.64
+  x86_64   qemu IOPS aleatório leitura                    +4.54% [-0.28; +8.41] p_fdr=0.0333 cliff=+0.47
+  x86_64   kvm  IOPS aleatório escrita                    +6.41% [+1.32; +10.14] p_fdr=0.00625 cliff=+0.60
+  x86_64   qemu IOPS aleatório escrita                    +4.70% [-0.11; +8.47] p_fdr=0.0333 cliff=+0.47
+  x86_64   kvm  IOPS QD=1                                 -8.41% [-9.33; -7.61] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   qemu IOPS QD=1                                -19.70% [-20.27; -18.80] p_fdr=6.34e-06 cliff=-1.00
+  x86_64   kvm  Latência média QD=1 (µs)                  +9.01% [+7.94; +10.24] p_fdr=6.34e-06 cliff=+1.00
+  x86_64   qemu Latência média QD=1 (µs)                 +10.61% [+9.41; +11.64] p_fdr=6.34e-06 cliff=+1.00
+
+Diferença x86 − ppc64le (pontos percentuais)
+  kvm  CPU (stress-ng, bogo ops/s)            p9    +0.46  x86   -23.80  Δ   -24.26 [-24.34; -24.10]  diferença relevante
+  qemu CPU (stress-ng, bogo ops/s)            faltam dados válidos em uma das arquiteturas
+  kvm  Memória (stress-ng vm, bogo ops/s)     p9    -2.91  x86    +1.37  Δ    +4.28 [+3.25; +5.18]  diferença pequena (< 5 p.p.)
+  qemu Memória (stress-ng vm, bogo ops/s)     p9   -92.13  x86   -93.30  Δ    -1.16 [-1.25; -1.11]  diferença pequena (< 5 p.p.)
+  kvm  Cache L1 (stress-ng, bogo ops/s)       p9    -5.23  x86    -3.43  Δ    +1.80 [+0.68; +41.64]  diferença pequena (< 5 p.p.)
+  qemu Cache L1 (stress-ng, bogo ops/s)       p9   -85.44  x86   -92.59  Δ    -7.16 [-7.52; -3.43]  diferença relevante
+  kvm  STREAM Copy (MB/s)                     p9    -3.17  x86    -0.61  Δ    +2.56 [+0.46; +2.79]  diferença pequena (< 5 p.p.)
+  qemu STREAM Copy (MB/s)                     faltam dados válidos em uma das arquiteturas
+  kvm  STREAM Scale (MB/s)                    p9    -3.20  x86    +0.14  Δ    +3.34 [+3.12; +3.96]  diferença pequena (< 5 p.p.)
+  qemu STREAM Scale (MB/s)                    faltam dados válidos em uma das arquiteturas
+  kvm  STREAM Add (MB/s)                      p9    -2.34  x86    -0.40  Δ    +1.94 [+1.14; +2.09]  diferença pequena (< 5 p.p.)
+  qemu STREAM Add (MB/s)                      faltam dados válidos em uma das arquiteturas
+  kvm  STREAM Triad (MB/s)                    p9    -1.79  x86    -0.24  Δ    +1.55 [+0.30; +2.12]  diferença pequena (< 5 p.p.)
+  qemu STREAM Triad (MB/s)                    faltam dados válidos em uma das arquiteturas
+  kvm  Leitura sequencial (MiB/s)             p9    +0.82  x86   +16.74  Δ   +15.92 [+15.29; +16.80]  diferença relevante
+  qemu Leitura sequencial (MiB/s)             p9    +0.62  x86   +14.48  Δ   +13.86 [+12.32; +14.53]  diferença relevante
+  kvm  Escrita sequencial (MiB/s)             p9    -0.78  x86   -14.05  Δ   -13.27 [-20.24; -4.45]  diferença relevante
+  qemu Escrita sequencial (MiB/s)             p9    -0.78  x86    -0.82  Δ    -0.04 [-7.37; +9.16]  sem diferença detectável
+  kvm  IOPS aleatório leitura                 p9    -5.86  x86    +6.12  Δ   +11.98 [+7.14; +17.66]  diferença relevante
+  qemu IOPS aleatório leitura                 p9   -67.25  x86    +4.54  Δ   +71.79 [+66.92; +79.05]  diferença relevante
+  kvm  IOPS aleatório escrita                 p9    -5.94  x86    +6.41  Δ   +12.36 [+7.09; +17.04]  diferença relevante
+  qemu IOPS aleatório escrita                 p9   -67.34  x86    +4.70  Δ   +72.04 [+67.04; +79.19]  diferença relevante
+  kvm  IOPS QD=1                              p9   -85.48  x86    -8.41  Δ   +77.07 [+67.91; +80.90]  diferença relevante
+  qemu IOPS QD=1                              p9   -65.61  x86   -19.70  Δ   +45.92 [+21.42; +55.50]  diferença relevante
+  kvm  Latência média QD=1 (µs)               p9  +611.22  x86    +9.01  Δ  -602.21 [-864.01; -318.87]  diferença relevante
+  qemu Latência média QD=1 (µs)               p9  +103.52  x86   +10.61  Δ   -92.91 [-178.61; +4.42]  sem diferença detectável
+
+Sensibilidade: memória x86 com/sem execuções [BIT-ERROR]
+ambiente        subconjunto  n  overhead_pct   ic95_inf   ic95_sup     p_mw
+     kvm              todas 15      1.368713   1.302716   1.472850      NaN
+     kvm      sem BIT-ERROR  6      1.360260   1.227629   1.470323      NaN
+     kvm       só BIT-ERROR  9      1.380333   1.302716   1.496713      NaN
+     kvm MW BIT-ERROR × sem 15           NaN        NaN        NaN 0.455944
+    qemu              todas 15    -93.296426 -93.329167 -93.282590      NaN
+    qemu      sem BIT-ERROR  0           NaN        NaN        NaN      NaN
+    qemu       só BIT-ERROR 15    -93.296426 -93.329167 -93.282590      NaN

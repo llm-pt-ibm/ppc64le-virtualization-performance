@@ -1,0 +1,155 @@
+STATISTICAL ANALYSIS REPORT — ppc64le BENCHMARKS
+======================================================================
+
+NOTE on duplicate_statistics_alert.csv: this file lists pairs of
+metrics whose global statistical test produced an exactly identical
+result. This can be benign (equally-sized groups with complete
+separation between environments produce the same Kruskal-Wallis H by
+mathematical construction, regardless of the raw values) or point to a
+computation bug — review manually before accepting any new case that
+shows up here. It's generated automatically on every run of this
+pipeline, not a one-off/manual check.
+
+NOTE on "(caution: pseudo-replication)" below: see
+docs/METHODOLOGICAL_GLOSSARY.md for what that warning means and why it's
+an expected consequence of the nested design (3 VMs x 5 runs), not an error.
+----------------------------------------------------------------------
+
+### cache_bogo_ops_s_cpu ###
+  host: n=15, mean=6168.969, median=6162.460, 95% CI=[6156.153, 6181.419], Shapiro p=0.7547
+  kvm: n=15, mean=5327.384, median=5729.420, 95% CI=[5041.277, 5663.807], Shapiro p=0.0005
+  qemu: n=15, mean=862.641, median=908.610, 95% CI=[816.708, 914.089], Shapiro p=0.0009
+  Levene p=0.0090
+  Global test: Kruskal-Wallis, statistic=39.1304, p=3.184e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.009e-08
+  Effect size (epsilon^2): 0.8893
+
+### cache_bogo_ops_s_real ###
+  host: n=15, mean=19149.699, median=19136.710, 95% CI=[19125.106, 19174.620], Shapiro p=0.1192
+  kvm: n=15, mean=14512.081, median=18136.530, 95% CI=[12018.619, 17185.658], Shapiro p=0.0015
+  qemu: n=15, mean=2611.107, median=2786.810, 95% CI=[2418.846, 2821.931], Shapiro p=0.0056
+  Levene p=0.0010
+  Global test: Kruskal-Wallis, statistic=39.1304, p=3.184e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.009e-08
+  Effect size (epsilon^2): 0.8893
+
+### cpu_bogo_ops_s_cpu ###
+  host: n=15, mean=334.913, median=334.880, 95% CI=[334.834, 334.989], Shapiro p=0.0994
+  kvm: n=15, mean=336.411, median=336.470, 95% CI=[336.328, 336.518], Shapiro p=0.0046
+  Levene p=0.8173
+  Global test: Kruskal-Wallis, statistic=21.7984, p=3.028e-06
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 5.384e-06
+  Effect size (epsilon^2): 0.7517
+
+### cpu_bogo_ops_s_real ###
+  host: n=15, mean=1339.549, median=1339.500, 95% CI=[1339.210, 1339.868], Shapiro p=0.1327
+  kvm: n=15, mean=1344.899, median=1345.620, 95% CI=[1344.081, 1346.185], Shapiro p=0.0000
+  Levene p=0.3227
+  Global test: Kruskal-Wallis, statistic=16.3585, p=5.242e-05
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 5.991e-05
+  Effect size (epsilon^2): 0.5641
+
+### disk_iops_qd1 ###
+  host: n=15, mean=4060.267, median=4118.000, 95% CI=[3286.592, 4823.268], Shapiro p=0.1472
+  kvm: n=15, mean=685.200, median=598.000, 95% CI=[563.932, 771.002], Shapiro p=0.0000
+  qemu: n=15, mean=1457.267, median=1416.000, 95% CI=[1261.998, 1659.615], Shapiro p=0.0892
+  Levene p=0.0000
+  Global test: Kruskal-Wallis, statistic=37.4686, p=7.308e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.67e-08
+  Effect size (epsilon^2): 0.8516
+
+### disk_iops_randread ###
+  host: n=15, mean=22933.333, median=22200.000, 95% CI=[21966.667, 23653.333], Shapiro p=0.0003
+  kvm: n=15, mean=20840.000, median=20900.000, 95% CI=[20673.333, 21040.000], Shapiro p=0.0036
+  qemu: n=15, mean=7024.133, median=7270.000, 95% CI=[6718.332, 7321.540], Shapiro p=0.0226
+  Levene p=0.1110
+  Global test: Kruskal-Wallis, statistic=39.2053, p=3.067e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.009e-08
+  Effect size (epsilon^2): 0.8910
+
+### disk_iops_randwrite ###
+  host: n=15, mean=9864.267, median=9572.000, 95% CI=[9452.867, 10171.335], Shapiro p=0.0003
+  kvm: n=15, mean=9022.533, median=9003.000, 95% CI=[8986.867, 9056.402], Shapiro p=0.7171
+  qemu: n=15, mean=3019.933, median=3126.000, 95% CI=[2888.997, 3147.600], Shapiro p=0.0216
+  Levene p=0.0544
+  Global test: Kruskal-Wallis, statistic=39.1330, p=3.18e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.009e-08
+  Effect size (epsilon^2): 0.8894
+
+### disk_lat_avg_usec ###
+  host: n=15, mean=277.804, median=232.520, 95% CI=[216.273, 335.480], Shapiro p=0.0739
+  kvm: n=15, mean=1530.462, median=1653.720, 95% CI=[1396.396, 1695.201], Shapiro p=0.0038
+  qemu: n=15, mean=516.769, median=473.230, 95% CI=[387.699, 631.216], Shapiro p=0.0045
+  Levene p=0.3409
+  Global test: Kruskal-Wallis, statistic=33.0350, p=6.707e-08
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.341e-07
+  Effect size (epsilon^2): 0.7508
+
+### disk_seqread_MiBs ###
+  host: n=15, mean=485.000, median=486.000, 95% CI=[482.267, 488.400], Shapiro p=0.0153
+  kvm: n=15, mean=489.067, median=490.000, 95% CI=[487.467, 491.600], Shapiro p=0.0000
+  qemu: n=15, mean=489.467, median=489.000, 95% CI=[489.000, 489.933], Shapiro p=0.0815
+  Levene p=0.0417
+  Global test: Kruskal-Wallis, statistic=11.9340, p=0.002562
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 0.002733
+  Effect size (epsilon^2): 0.2712
+
+### disk_seqwrite_MiBs ###
+  host: n=15, mean=385.133, median=385.000, 95% CI=[382.067, 387.667], Shapiro p=0.0117
+  kvm: n=15, mean=382.133, median=382.000, 95% CI=[379.667, 384.600], Shapiro p=0.9453
+  qemu: n=15, mean=382.200, median=382.000, 95% CI=[379.467, 384.800], Shapiro p=0.3644
+  Levene p=0.8266
+  Global test: Kruskal-Wallis, statistic=2.3399, p=0.3104
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 0.3104
+  Effect size (epsilon^2): 0.0532
+
+### mem_bogo_ops_s_cpu ###
+  host: n=15, mean=63216.219, median=63265.350, 95% CI=[62888.065, 63545.891], Shapiro p=0.8687
+  kvm: n=15, mean=61441.437, median=61442.620, 95% CI=[61214.434, 61660.416], Shapiro p=0.9361
+  qemu: n=15, mean=5046.839, median=5029.020, 95% CI=[5028.711, 5062.965], Shapiro p=0.0073
+  Levene p=0.0000
+  Global test: Kruskal-Wallis, statistic=38.7857, p=3.783e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.009e-08
+  Effect size (epsilon^2): 0.8815
+
+### mem_bogo_ops_s_real ###
+  host: n=15, mean=252833.905, median=253053.600, 95% CI=[251527.232, 254144.154], Shapiro p=0.8843
+  kvm: n=15, mean=245564.531, median=245694.020, 95% CI=[244578.910, 246563.925], Shapiro p=0.9901
+  qemu: n=15, mean=19904.944, median=19905.210, 95% CI=[19902.536, 19907.095], Shapiro p=0.2004
+  Levene p=0.0000
+  Global test: Kruskal-Wallis, statistic=38.9573, p=3.472e-09
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 1.009e-08
+  Effect size (epsilon^2): 0.8854
+
+### stream_add_mbs ###
+  host: n=15, mean=46288.027, median=46303.000, 95% CI=[46267.180, 46323.560], Shapiro p=0.0000
+  kvm: n=15, mean=45415.233, median=45219.100, 95% CI=[45207.302, 45595.476], Shapiro p=0.0029
+  Levene p=0.0106
+  Global test: Kruskal-Wallis, statistic=20.6330, p=5.563e-06
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 7.417e-06
+  Effect size (epsilon^2): 0.7115
+
+### stream_copy_mbs ###
+  host: n=15, mean=44154.693, median=44164.000, 95% CI=[44135.333, 44179.134], Shapiro p=0.0008
+  kvm: n=15, mean=43026.033, median=42764.900, 95% CI=[42721.157, 43288.170], Shapiro p=0.0006
+  Levene p=0.0100
+  Global test: Kruskal-Wallis, statistic=21.3983, p=3.731e-06
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 5.454e-06
+  Effect size (epsilon^2): 0.7379
+
+### stream_scale_mbs ###
+  host: n=15, mean=44248.940, median=44246.300, 95% CI=[44216.733, 44285.880], Shapiro p=0.0634
+  kvm: n=15, mean=42948.760, median=42829.400, 95% CI=[42636.938, 43221.282], Shapiro p=0.0106
+  Levene p=0.0041
+  Global test: Kruskal-Wallis, statistic=21.3888, p=3.75e-06
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 5.454e-06
+  Effect size (epsilon^2): 0.7375
+
+### stream_triad_mbs ###
+  host: n=15, mean=46388.293, median=46400.400, 95% CI=[46364.560, 46426.580], Shapiro p=0.0000
+  kvm: n=15, mean=45676.007, median=45569.900, 95% CI=[45476.301, 45870.530], Shapiro p=0.1210
+  Levene p=0.0000
+  Global test: Kruskal-Wallis, statistic=20.2623, p=6.752e-06
+  Corrected p (FDR/Benjamini-Hochberg, across all metrics): 8.31e-06
+  Effect size (epsilon^2): 0.6987
+

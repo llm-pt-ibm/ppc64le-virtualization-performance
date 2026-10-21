@@ -1,0 +1,57 @@
+[host/host] 15 files in /home/gabriellylima/Documentos/Multi-Arq/experimentos/data/raw_4c8g/x86/host
+[kvm/exp] 15 files in /home/gabriellylima/Documentos/Multi-Arq/experimentos/data/raw_4c8g/x86/kvm-exp
+[warning] folder 'meta' not recognized (expected: host, kvm-<vm>, qemu-<vm>) — skipping
+[qemu/exp] 15 files in /home/gabriellylima/Documentos/Multi-Arq/experimentos/data/raw_4c8g/x86/qemu-exp
+
+[WARNING] 120 case(s) of an expected metric not found in some file — see /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86/parsing_warnings.csv (explains any n differences between metrics/environments, e.g. n=14 vs n=15).
+
+Extracted 660 values from 45 files.
+ambiente  vm_id
+host      host     15
+kvm       exp      15
+qemu      exp      15
+
+VM heterogeneity check: 0/0 metric x treatment combinations show a significant difference between VMs (p<0.05)
+  saved: cpu/cpu_bogo_ops_s_real.png
+  saved: cpu/cpu_bogo_ops_s_cpu.png
+  saved: memory/mem_bogo_ops_s_real.png
+  saved: memory/mem_bogo_ops_s_cpu.png
+  saved: cache/cache_bogo_ops_s_real.png
+  saved: cache/cache_bogo_ops_s_cpu.png
+  saved: memory/stream_copy_mbs.png
+  saved: memory/stream_scale_mbs.png
+  saved: memory/stream_add_mbs.png
+  saved: memory/stream_triad_mbs.png
+  saved: disk_seq/disk_seqread_MiBs.png
+  saved: disk_seq/disk_seqwrite_MiBs.png
+  saved: disk_iops/disk_iops_randread.png
+  saved: disk_iops/disk_iops_randwrite.png
+  saved: disk_seq/disk_iops_qd1.png
+  saved: disk_seq/disk_lat_avg_usec.png
+Plots saved to /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86/plots/
+
+[WARNING] 4 metric pair(s) with IDENTICAL global test statistics (teste_global_estat, teste_global_p and effect_size_epsilon2 all matching exactly) — see data/processed/duplicate_statistics_alert.csv and review manually before assuming it's a benign coincidence:
+    cache_bogo_ops_s_cpu  ==  mem_bogo_ops_s_cpu  (H=39.1304, p=3.184e-09)
+    cache_bogo_ops_s_cpu  ==  mem_bogo_ops_s_real  (H=39.1304, p=3.184e-09)
+    cpu_bogo_ops_s_cpu  ==  cpu_bogo_ops_s_real  (H=39.1330, p=3.18e-09)
+    mem_bogo_ops_s_cpu  ==  mem_bogo_ops_s_real  (H=39.1304, p=3.184e-09)
+  saved: heatmaps/significance_heatmap_full.png
+  saved: heatmaps/significance_heatmap_3env.png
+  saved: heatmaps/significance_heatmap_2env.png
+  saved: heatmaps/significance_heatmap.png
+  [warning] heterogeneidade_entre_vms empty — vm_heterogeneity_heatmap_full.png not generated
+  [warning] heterogeneidade_entre_vms empty — vm_heterogeneity_heatmap.png not generated
+  saved: /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86/confidence_intervals/ci95_curated.png
+  saved: /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86/confidence_intervals/ci95_full.png
+  saved: /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86/confidence_intervals/ci95_curated_2env.png
+  saved: /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86/confidence_intervals/ci95_full_2env.png
+
+Done. Outputs in: /home/gabriellylima/Documentos/Multi-Arq/experimentos/results/4c8g/x86
+  - extracted_data.csv
+  - descriptive_summary.csv
+  - statistical_results.csv (with p_fdr_corrigido)
+  - vm_heterogeneity.csv
+  - parsing_warnings.csv
+  - duplicate_statistics_alert.csv
+  - metadata.json
+  - report.txt
