@@ -1,0 +1,57 @@
+arquitetura,metrica_id,unidade,n_host,media_host,mediana_host,ambiente,n,overhead_media_pct,ic95_inf,ic95_sup,overhead_mediana_pct,nota
+ppc64le,cpu_subset80,bogo ops/s,15,2027.5354,2028.5714,KVM,15,-0.2377,-0.3668,-0.1107,-0.3084,
+ppc64le,cpu_subset80,bogo ops/s,15,2027.5354,2028.5714,QEMU,15,-94.8868,-94.913,-94.8585,-94.8806,
+ppc64le,cpu_subset76,bogo ops/s,15,2055.2093,2056.2644,KVM,15,-0.236,-0.3744,-0.0996,-0.3013,
+ppc64le,cpu_subset76,bogo ops/s,15,2055.2093,2056.2644,QEMU,15,-94.55,-94.5787,-94.5198,-94.5427,
+ppc64le,mem_bogo,bogo ops/s,15,252833.9053,253053.6,KVM,15,-2.8752,-3.5228,-2.2241,-2.9083,
+ppc64le,mem_bogo,bogo ops/s,15,252833.9053,253053.6,QEMU,15,-92.1273,-92.1686,-92.0871,-92.134,
+ppc64le,cache_bogo,bogo ops/s,15,19149.6987,19136.71,KVM,15,-24.2177,-37.2207,-10.1574,-5.2265,distribuição bimodal no KVM ppc64le; ver mediana na tabela
+ppc64le,cache_bogo,bogo ops/s,15,19149.6987,19136.71,QEMU,15,-86.3648,-87.3683,-85.2719,-85.4374,
+ppc64le,stream_copy,MB/s,15,44154.6933,44164.0,KVM,15,-2.5561,-3.233,-1.9544,-3.168,
+ppc64le,stream_copy,MB/s,15,44154.6933,44164.0,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+ppc64le,stream_scale,MB/s,15,44248.94,44246.3,KVM,15,-2.9383,-3.6571,-2.3139,-3.2023,
+ppc64le,stream_scale,MB/s,15,44248.94,44246.3,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+ppc64le,stream_add,MB/s,15,46288.0267,46303.0,KVM,15,-1.8856,-2.3467,-1.488,-2.3409,
+ppc64le,stream_add,MB/s,15,46288.0267,46303.0,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+ppc64le,stream_triad,MB/s,15,46388.2933,46400.4,KVM,15,-1.5355,-1.9779,-1.1092,-1.7899,
+ppc64le,stream_triad,MB/s,15,46388.2933,46400.4,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+ppc64le,seq_read_bw,MiB/s,15,485.0,486.0,KVM,15,0.8385,0.0567,1.5675,0.823,
+ppc64le,seq_read_bw,MiB/s,15,485.0,486.0,QEMU,15,0.921,0.2362,1.4728,0.6173,
+ppc64le,seq_write_bw,MiB/s,15,385.1333,385.0,KVM,15,-0.779,-1.7148,0.2327,-0.7792,
+ppc64le,seq_write_bw,MiB/s,15,385.1333,385.0,QEMU,15,-0.7616,-1.7323,0.29,-0.7792,
+ppc64le,rand_read_iops,IOPS,15,22933.3333,22200.0,KVM,15,-9.1279,-12.1944,-5.3614,-5.8559,
+ppc64le,rand_read_iops,IOPS,15,22933.3333,22200.0,QEMU,15,-69.3715,-71.0582,-67.6083,-67.2523,
+ppc64le,rand_write_iops,IOPS,15,9864.2667,9572.0,KVM,15,-8.5332,-11.491,-4.8665,-5.9444,
+ppc64le,rand_write_iops,IOPS,15,9864.2667,9572.0,QEMU,15,-69.3851,-71.0632,-67.6339,-67.3422,
+ppc64le,lat_read_iops,IOPS,15,4060.2667,4118.0,KVM,15,-83.1243,-88.1116,-79.6622,-85.4784,QD=1 no ppc64le sensível à sessão do host (ver ameaças à validade)
+ppc64le,lat_read_iops,IOPS,15,4060.2667,4118.0,QEMU,15,-64.1091,-73.9916,-56.6657,-65.6144,QD=1 no ppc64le sensível à sessão do host (ver ameaças à validade)
+ppc64le,lat_clat_avg_us,us,15,277.804,232.52,KVM,15,450.9143,296.5732,562.4933,611.2162,
+ppc64le,lat_clat_avg_us,us,15,277.804,232.52,QEMU,15,86.0192,15.7923,137.0848,103.5223,
+x86_64,cpu_subset80,bogo ops/s,15,6856.3866,6852.6183,KVM,15,-1.2918,-1.4304,-1.1554,-1.2129,
+x86_64,cpu_subset80,bogo ops/s,15,6856.3866,6852.6183,QEMU,15,-93.1525,-93.1888,-93.1117,-93.1018,
+x86_64,cpu_subset76,bogo ops/s,15,6813.8828,6809.4718,KVM,15,-0.1296,-0.2764,0.0149,-0.0475,
+x86_64,cpu_subset76,bogo ops/s,15,6813.8828,6809.4718,QEMU,15,-92.7698,-92.8068,-92.728,-92.7215,
+x86_64,mem_bogo,bogo ops/s,15,323271.646,323259.06,KVM,15,1.3576,1.2939,1.4271,1.3687,
+x86_64,mem_bogo,bogo ops/s,15,323271.646,323259.06,QEMU,15,-93.3114,-93.3382,-93.2831,-93.2964,
+x86_64,cache_bogo,bogo ops/s,15,41146.7507,41259.27,KVM,15,-3.5083,-4.3624,-2.647,-3.43,
+x86_64,cache_bogo,bogo ops/s,15,41146.7507,41259.27,QEMU,15,-92.9631,-93.3754,-92.359,-92.5949,
+x86_64,stream_copy,MB/s,15,32733.6467,32717.3,KVM,15,-0.6705,-0.7808,-0.5599,-0.6119,
+x86_64,stream_copy,MB/s,15,32733.6467,32717.3,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+x86_64,stream_scale,MB/s,15,22146.0867,22149.1,KVM,15,0.169,0.1196,0.2159,0.1422,
+x86_64,stream_scale,MB/s,15,22146.0867,22149.1,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+x86_64,stream_add,MB/s,15,24773.82,24773.9,KVM,15,-0.3792,-0.4241,-0.3366,-0.402,
+x86_64,stream_add,MB/s,15,24773.82,24773.9,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+x86_64,stream_triad,MB/s,15,24749.5733,24751.2,KVM,15,-0.2452,-0.2905,-0.2013,-0.2428,
+x86_64,stream_triad,MB/s,15,24749.5733,24751.2,QEMU,0,,,,,"sem execução válida sob TCG (STREAM: 0,0 MB/s no ppc64le, SIGILL no x86_64)"
+x86_64,seq_read_bw,MiB/s,15,445.6,442.0,KVM,15,15.784,14.6822,17.105,16.7421,
+x86_64,seq_read_bw,MiB/s,15,445.6,442.0,QEMU,15,13.2256,12.1118,14.5698,14.4796,
+x86_64,seq_write_bw,MiB/s,15,86.2067,85.4,KVM,15,-13.3091,-18.9146,-8.2357,-14.0515,
+x86_64,seq_write_bw,MiB/s,15,86.2067,85.4,QEMU,15,-0.0696,-6.3646,5.5567,-0.8197,
+x86_64,rand_read_iops,IOPS,15,2002.6667,2026.0,KVM,15,7.4334,1.5651,11.9137,6.1204,
+x86_64,rand_read_iops,IOPS,15,2002.6667,2026.0,QEMU,15,6.1418,0.3581,10.534,4.541,
+x86_64,rand_write_iops,IOPS,15,864.0,873.0,KVM,15,7.2454,1.4359,11.7087,6.4147,
+x86_64,rand_write_iops,IOPS,15,864.0,873.0,QEMU,15,6.1497,0.4047,10.5369,4.6964,
+x86_64,lat_read_iops,IOPS,15,1391.5333,1391.0,KVM,15,-8.5805,-9.2956,-7.8322,-8.4112,
+x86_64,lat_read_iops,IOPS,15,1391.5333,1391.0,QEMU,15,-19.7049,-20.389,-18.9888,-19.6981,
+x86_64,lat_clat_avg_us,us,15,707.5487,707.33,KVM,15,9.1935,8.2906,10.0393,9.0099,
+x86_64,lat_clat_avg_us,us,15,707.5487,707.33,QEMU,15,10.7085,9.6333,11.7396,10.6075,

@@ -1,0 +1,12 @@
+arquitetura,ambiente,metrica_id,metrica,n,media,mediana,desvio,iqr,overhead_pct,ic95_inf,ic95_sup,overhead_mediana_pct,lower_is_better
+x86_64,QEMU,cpu_bogo,CPU (bogo ops/s),15,351.166,351.67,2.2065,3.26,-94.7405,-94.7572,-94.7229,-94.7362,0
+x86_64,QEMU,mem_bogo,Memory (bogo ops/s),15,21622.254,21669.91,180.632,139.37,-93.3114,-93.3382,-93.2831,-93.2964,0
+x86_64,QEMU,cache_bogo,Cache (bogo ops/s),15,2895.4493,3055.3,445.0744,151.965,-92.9631,-93.3754,-92.359,-92.5949,0
+x86_64,QEMU,seq_read_bw,Seq. read (MiB/s),15,504.5333,506.0,3.8889,7.0,13.2256,12.1118,14.5698,14.4796,0
+x86_64,QEMU,seq_write_bw,Seq. write (MiB/s),15,86.1467,84.7,5.6111,5.25,-0.0696,-6.3646,5.5567,-0.8197,0
+x86_64,QEMU,rand_read_iops,Random read IOPS,15,2125.6667,2118.0,30.3095,33.0,6.1418,0.3581,10.534,4.541,0
+x86_64,QEMU,rand_write_iops,Random write IOPS,15,917.1333,914.0,13.1577,13.5,6.1497,0.4047,10.5369,4.6964,0
+x86_64,QEMU,lat_read_iops,Latency IOPS (read),15,1117.3333,1117.0,13.0311,10.5,-19.7049,-20.389,-18.9888,-19.6981,0
+x86_64,QEMU,lat_clat_avg_us,Average latency (us),15,783.3167,782.36,11.1062,11.285,10.7085,9.6333,11.7396,10.6075,1
+x86_64,QEMU,cpu_subset80,"CPU subset, 80 common methods (geomean bogo ops/s)",15,469.4879,472.7063,5.3305,9.1515,-93.1525,-93.1888,-93.1117,-93.1018,0
+x86_64,QEMU,cpu_subset76,"CPU subset, 76 methods w/o explog/zeta/pi/factorial (geomean bogo ops/s)",15,492.658,495.6307,5.3908,8.4354,-92.7698,-92.8068,-92.728,-92.7215,0

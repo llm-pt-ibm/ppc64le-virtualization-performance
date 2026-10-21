@@ -1,0 +1,16 @@
+arquitetura,ambiente,metrica_id,metrica,n,media,mediana,desvio,iqr,overhead_pct,ic95_inf,ic95_sup,overhead_mediana_pct,lower_is_better
+ppc64le,KVM,cpu_bogo,CPU (bogo ops/s),15,1344.8987,1345.62,2.2665,0.6,0.3993,0.3299,0.4988,0.4569,0
+ppc64le,KVM,mem_bogo,Memory (bogo ops/s),15,245564.5313,245694.02,2038.3613,2649.545,-2.8752,-3.5228,-2.2241,-2.9083,0
+ppc64le,KVM,cache_bogo,Cache (bogo ops/s),15,14512.0807,18136.53,5307.8384,8152.42,-24.2177,-37.2207,-10.1574,-5.2265,0
+ppc64le,KVM,stream_copy,STREAM Copy (MB/s),15,43026.0333,42764.9,582.9318,620.25,-2.5561,-3.233,-1.9544,-3.168,0
+ppc64le,KVM,stream_scale,STREAM Scale (MB/s),15,42948.76,42829.4,605.6876,384.45,-2.9383,-3.6571,-2.3139,-3.2023,0
+ppc64le,KVM,stream_add,STREAM Add (MB/s),15,45415.2333,45219.1,400.3324,362.7,-1.8856,-2.3467,-1.488,-2.3409,0
+ppc64le,KVM,stream_triad,STREAM Triad (MB/s),15,45676.0067,45569.9,410.6925,768.8,-1.5355,-1.9779,-1.1092,-1.7899,0
+ppc64le,KVM,seq_read_bw,Seq. read (MiB/s),15,489.0667,490.0,4.3991,2.0,0.8385,0.0567,1.5675,0.823,0
+ppc64le,KVM,seq_write_bw,Seq. write (MiB/s),15,382.1333,382.0,5.0124,7.0,-0.779,-1.7148,0.2327,-0.7792,0
+ppc64le,KVM,rand_read_iops,Random read IOPS,15,20840.0,20900.0,377.5863,300.0,-9.1279,-12.1944,-5.3614,-5.8559,0
+ppc64le,KVM,rand_write_iops,Random write IOPS,15,9022.5333,9003.0,71.2018,92.5,-8.5332,-11.491,-4.8665,-5.9444,0
+ppc64le,KVM,lat_read_iops,Latency IOPS (read),15,685.2,598.0,217.9909,104.5,-83.1243,-88.1116,-79.6622,-85.4784,0
+ppc64le,KVM,lat_clat_avg_us,Average latency (us),15,1530.462,1653.72,308.4224,261.725,450.9143,296.5732,562.4933,611.2162,1
+ppc64le,KVM,cpu_subset80,"CPU subset, 80 common methods (geomean bogo ops/s)",15,2022.715,2022.3146,3.6945,4.2116,-0.2377,-0.3668,-0.1107,-0.3084,0
+ppc64le,KVM,cpu_subset76,"CPU subset, 76 methods w/o explog/zeta/pi/factorial (geomean bogo ops/s)",15,2050.3583,2050.0692,4.1046,4.536,-0.236,-0.3744,-0.0996,-0.3013,0
