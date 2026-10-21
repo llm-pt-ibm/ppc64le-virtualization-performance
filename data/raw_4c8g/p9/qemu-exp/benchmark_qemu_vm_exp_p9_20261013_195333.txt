@@ -1,0 +1,350 @@
+=== BENCHMARK QEMU: vm_exp_p9 — 20261013_195335 ===
+Ambiente: qemu | arquitetura: ppc64le
+Parâmetros: NCPUS=4 VM_WORKERS=4 VM_BYTES=4G(total) TIMEOUT=60s CACHE_LEVEL=1
+            STREAM_ARRAY_SIZE=80000000 FIO_SIZE=16G FIO_JOBS=4 QD=32/64 RUNTIME=60s
+CPUs permitidas a este processo: 0-3
+
+========================================================================
+
+=== INFO DO SISTEMA ===
+Linux vm_exp_p9 4.18.0-553.172.1.el8_10.ppc64le #1 SMP Wed Oct 7 13:28:57 PDT 2026 ppc64le ppc64le ppc64le GNU/Linux
+CPUs visíveis (nproc): 4
+              total        used        free      shared  buff/cache   available
+Mem:          7.9Gi       259Mi       7.6Gi        21Mi       123Mi       7.4Gi
+Swap:            0B          0B          0B
+Swap: 0 dispositivo(s)
+THP: always [madvise] never
+Governador (cpu0): n/d
+Architecture:        ppc64le
+Byte Order:          Little Endian
+CPU(s):              4
+On-line CPU(s) list: 0-3
+Thread(s) per core:  1
+Core(s) per socket:  4
+Socket(s):           1
+NUMA node(s):        1
+Model:               2.0 (pvr 004e 1200)
+Model name:          POWER9 (architected), altivec supported
+Hypervisor vendor:   KVM
+Virtualization type: para
+L1d cache:           32K
+L1i cache:           32K
+NUMA node0 CPU(s):   0-3
+
+========================================================================
+
+=== BINÁRIOS ===
+df30e275dd4edde3fcac2a73b4e6a7c06766145b7140351fc9750f8c3efaa092  stress-ng
+db0bde32b8d42d3962f813bf1cceba6d93810853cda8d192b55f496579351497  fio
+359feb671ef07f01d84084d477fcb15915f6abeaf5079ad8ffc9e4a4dbc81c3f  stream
+stress-ng, version 0.15.00 (gcc 8.5, ppc64le Linux 4.18.0-553.172.1.el8_10.ppc64le)
+fio-3.19
+
+========================================================================
+
+=== INFO DO FILESYSTEM ===
+Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/vda3      xfs    39G  3.6G   36G  10% /
+TARGET SOURCE    FSTYPE OPTIONS
+/      /dev/vda3 xfs    rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,noquota
+
+========================================================================
+
+=== CGROUP DO PROCESSO ===
+12:hugetlb:/
+11:blkio:/
+10:net_cls,net_prio:/
+9:pids:/user.slice/user-0.slice/session-7.scope
+8:cpu,cpuacct:/
+7:freezer:/
+6:devices:/user.slice
+5:memory:/user.slice/user-0.slice/session-7.scope
+4:rdma:/
+3:cpuset:/
+2:perf_event:/
+1:name=systemd:/user.slice/user-0.slice/session-7.scope
+
+========================================================================
+
+=== CPU ===
+stress-ng: info:  [3760] setting to a 60 second run per stressor
+stress-ng: info:  [3760] dispatching hogs: 4 cpu
+stress-ng: info:  [3763] stressor terminated with unexpected signal signal 4 'SIGILL'
+stress-ng: info:  [3762] stressor terminated with unexpected signal signal 4 'SIGILL'
+stress-ng: info:  [3764] stressor terminated with unexpected signal signal 4 'SIGILL'
+stress-ng: info:  [3765] stressor terminated with unexpected signal signal 4 'SIGILL'
+stress-ng: info:  [3760] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [3760]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [3760] cpu                 168      0.00      0.00      0.00         0.00           0.00
+stress-ng: fail:  [3760] cpu instance 0 corrupted bogo-ops counter, 42 vs 0
+stress-ng: fail:  [3760] cpu instance 0 hash error in bogo-ops counter and run flag, 3366848692 vs 0
+stress-ng: fail:  [3760] cpu instance 1 corrupted bogo-ops counter, 42 vs 0
+stress-ng: fail:  [3760] cpu instance 1 hash error in bogo-ops counter and run flag, 3366848692 vs 0
+stress-ng: fail:  [3760] cpu instance 2 corrupted bogo-ops counter, 42 vs 0
+info: 5 failures reached, aborting stress process
+stress-ng: fail:  [3760] cpu instance 2 hash error in bogo-ops counter and run flag, 3366848692 vs 0
+stress-ng: fail:  [3760] cpu instance 3 corrupted bogo-ops counter, 42 vs 0
+stress-ng: fail:  [3760] cpu instance 3 hash error in bogo-ops counter and run flag, 3366848692 vs 0
+stress-ng: fail:  [3760] metrics-check: stressor metrics corrupted, data is compromised
+stress-ng: info:  [3760] unsuccessful run completed in 2.93s
+[FALHA-TCG] código 2: /opt/bench/bin/stress-ng --cpu 4 --cpu-method all --metrics-brief --timeout 60s
+
+========================================================================
+
+=== MEMORY ===
+stress-ng: info:  [3777] setting to a 60 second run per stressor
+stress-ng: info:  [3777] dispatching hogs: 4 vm
+stress-ng: info:  [3777] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [3777]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [3777] vm              1196032     60.08    228.12     10.12     19906.18        5020.27
+stress-ng: info:  [3777] successful run completed in 60.11s (1 min, 0.11 secs)
+
+========================================================================
+
+=== CACHE ===
+(--cache-level 1) L1d: 32K
+stress-ng: info:  [3800] setting to a 60 second run per stressor
+stress-ng: info:  [3800] dispatching hogs: 4 cache
+stress-ng: info:  [3800] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [3800]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [3800] cache            166887     60.00    144.68     41.65      2781.42         895.68
+stress-ng: info:  [3800] successful run completed in 60.02s (1 min, 0.02 secs)
+
+========================================================================
+
+=== STREAM — MEMORY BANDWIDTH ===
+-------------------------------------------------------------
+STREAM version $Revision: 5.10 $
+-------------------------------------------------------------
+This system uses 8 bytes per array element.
+-------------------------------------------------------------
+Array size = 80000000 (elements), Offset = 0 (elements)
+Memory per array = 610.4 MiB (= 0.6 GiB).
+Total memory required = 1831.1 MiB (= 1.8 GiB).
+Each kernel will be executed 10 times.
+ The *best* time for each kernel (excluding the first iteration)
+ will be used to compute the reported bandwidth.
+-------------------------------------------------------------
+Number of Threads requested = 4
+Number of Threads counted = 4
+-------------------------------------------------------------
+Your clock granularity appears to be less than one microsecond.
+Each test below will take on the order of 733189 microseconds.
+   (= 733189 clock ticks)
+Increase the size of the arrays if this shows that
+you are not getting at least 20 clock ticks per test.
+-------------------------------------------------------------
+WARNING -- The above is only a rough guideline.
+For best results, please be sure you know the
+precision of your system timer.
+-------------------------------------------------------------
+Function    Best Rate MB/s  Avg time     Min time     Max time
+Copy:               0.0     0.154649  340282346638528859811704183484516925440.000000     0.000000
+Scale:              0.0     0.742257  340282346638528859811704183484516925440.000000     0.000000
+Add:                0.0     0.857840  340282346638528859811704183484516925440.000000     0.000000
+Triad:              0.0     1.009052  340282346638528859811704183484516925440.000000     0.000000
+-------------------------------------------------------------
+Failed Validation on array a[], AvgRelAbsErr > epsilon (1.000000e-13)
+     Expected Value: 1.153301e+12, AvgAbsErr: 4.613203e+04, AvgRelAbsErr: 4.000000e-08
+     For array a[], 4 errors were found.
+Failed Validation on array b[], AvgRelAbsErr > epsilon (1.000000e-13)
+     Expected Value: 2.306602e+11, AvgAbsErr: 9.226406e+03, AvgRelAbsErr: 4.000000e-08
+     AvgRelAbsErr > Epsilon (1.000000e-13)
+     For array b[], 4 errors were found.
+Failed Validation on array c[], AvgRelAbsErr > epsilon (1.000000e-13)
+     Expected Value: 3.075469e+11, AvgAbsErr: 1.230188e+04, AvgRelAbsErr: 4.000000e-08
+     AvgRelAbsErr > Epsilon (1.000000e-13)
+     For array c[], 4 errors were found.
+-------------------------------------------------------------
+
+========================================================================
+
+=== [DISK_EXT4] PRE-ALLOCATING TEST FILE (16G) ===
+precreate: (g=0): rw=write, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=32
+fio-3.19
+Starting 1 process
+precreate: Laying out IO file (1 file / 16384MiB)
+
+precreate: (groupid=0, jobs=1): err= 0: pid=3833: Tue Oct 13 19:57:44 2026
+  write: IOPS=424, BW=425MiB/s (446MB/s)(16.0GiB/38562msec); 0 zone resets
+    slat (usec): min=125, max=6238, avg=397.92, stdev=190.42
+    clat (msec): min=17, max=186, avg=74.65, stdev=14.15
+     lat (msec): min=18, max=186, avg=75.18, stdev=14.12
+    clat percentiles (msec):
+     |  1.00th=[   33],  5.00th=[   64], 10.00th=[   64], 20.00th=[   65],
+     | 30.00th=[   66], 40.00th=[   69], 50.00th=[   73], 60.00th=[   78],
+     | 70.00th=[   80], 80.00th=[   84], 90.00th=[   90], 95.00th=[   95],
+     | 99.00th=[  128], 99.50th=[  142], 99.90th=[  167], 99.95th=[  176],
+     | 99.99th=[  186]
+   bw (  KiB/s): min=313675, max=505904, per=99.93%, avg=434780.09, stdev=52965.66, samples=76
+   iops        : min=  306, max=  494, avg=424.17, stdev=51.92, samples=76
+  lat (msec)   : 20=0.18%, 50=1.98%, 100=94.49%, 250=3.34%
+  cpu          : usr=11.99%, sys=16.96%, ctx=15805, majf=0, minf=10
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=99.8%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,16384,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=32
+
+Run status group 0 (all jobs):
+  WRITE: bw=425MiB/s (446MB/s), 425MiB/s-425MiB/s (446MB/s-446MB/s), io=16.0GiB (17.2GB), run=38562-38562msec
+
+Disk stats (read/write):
+  vda: ios=2/16570, merge=0/10, ticks=2/1222634, in_queue=1222637, util=67.68%
+
+=== [DISK_EXT4] SEQUENTIAL READ ===
+seq-read: (g=0): rw=read, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=32
+...
+fio-3.19
+Starting 4 processes
+
+seq-read: (groupid=0, jobs=4): err= 0: pid=3843: Tue Oct 13 19:58:47 2026
+  read: IOPS=489, BW=490MiB/s (514MB/s)(28.8GiB/60156msec)
+    slat (usec): min=95, max=109625, avg=2427.98, stdev=6838.85
+    clat (msec): min=81, max=586, avg=253.87, stdev=66.43
+     lat (msec): min=81, max=602, avg=260.02, stdev=67.16
+    clat percentiles (msec):
+     |  1.00th=[  136],  5.00th=[  159], 10.00th=[  176], 20.00th=[  199],
+     | 30.00th=[  215], 40.00th=[  230], 50.00th=[  245], 60.00th=[  264],
+     | 70.00th=[  284], 80.00th=[  309], 90.00th=[  342], 95.00th=[  376],
+     | 99.00th=[  439], 99.50th=[  460], 99.90th=[  531], 99.95th=[  550],
+     | 99.99th=[  584]
+   bw (  KiB/s): min=266236, max=743061, per=99.92%, avg=501319.75, stdev=23548.44, samples=428
+   iops        : min=  258, max=  723, avg=487.61, stdev=23.01, samples=428
+  lat (msec)   : 100=0.07%, 250=52.37%, 500=47.40%, 750=0.16%
+  cpu          : usr=0.85%, sys=90.80%, ctx=4658, majf=0, minf=2081
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.2%, 32=99.6%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
+     issued rwts: total=29475,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=32
+
+Run status group 0 (all jobs):
+   READ: bw=490MiB/s (514MB/s), 490MiB/s-490MiB/s (514MB/s-514MB/s), io=28.8GiB (30.9GB), run=60156-60156msec
+
+Disk stats (read/write):
+  vda: ios=30064/13, merge=0/1, ticks=3857504/1067, in_queue=3858570, util=31.52%
+
+=== [DISK_EXT4] SEQUENTIAL WRITE ===
+seq-write: (g=0): rw=write, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=32
+...
+fio-3.19
+Starting 4 processes
+
+seq-write: (groupid=0, jobs=4): err= 0: pid=3860: Tue Oct 13 19:59:50 2026
+  write: IOPS=386, BW=387MiB/s (405MB/s)(22.7GiB/60141msec); 0 zone resets
+    slat (usec): min=125, max=385793, avg=4809.45, stdev=12004.52
+    clat (msec): min=30, max=821, avg=321.12, stdev=95.51
+     lat (msec): min=34, max=833, avg=329.52, stdev=96.91
+    clat percentiles (msec):
+     |  1.00th=[  153],  5.00th=[  194], 10.00th=[  215], 20.00th=[  243],
+     | 30.00th=[  266], 40.00th=[  288], 50.00th=[  309], 60.00th=[  330],
+     | 70.00th=[  359], 80.00th=[  388], 90.00th=[  443], 95.00th=[  489],
+     | 99.00th=[  642], 99.50th=[  684], 99.90th=[  776], 99.95th=[  802],
+     | 99.99th=[  818]
+   bw (  KiB/s): min=113861, max=669759, per=99.91%, avg=395559.65, stdev=24693.11, samples=427
+   iops        : min=  109, max=  652, avg=384.26, stdev=24.13, samples=427
+  lat (msec)   : 50=0.01%, 100=0.09%, 250=22.62%, 500=72.82%, 750=4.28%
+  lat (msec)   : 1000=0.18%
+  cpu          : usr=5.99%, sys=85.32%, ctx=6050, majf=0, minf=34
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.3%, 32=99.5%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,23253,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=32
+
+Run status group 0 (all jobs):
+  WRITE: bw=387MiB/s (405MB/s), 387MiB/s-387MiB/s (405MB/s-405MB/s), io=22.7GiB (24.4GB), run=60141-60141msec
+
+Disk stats (read/write):
+  vda: ios=5/23834, merge=0/4, ticks=205/3663860, in_queue=3664064, util=35.53%
+
+=== [DISK_EXT4] RANDOM IOPS (4K randrw 70/30) ===
+rand-rw: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+...
+fio-3.19
+Starting 4 processes
+
+rand-rw: (groupid=0, jobs=4): err= 0: pid=3879: Tue Oct 13 20:00:52 2026
+  read: IOPS=6452, BW=25.2MiB/s (26.4MB/s)(1512MiB/60004msec)
+    slat (usec): min=72, max=29513, avg=192.15, stdev=182.42
+    clat (usec): min=336, max=99312, avg=25058.23, stdev=3770.74
+     lat (usec): min=502, max=102482, avg=25288.03, stdev=3794.88
+    clat percentiles (usec):
+     |  1.00th=[16909],  5.00th=[19530], 10.00th=[20841], 20.00th=[22414],
+     | 30.00th=[23462], 40.00th=[24249], 50.00th=[25035], 60.00th=[25822],
+     | 70.00th=[26608], 80.00th=[27657], 90.00th=[28967], 95.00th=[30016],
+     | 99.00th=[32113], 99.50th=[33162], 99.90th=[66323], 99.95th=[77071],
+     | 99.99th=[88605]
+   bw (  KiB/s): min=18475, max=33524, per=100.00%, avg=25835.83, stdev=526.08, samples=460
+   iops        : min= 4618, max= 8379, avg=6457.52, stdev=131.52, samples=460
+  write: IOPS=2774, BW=10.8MiB/s (11.4MB/s)(650MiB/60004msec); 0 zone resets
+    slat (usec): min=74, max=40171, avg=204.64, stdev=229.16
+    clat (usec): min=1865, max=114864, avg=32787.65, stdev=4918.42
+     lat (msec): min=2, max=115, avg=33.05, stdev= 4.94
+    clat percentiles (msec):
+     |  1.00th=[   24],  5.00th=[   27], 10.00th=[   28], 20.00th=[   29],
+     | 30.00th=[   31], 40.00th=[   32], 50.00th=[   33], 60.00th=[   34],
+     | 70.00th=[   35], 80.00th=[   37], 90.00th=[   39], 95.00th=[   41],
+     | 99.00th=[   44], 99.50th=[   46], 99.90th=[   80], 99.95th=[   91],
+     | 99.99th=[  107]
+   bw (  KiB/s): min= 7744, max=14791, per=100.00%, avg=11103.15, stdev=246.25, samples=460
+   iops        : min= 1934, max= 3697, avg=2774.28, stdev=61.56, samples=460
+  lat (usec)   : 500=0.01%, 750=0.01%
+  lat (msec)   : 2=0.01%, 4=0.01%, 10=0.01%, 20=4.72%, 50=95.04%
+  lat (msec)   : 100=0.21%, 250=0.01%
+  cpu          : usr=11.28%, sys=85.15%, ctx=19009, majf=0, minf=32
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=387175,166503,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=25.2MiB/s (26.4MB/s), 25.2MiB/s-25.2MiB/s (26.4MB/s-26.4MB/s), io=1512MiB (1586MB), run=60004-60004msec
+  WRITE: bw=10.8MiB/s (11.4MB/s), 10.8MiB/s-10.8MiB/s (11.4MB/s-11.4MB/s), io=650MiB (682MB), run=60004-60004msec
+
+Disk stats (read/write):
+  vda: ios=386227/166072, merge=0/8, ticks=185479/68767, in_queue=254246, util=58.41%
+
+=== [DISK_EXT4] LATENCY (4K randread QD=1) ===
+lat-read: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
+fio-3.19
+Starting 1 process
+
+lat-read: (groupid=0, jobs=1): err= 0: pid=3894: Tue Oct 13 20:01:55 2026
+  read: IOPS=1909, BW=7638KiB/s (7821kB/s)(448MiB/60001msec)
+    slat (usec): min=83, max=2010, avg=112.72, stdev=50.11
+    clat (usec): min=25, max=7123, avg=298.56, stdev=183.91
+     lat (usec): min=328, max=7335, avg=473.23, stdev=203.73
+    clat percentiles (usec):
+     |  1.00th=[   32],  5.00th=[  229], 10.00th=[  237], 20.00th=[  245],
+     | 30.00th=[  255], 40.00th=[  260], 50.00th=[  269], 60.00th=[  277],
+     | 70.00th=[  289], 80.00th=[  302], 90.00th=[  318], 95.00th=[  375],
+     | 99.00th=[ 1123], 99.50th=[ 1205], 99.90th=[ 1844], 99.95th=[ 2442],
+     | 99.99th=[ 5211]
+   bw (  KiB/s): min= 2854, max= 9003, per=100.00%, avg=7645.34, stdev=899.13, samples=118
+   iops        : min=  713, max= 2250, avg=1910.97, stdev=224.80, samples=118
+  lat (usec)   : 50=2.21%, 100=0.04%, 250=21.35%, 500=72.14%, 750=0.67%
+  lat (usec)   : 1000=1.65%
+  lat (msec)   : 2=1.87%, 4=0.05%, 10=0.03%
+  cpu          : usr=9.06%, sys=52.30%, ctx=111750, majf=0, minf=8
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=114573,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=7638KiB/s (7821kB/s), 7638KiB/s-7638KiB/s (7821kB/s-7821kB/s), io=448MiB (469MB), run=60001-60001msec
+
+Disk stats (read/write):
+  vda: ios=114154/33, merge=0/7, ticks=38861/80, in_queue=38941, util=42.96%
+
+=== [DISK_EXT4] REMOVING TEST FILE ===
+File removed: /root/fio_testfile
+
+========================================================================
+
+=== END ===
+Results saved to: /root/experimentos/qemu/benchmark_qemu_vm_exp_p9_20261013_195333.txt

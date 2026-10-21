@@ -1,0 +1,236 @@
+[2026-10-15 23:32:05] === início ===
+[23:32:05] monitor parado
+[23:32:05] resultados em /home/llm4orders/experimentos/x86_4c8g/kvm
+/home/llm4orders/experimentos/x86_4c8g/kvm:
+benchmark_kvm_vm_exp_x86_20261015_212634.ABORTADO
+benchmark_kvm_vm_exp_x86_20261015_222000.txt
+benchmark_kvm_vm_exp_x86_20261015_223016.txt
+benchmark_kvm_vm_exp_x86_20261015_224056.txt
+benchmark_kvm_vm_exp_x86_20261015_225126.txt
+benchmark_kvm_vm_exp_x86_20261015_230205.txt
+benchmark_kvm_vm_exp_x86_20261015_231231.txt
+benchmark_kvm_vm_exp_x86_20261015_232305.txt
+benchmark_kvm_vm_exp_x86_20261015_233334.txt
+benchmark_kvm_vm_exp_x86_20261015_234411.txt
+benchmark_kvm_vm_exp_x86_20261015_235440.txt
+benchmark_kvm_vm_exp_x86_20261016_000505.txt
+benchmark_kvm_vm_exp_x86_20261016_001532.txt
+benchmark_kvm_vm_exp_x86_20261016_002606.txt
+benchmark_kvm_vm_exp_x86_20261016_003637.txt
+benchmark_kvm_vm_exp_x86_20261016_004705.txt
+last_run.out
+series.log
+warmup
+
+/home/llm4orders/experimentos/x86_4c8g/kvm/warmup:
+benchmark_kvm_vm_exp_x86_20261015_211618.txt
+[2026-10-15 23:32:05] KVM: 15 válidas copiadas
+Domain 'vm_exp_x86' is being shutdown
+
+[2026-10-15 23:32:10] QEMU: ligando TCG
+[23:32:10] binário: /usr/bin/qemu-system-x86_64 (QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31))
+[23:32:12] TCG iniciado (pid 148460). Boot sob TCG é lento; acompanhe: tail -f /home/llm4orders/Documentos/exp_kit/state/tcg.serial.log
+[23:32:12] SSH: ./exp_vm.sh ssh qemu   (quando o boot terminar)
+pid 148460
+  qemu-system-x86        5,11
+  call_rcu               5,11
+  worker                 5,11
+  CPU 0/TCG              1
+  CPU 1/TCG              2
+  CPU 2/TCG              3
+  CPU 3/TCG              4
+[2026-10-15 23:33:17] QEMU: boot em 64 s; nproc=4
+pid 148460
+  qemu-system-x86        5,11
+  call_rcu               5,11
+  CPU 0/TCG              1
+  CPU 1/TCG              2
+  CPU 2/TCG              3
+  CPU 3/TCG              4
+  worker                 5,11
+[23:33:20] kit copiado para root@127.0.0.1:/root/exp_kit
+Gravado: /home/llm4orders/experimentos/x86_4c8g/env_host_qemu_20261015_233321.txt
+[23:33:31] monitor gravando em /home/llm4orders/experimentos/x86_4c8g/monitor_qemu_20261015_233331.csv
+  [2026-10-16T02:34:03+00:00] aquecimento 1/1: início
+  [2026-10-16T02:45:18+00:00] execução 1/15: início
+  [2026-10-16T02:56:37+00:00] execução 2/15: início
+  [2026-10-16T03:07:45+00:00] execução 3/15: início
+  [2026-10-16T03:19:05+00:00] execução 4/15: início
+  [2026-10-16T03:30:12+00:00] execução 5/15: início
+  [2026-10-16T03:41:41+00:00] execução 6/15: início
+  [2026-10-16T03:52:49+00:00] execução 7/15: início
+  [2026-10-16T04:03:57+00:00] execução 8/15: início
+  [2026-10-16T04:14:34+00:00] execução 9/15: pausa 30s
+  [2026-10-16T04:15:04+00:00] execução 9/15: início
+  [2026-10-16T04:26:08+00:00] execução 10/15: início
+  [2026-10-16T04:37:07+00:00] execução 11/15: início
+  [2026-10-16T04:48:28+00:00] execução 12/15: início
+  [2026-10-16T04:59:28+00:00] execução 13/15: início
+  [2026-10-16T05:10:56+00:00] execução 14/15: início
+  [2026-10-16T05:22:06+00:00] execução 15/15: início
+  [2026-10-16T05:32:45+00:00] série qemu concluída: 1 aquecimento + 15 válidas em /root/experimentos/qemu
+[2026-10-16 02:34:18] QEMU: série terminou: [2026-10-16T05:32:45+00:00] série qemu concluída: 1 aquecimento + 15 válidas em /root/experimentos/qemu
+[02:34:18] monitor parado
+[02:34:19] resultados em /home/llm4orders/experimentos/x86_4c8g/qemu
+/home/llm4orders/experimentos/x86_4c8g/qemu:
+benchmark_qemu_vm_exp_x86_20261016_024518.txt
+benchmark_qemu_vm_exp_x86_20261016_025637.txt
+benchmark_qemu_vm_exp_x86_20261016_030745.txt
+benchmark_qemu_vm_exp_x86_20261016_031905.txt
+benchmark_qemu_vm_exp_x86_20261016_033012.txt
+benchmark_qemu_vm_exp_x86_20261016_034142.txt
+benchmark_qemu_vm_exp_x86_20261016_035249.txt
+benchmark_qemu_vm_exp_x86_20261016_040357.txt
+benchmark_qemu_vm_exp_x86_20261016_041504.txt
+benchmark_qemu_vm_exp_x86_20261016_042609.txt
+benchmark_qemu_vm_exp_x86_20261016_043707.txt
+benchmark_qemu_vm_exp_x86_20261016_044829.txt
+benchmark_qemu_vm_exp_x86_20261016_045928.txt
+benchmark_qemu_vm_exp_x86_20261016_051057.txt
+benchmark_qemu_vm_exp_x86_20261016_052207.txt
+last_run.out
+series.log
+warmup
+
+/home/llm4orders/experimentos/x86_4c8g/qemu/warmup:
+benchmark_qemu_vm_exp_x86_20261016_023403.txt
+[2026-10-16 02:34:19] QEMU: 15 válidas copiadas
+QEMU 6.2.0 monitor - type 'help' for more information
+(qemu) s[K[Dsy[K[D[Dsys[K[D[D[Dsyst[K[D[D[D[Dsyste[K[D[D[D[D[Dsystem[K[D[D[D[D[D[Dsystem_[K[D[D[D[D[D[D[Dsystem_p[K[D[D[D[D[D[D[D[Dsystem_po[K[D[D[D[D[D[D[D[D[Dsystem_pow[K[D[D[D[D[D[D[D[D[D[Dsystem_powe[K[D[D[D[D[D[D[D[D[D[D[Dsystem_power[K[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerd[K[D[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerdo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerdow[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerdown[K
+(qemu) [02:34:24] TCG desligado
+[2026-10-16 02:34:24] HOST: início
+Gravado: /home/llm4orders/experimentos/x86_4c8g/env_host_host_20261016_023424.txt
+[02:34:34] monitor gravando em /home/llm4orders/experimentos/x86_4c8g/monitor_host_20261016_023434.csv
+[2026-10-16T02:34:34-03:00] início da série host [benchmark.sh] (aquecimento=1, válidas=15)
+[2026-10-16T02:34:47-03:00] aquecimento 1/1: pausa 30s
+[2026-10-16T02:35:17-03:00] aquecimento 1/1: início
+[2026-10-16T02:35:17-03:00] aquecimento 1/1: FALHOU (veja /home/llm4orders/experimentos/x86_4c8g/host/last_run.out e *.ABORTADO). Série interrompida.
+[2026-10-16 02:35:17] HOST: série terminou (código 1)
+[2026-10-16 02:35:17] HOST: 0 válidas
+[2026-10-16 02:35:17] === liberação ===
+[02:35:17] monitor parado
+[02:35:19] restaurado: 326 threads; 16 já tinham terminado. IRQs, workqueues e irqbalance restaurados.
+[02:35:19] node0 hugepages -> 8192 (alvo 8192)
+[02:35:19] swap religado
+[02:35:19] timer apt-daily.timer religado
+[02:35:19] timer apt-daily-upgrade.timer religado
+[02:35:19] timer man-db.timer religado
+[02:35:19] timer fwupd-refresh.timer religado
+[02:35:19] timer motd-news.timer religado
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_host_20261016_023434.csv
+sistema      média=4.6% máx=8.7% (amostras=2)
+fora         média=0.0% máx=0.0% (amostras=4)
+experimento  média=0.0% máx=0.0% (amostras=6)
+amostras FORA do experimento acima de 5%: 0
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_kvm_20261015_181548.csv
+sistema      média=0.6% máx=12.2% (amostras=1264)
+fora         média=0.0% máx=0.0% (amostras=2528)
+experimento  média=11.1% máx=100.0% (amostras=3792)
+amostras FORA do experimento acima de 5%: 0
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_qemu_20261015_233331.csv
+sistema      média=0.8% máx=4.7% (amostras=720)
+fora         média=0.0% máx=0.0% (amostras=1440)
+experimento  média=21.2% máx=99.5% (amostras=2160)
+amostras FORA do experimento acima de 5%: 0
+[2026-10-16 02:35:19] FIM. pacote: /home/llm4orders/x86_4c8g_resultados.tar.gz
+[2026-10-16 09:22:55] === host (retomada) ===
+[09:22:55] estado salvo em /home/llm4orders/Documentos/exp_kit/state/host_prepare.state:
+hp node0 8192
+swap 1
+gov powersave
+timer apt-daily.timer
+timer apt-daily-upgrade.timer
+timer man-db.timer
+timer fwupd-refresh.timer
+timer motd-news.timer
+[09:22:55] [1/4] governador performance (todas as CPUs)
+[09:22:55] [2/4] swap off; timers de manutenção pausados (apt-daily.timer apt-daily-upgrade.timer man-db.timer fwupd-refresh.timer motd-news.timer)
+[09:22:55] [3/4] liberando hugepages dos outros nodes (aborta se alguma estiver em uso)
+[09:22:55] [4/4] reservando 4096 hugepages no node0
+[09:22:55] OK. THP: always [madvise] never
+[09:23:08] threads movidas para 0,6: 341 | falhas (ex.: cpuset de container): 0
+[09:23:08] isolamento ativo. Confira com: ./exp_isolate.sh check
+Gravado: /home/llm4orders/experimentos/x86_4c8g/env_host_host_20261016_092308.txt
+[09:23:19] monitor gravando em /home/llm4orders/experimentos/x86_4c8g/monitor_host_20261016_092319.csv
+[2026-10-16T09:23:19-03:00] início da série host [benchmark.sh] (aquecimento=1, válidas=15)
+[2026-10-16T09:23:29-03:00] aquecimento 1/1: pausa 30s
+[2026-10-16T09:23:59-03:00] aquecimento 1/1: início
+[2026-10-16T09:33:49-03:00] aquecimento 1/1: ok (/home/llm4orders/experimentos/x86_4c8g/host/warmup/benchmark_host_llm4orders_20261016_092359.txt)
+[2026-10-16T09:34:00-03:00] execução 1/15: pausa 30s
+[2026-10-16T09:34:30-03:00] execução 1/15: início
+[2026-10-16T09:44:08-03:00] execução 1/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_093430.txt)
+[2026-10-16T09:44:19-03:00] execução 2/15: pausa 30s
+[2026-10-16T09:44:49-03:00] execução 2/15: início
+[2026-10-16T09:54:44-03:00] execução 2/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_094449.txt)
+[2026-10-16T09:54:54-03:00] execução 3/15: pausa 30s
+[2026-10-16T09:55:24-03:00] execução 3/15: início
+[2026-10-16T10:05:57-03:00] execução 3/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_095524.txt)
+[2026-10-16T10:06:07-03:00] execução 4/15: pausa 30s
+[2026-10-16T10:06:37-03:00] execução 4/15: início
+[2026-10-16T10:16:47-03:00] execução 4/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_100637.txt)
+[2026-10-16T10:16:57-03:00] execução 5/15: pausa 30s
+[2026-10-16T10:17:27-03:00] execução 5/15: início
+[2026-10-16T10:27:11-03:00] execução 5/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_101728.txt)
+[2026-10-16T10:27:21-03:00] execução 6/15: pausa 30s
+[2026-10-16T10:27:51-03:00] execução 6/15: início
+[2026-10-16T10:37:44-03:00] execução 6/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_102751.txt)
+[2026-10-16T10:37:54-03:00] execução 7/15: pausa 30s
+[2026-10-16T10:38:24-03:00] execução 7/15: início
+[2026-10-16T10:48:06-03:00] execução 7/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_103824.txt)
+[2026-10-16T10:48:16-03:00] execução 8/15: pausa 30s
+[2026-10-16T10:48:46-03:00] execução 8/15: início
+[2026-10-16T10:58:44-03:00] execução 8/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_104846.txt)
+[2026-10-16T10:58:54-03:00] execução 9/15: pausa 30s
+[2026-10-16T10:59:24-03:00] execução 9/15: início
+[2026-10-16T11:09:15-03:00] execução 9/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_105924.txt)
+[2026-10-16T11:09:25-03:00] execução 10/15: pausa 30s
+[2026-10-16T11:09:55-03:00] execução 10/15: início
+[2026-10-16T11:19:55-03:00] execução 10/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_110955.txt)
+[2026-10-16T11:20:05-03:00] execução 11/15: pausa 30s
+[2026-10-16T11:20:35-03:00] execução 11/15: início
+[2026-10-16T11:30:26-03:00] execução 11/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_112035.txt)
+[2026-10-16T11:30:37-03:00] execução 12/15: pausa 30s
+[2026-10-16T11:31:07-03:00] execução 12/15: início
+[2026-10-16T11:41:08-03:00] execução 12/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_113108.txt)
+[2026-10-16T11:41:18-03:00] execução 13/15: pausa 30s
+[2026-10-16T11:41:48-03:00] execução 13/15: início
+[2026-10-16T11:51:33-03:00] execução 13/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_114148.txt)
+[2026-10-16T11:51:43-03:00] execução 14/15: pausa 30s
+[2026-10-16T11:52:13-03:00] execução 14/15: início
+[2026-10-16T12:02:02-03:00] execução 14/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_115213.txt)
+[2026-10-16T12:02:12-03:00] execução 15/15: pausa 30s
+[2026-10-16T12:02:42-03:00] execução 15/15: início
+[2026-10-16T12:12:35-03:00] execução 15/15: ok (/home/llm4orders/experimentos/x86_4c8g/host/benchmark_host_llm4orders_20261016_120242.txt)
+[2026-10-16T12:12:35-03:00] série host concluída: 1 aquecimento + 15 válidas em /home/llm4orders/experimentos/x86_4c8g/host
+[2026-10-16 12:12:35] HOST: série terminou (código 0)
+[2026-10-16 12:12:35] HOST: 15 válidas
+[2026-10-16 12:12:35] === liberação (host) ===
+[12:12:35] monitor parado
+[12:12:37] restaurado: 339 threads; 2 já tinham terminado. IRQs, workqueues e irqbalance restaurados.
+[12:12:38] node0 hugepages -> 8192 (alvo 8192)
+[12:12:38] swap religado
+[12:12:38] timer apt-daily.timer religado
+[12:12:38] timer apt-daily-upgrade.timer religado
+[12:12:38] timer man-db.timer religado
+[12:12:38] timer fwupd-refresh.timer religado
+[12:12:38] timer motd-news.timer religado
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_host_20261016_023434.csv
+sistema      média=4.6% máx=8.7% (amostras=4)
+fora         média=1.5% máx=7.0% (amostras=8)
+experimento  média=5.0% máx=34.7% (amostras=12)
+amostras FORA do experimento acima de 5%: 1
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_host_20261016_092319.csv
+sistema      média=0.7% máx=4.0% (amostras=676)
+fora         média=0.0% máx=0.2% (amostras=1352)
+experimento  média=19.2% máx=100.0% (amostras=2028)
+amostras FORA do experimento acima de 5%: 0
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_kvm_20261015_181548.csv
+sistema      média=0.6% máx=12.2% (amostras=1264)
+fora         média=0.0% máx=0.0% (amostras=2528)
+experimento  média=11.1% máx=100.0% (amostras=3792)
+amostras FORA do experimento acima de 5%: 0
+-- /home/llm4orders/experimentos/x86_4c8g/monitor_qemu_20261015_233331.csv
+sistema      média=0.8% máx=4.7% (amostras=720)
+fora         média=0.0% máx=0.0% (amostras=1440)
+experimento  média=21.2% máx=99.5% (amostras=2160)
+amostras FORA do experimento acima de 5%: 0

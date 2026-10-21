@@ -1,0 +1,569 @@
+=== BENCHMARK CPU SUBSET HOST: ibm-power9 — 20261020_132847 ===
+Ambiente: host | arquitetura: ppc64le | kernel: 4.18.0-553.139.1.el8_10.ppc64le
+NCPUS=4 METHOD_SECS=2 | CPUs permitidas: 80,84,88,92
+Métodos (80): ackermann apery bitops callfunc cdouble cfloat clongdouble collatz correlate crc16 decimal32 decimal64 decimal128 dither div8 div16 div32 div64 div128 double euler explog factorial fibonacci fft fletcher16 float float32 float64 floatconversion gamma gcd gray hamming hanoi hyperbolic idct int128 int64 int32 int16 int8 int128float int128double int128longdouble int128decimal32 int128decimal64 int128decimal128 int64float int64double int64longdouble int32float int32double int32longdouble intconversion ipv4checksum jmp lfsr32 ln2 logmap longdouble loop matrixprod nsqrt omega parity phi pi prime psi queens rand rand48 rgb sieve stats sqrt trig union zeta
+Binário: df30e275dd4edde3fcac2a73b4e6a7c06766145b7140351fc9750f8c3efaa092  stress-ng
+
+=== CPU SUBSET ===
+stress-ng: info:  [878685] setting to a 2 second run per stressor
+stress-ng: info:  [878685] dispatching hogs: 4 cpu
+stress-ng: info:  [878685] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878685]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878685] cpu                4219      1.95      7.80      0.00      2163.47         540.83
+stress-ng: info:  [878685] successful run completed in 2.00s
+METHOD ackermann 2163.47
+stress-ng: info:  [878697] setting to a 2 second run per stressor
+stress-ng: info:  [878697] dispatching hogs: 4 cpu
+stress-ng: info:  [878697] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878697]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878697] cpu                 408      2.00      8.01      0.00       203.78          50.94
+stress-ng: info:  [878697] successful run completed in 2.00s
+METHOD apery 203.78
+stress-ng: info:  [878709] setting to a 2 second run per stressor
+stress-ng: info:  [878709] dispatching hogs: 4 cpu
+stress-ng: info:  [878709] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878709]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878709] cpu                3969      2.00      8.00      0.00      1984.33         496.07
+stress-ng: info:  [878709] successful run completed in 2.00s
+METHOD bitops 1984.33
+stress-ng: info:  [878723] setting to a 2 second run per stressor
+stress-ng: info:  [878723] dispatching hogs: 4 cpu
+stress-ng: info:  [878723] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878723]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878723] cpu             1136470      2.00      8.00      0.00    568247.40      142058.86
+stress-ng: info:  [878723] successful run completed in 2.00s
+METHOD callfunc 568247.40
+stress-ng: info:  [878735] setting to a 2 second run per stressor
+stress-ng: info:  [878735] dispatching hogs: 4 cpu
+stress-ng: info:  [878735] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878735]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878735] cpu                2583      2.00      7.99      0.00      1291.37         323.28
+stress-ng: info:  [878735] successful run completed in 2.00s
+METHOD cdouble 1291.37
+stress-ng: info:  [878747] setting to a 2 second run per stressor
+stress-ng: info:  [878747] dispatching hogs: 4 cpu
+stress-ng: info:  [878747] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878747]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878747] cpu               12411      2.00      8.00      0.00      6204.96        1551.48
+stress-ng: info:  [878747] successful run completed in 2.00s
+METHOD cfloat 6204.96
+stress-ng: info:  [878761] setting to a 2 second run per stressor
+stress-ng: info:  [878761] dispatching hogs: 4 cpu
+stress-ng: info:  [878761] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878761]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878761] cpu                2122      2.00      8.01      0.00      1058.56         264.85
+stress-ng: info:  [878761] successful run completed in 2.01s
+METHOD clongdouble 1058.56
+stress-ng: info:  [878786] setting to a 2 second run per stressor
+stress-ng: info:  [878786] dispatching hogs: 4 cpu
+stress-ng: info:  [878786] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878786]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878786] cpu                4122      2.00      8.00      0.00      2061.06         515.25
+stress-ng: info:  [878786] successful run completed in 2.00s
+METHOD collatz 2061.06
+stress-ng: info:  [878800] setting to a 2 second run per stressor
+stress-ng: info:  [878800] dispatching hogs: 4 cpu
+stress-ng: info:  [878800] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878800]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878800] cpu                5880      2.01      8.03      0.00      2927.69         731.91
+stress-ng: info:  [878800] successful run completed in 2.01s
+METHOD correlate 2927.69
+stress-ng: info:  [878812] setting to a 2 second run per stressor
+stress-ng: info:  [878812] dispatching hogs: 4 cpu
+stress-ng: info:  [878812] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878812]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878812] cpu                4724      2.00      8.01      0.00      2360.40         590.08
+stress-ng: info:  [878812] successful run completed in 2.00s
+METHOD crc16 2360.40
+stress-ng: info:  [878824] setting to a 2 second run per stressor
+stress-ng: info:  [878824] dispatching hogs: 4 cpu
+stress-ng: info:  [878824] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878824]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878824] cpu                1924      2.01      8.03      0.00       959.02         239.75
+stress-ng: info:  [878824] successful run completed in 2.01s
+METHOD decimal32 959.02
+stress-ng: info:  [878838] setting to a 2 second run per stressor
+stress-ng: info:  [878838] dispatching hogs: 4 cpu
+stress-ng: info:  [878838] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878838]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878838] cpu                1476      2.00      8.01      0.00       737.43         184.35
+stress-ng: info:  [878838] successful run completed in 2.00s
+METHOD decimal64 737.43
+stress-ng: info:  [878855] setting to a 2 second run per stressor
+stress-ng: info:  [878855] dispatching hogs: 4 cpu
+stress-ng: info:  [878855] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878855]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878855] cpu                2388      2.00      8.01      0.00      1191.96         297.98
+stress-ng: info:  [878855] successful run completed in 2.01s
+METHOD decimal128 1191.96
+stress-ng: info:  [878869] setting to a 2 second run per stressor
+stress-ng: info:  [878869] dispatching hogs: 4 cpu
+stress-ng: info:  [878869] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878869]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878869] cpu                5594      2.00      8.01      0.00      2793.37         698.31
+stress-ng: info:  [878869] successful run completed in 2.01s
+METHOD dither 2793.37
+stress-ng: info:  [878881] setting to a 2 second run per stressor
+stress-ng: info:  [878881] dispatching hogs: 4 cpu
+stress-ng: info:  [878881] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878881]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878881] cpu               15805      2.00      8.00      0.00      7902.66        1975.61
+stress-ng: info:  [878881] successful run completed in 2.00s
+METHOD div8 7902.66
+stress-ng: info:  [878893] setting to a 2 second run per stressor
+stress-ng: info:  [878893] dispatching hogs: 4 cpu
+stress-ng: info:  [878893] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878893]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878893] cpu               16395      2.00      8.00      0.00      8197.57        2049.34
+stress-ng: info:  [878893] successful run completed in 2.00s
+METHOD div16 8197.57
+stress-ng: info:  [878907] setting to a 2 second run per stressor
+stress-ng: info:  [878907] dispatching hogs: 4 cpu
+stress-ng: info:  [878907] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878907]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878907] cpu               10654      2.00      8.00      0.00      5327.01        1331.73
+stress-ng: info:  [878907] successful run completed in 2.00s
+METHOD div32 5327.01
+stress-ng: info:  [878919] setting to a 2 second run per stressor
+stress-ng: info:  [878919] dispatching hogs: 4 cpu
+stress-ng: info:  [878919] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878919]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878919] cpu               55364      2.00      8.00      0.00     27682.24        6919.61
+stress-ng: info:  [878919] successful run completed in 2.00s
+METHOD div64 27682.24
+stress-ng: info:  [878933] setting to a 2 second run per stressor
+stress-ng: info:  [878933] dispatching hogs: 4 cpu
+stress-ng: info:  [878933] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878933]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878933] cpu               20098      2.00      8.00      0.00     10048.51        2512.07
+stress-ng: info:  [878933] successful run completed in 2.00s
+METHOD div128 10048.51
+stress-ng: info:  [878945] setting to a 2 second run per stressor
+stress-ng: info:  [878945] dispatching hogs: 4 cpu
+stress-ng: info:  [878945] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878945]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878945] cpu                4965      2.00      8.00      0.00      2482.41         620.58
+stress-ng: info:  [878945] successful run completed in 2.00s
+METHOD double 2482.41
+stress-ng: info:  [878957] setting to a 2 second run per stressor
+stress-ng: info:  [878957] dispatching hogs: 4 cpu
+stress-ng: info:  [878957] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878957]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878957] cpu                 240      2.00      8.00      0.00       120.00          30.00
+stress-ng: info:  [878957] successful run completed in 2.00s
+METHOD euler 120.00
+stress-ng: info:  [878971] setting to a 2 second run per stressor
+stress-ng: info:  [878971] dispatching hogs: 4 cpu
+stress-ng: info:  [878971] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [878971]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [878971] cpu                3535      1.93      7.72      0.00      1831.68         457.88
+stress-ng: info:  [878971] successful run completed in 2.01s
+METHOD explog 1831.68
+stress-ng: info:  [879004] setting to a 2 second run per stressor
+stress-ng: info:  [879004] dispatching hogs: 4 cpu
+stress-ng: info:  [879004] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879004]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879004] cpu                1964      2.00      8.00      0.00       981.88         245.47
+stress-ng: info:  [879004] successful run completed in 2.00s
+METHOD factorial 981.88
+stress-ng: info:  [879016] setting to a 2 second run per stressor
+stress-ng: info:  [879016] dispatching hogs: 4 cpu
+stress-ng: info:  [879016] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879016]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879016] cpu                2702      2.00      8.00      0.00      1351.03         337.75
+stress-ng: info:  [879016] successful run completed in 2.00s
+METHOD fibonacci 1351.03
+stress-ng: info:  [879030] setting to a 2 second run per stressor
+stress-ng: info:  [879030] dispatching hogs: 4 cpu
+stress-ng: info:  [879030] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879030]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879030] cpu                5514      2.00      8.00      0.00      2756.15         689.03
+stress-ng: info:  [879030] successful run completed in 2.00s
+METHOD fft 2756.15
+stress-ng: info:  [879042] setting to a 2 second run per stressor
+stress-ng: info:  [879042] dispatching hogs: 4 cpu
+stress-ng: info:  [879042] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879042]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879042] cpu                5882      2.00      8.01      0.00      2938.07         734.50
+stress-ng: info:  [879042] successful run completed in 2.00s
+METHOD fletcher16 2938.07
+stress-ng: info:  [879056] setting to a 2 second run per stressor
+stress-ng: info:  [879056] dispatching hogs: 4 cpu
+stress-ng: info:  [879056] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879056]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879056] cpu                5384      2.00      7.99      0.01      2691.95         672.97
+stress-ng: info:  [879056] successful run completed in 2.00s
+METHOD float 2691.95
+stress-ng: info:  [879068] setting to a 2 second run per stressor
+stress-ng: info:  [879068] dispatching hogs: 4 cpu
+stress-ng: info:  [879068] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879068]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879068] cpu                6012      2.00      8.00      0.00      3005.92         751.46
+stress-ng: info:  [879068] successful run completed in 2.10s
+METHOD float32 3005.92
+stress-ng: info:  [879080] setting to a 2 second run per stressor
+stress-ng: info:  [879080] dispatching hogs: 4 cpu
+stress-ng: info:  [879080] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879080]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879080] cpu                4916      2.00      7.98      0.02      2457.97         614.48
+stress-ng: info:  [879080] successful run completed in 2.00s
+METHOD float64 2457.97
+stress-ng: info:  [879094] setting to a 2 second run per stressor
+stress-ng: info:  [879094] dispatching hogs: 4 cpu
+stress-ng: info:  [879094] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879094]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879094] cpu                1577      1.37      5.48      0.00      1150.81         287.66
+stress-ng: info:  [879094] successful run completed in 2.10s
+METHOD floatconversion 1150.81
+stress-ng: info:  [879106] setting to a 2 second run per stressor
+stress-ng: info:  [879106] dispatching hogs: 4 cpu
+stress-ng: info:  [879106] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879106]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879106] cpu                 528      2.03      8.12      0.00       260.25          65.06
+stress-ng: info:  [879106] successful run completed in 2.03s
+METHOD gamma 260.25
+stress-ng: info:  [879120] setting to a 2 second run per stressor
+stress-ng: info:  [879120] dispatching hogs: 4 cpu
+stress-ng: info:  [879120] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879120]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879120] cpu               18436      2.00      8.00      0.00      9217.18        2304.25
+stress-ng: info:  [879120] successful run completed in 2.00s
+METHOD gcd 9217.18
+stress-ng: info:  [879132] setting to a 2 second run per stressor
+stress-ng: info:  [879132] dispatching hogs: 4 cpu
+stress-ng: info:  [879132] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879132]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879132] cpu                1396      2.00      8.00      0.00       698.00         174.50
+stress-ng: info:  [879132] successful run completed in 2.00s
+METHOD gray 698.00
+stress-ng: info:  [879144] setting to a 2 second run per stressor
+stress-ng: info:  [879144] dispatching hogs: 4 cpu
+stress-ng: info:  [879144] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879144]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879144] cpu                7776      2.00      8.00      0.00      3887.02         971.73
+stress-ng: info:  [879144] successful run completed in 2.00s
+METHOD hamming 3887.02
+stress-ng: info:  [879158] setting to a 2 second run per stressor
+stress-ng: info:  [879158] dispatching hogs: 4 cpu
+stress-ng: info:  [879158] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879158]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879158] cpu                  36      2.00      8.01      0.00        17.97           4.49
+stress-ng: info:  [879158] successful run completed in 2.01s
+METHOD hanoi 17.97
+stress-ng: info:  [879170] setting to a 2 second run per stressor
+stress-ng: info:  [879170] dispatching hogs: 4 cpu
+stress-ng: info:  [879170] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879170]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879170] cpu                1540      2.00      8.00      0.00       769.79         192.44
+stress-ng: info:  [879170] successful run completed in 2.00s
+METHOD hyperbolic 769.79
+stress-ng: info:  [879186] setting to a 2 second run per stressor
+stress-ng: info:  [879186] dispatching hogs: 4 cpu
+stress-ng: info:  [879186] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879186]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879186] cpu                7206      2.00      8.00      0.00      3603.06         900.75
+stress-ng: info:  [879186] successful run completed in 2.00s
+METHOD idct 3603.06
+stress-ng: info:  [879211] setting to a 2 second run per stressor
+stress-ng: info:  [879211] dispatching hogs: 4 cpu
+stress-ng: info:  [879211] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879211]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879211] cpu                2936      2.00      8.00      0.00      1467.98         366.99
+stress-ng: info:  [879211] successful run completed in 2.00s
+METHOD int128 1467.98
+stress-ng: info:  [879223] setting to a 2 second run per stressor
+stress-ng: info:  [879223] dispatching hogs: 4 cpu
+stress-ng: info:  [879223] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879223]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879223] cpu                6247      2.00      8.00      0.00      3123.55         780.87
+stress-ng: info:  [879223] successful run completed in 2.00s
+METHOD int64 3123.55
+stress-ng: info:  [879238] setting to a 2 second run per stressor
+stress-ng: info:  [879238] dispatching hogs: 4 cpu
+stress-ng: info:  [879238] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879238]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879238] cpu                5817      2.00      7.99      0.01      2908.54         727.11
+stress-ng: info:  [879238] successful run completed in 2.10s
+METHOD int32 2908.54
+stress-ng: info:  [879250] setting to a 2 second run per stressor
+stress-ng: info:  [879250] dispatching hogs: 4 cpu
+stress-ng: info:  [879250] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879250]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879250] cpu                5791      2.00      8.00      0.00      2895.56         723.88
+stress-ng: info:  [879250] successful run completed in 2.00s
+METHOD int16 2895.56
+stress-ng: info:  [879264] setting to a 2 second run per stressor
+stress-ng: info:  [879264] dispatching hogs: 4 cpu
+stress-ng: info:  [879264] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879264]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879264] cpu                5818      2.00      8.00      0.00      2909.04         727.25
+stress-ng: info:  [879264] successful run completed in 2.00s
+METHOD int8 2909.04
+stress-ng: info:  [879276] setting to a 2 second run per stressor
+stress-ng: info:  [879276] dispatching hogs: 4 cpu
+stress-ng: info:  [879276] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879276]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879276] cpu                4104      2.00      8.00      0.00      2051.99         512.98
+stress-ng: info:  [879276] successful run completed in 2.00s
+METHOD int128float 2051.99
+stress-ng: info:  [879288] setting to a 2 second run per stressor
+stress-ng: info:  [879288] dispatching hogs: 4 cpu
+stress-ng: info:  [879288] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879288]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879288] cpu                4420      2.00      8.00      0.00      2209.93         552.47
+stress-ng: info:  [879288] successful run completed in 2.00s
+METHOD int128double 2209.93
+stress-ng: info:  [879303] setting to a 2 second run per stressor
+stress-ng: info:  [879303] dispatching hogs: 4 cpu
+stress-ng: info:  [879303] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879303]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879303] cpu                9652      2.00      8.00      0.00      4825.56        1206.35
+stress-ng: info:  [879303] successful run completed in 2.00s
+METHOD int128longdouble 4825.56
+stress-ng: info:  [879315] setting to a 2 second run per stressor
+stress-ng: info:  [879315] dispatching hogs: 4 cpu
+stress-ng: info:  [879315] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879315]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879315] cpu                5924      2.00      8.00      0.00      2961.25         740.29
+stress-ng: info:  [879315] successful run completed in 2.00s
+METHOD int128decimal32 2961.25
+stress-ng: info:  [879329] setting to a 2 second run per stressor
+stress-ng: info:  [879329] dispatching hogs: 4 cpu
+stress-ng: info:  [879329] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879329]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879329] cpu                2667      2.00      8.00      0.00      1332.98         333.24
+stress-ng: info:  [879329] successful run completed in 2.00s
+METHOD int128decimal64 1332.98
+stress-ng: info:  [879341] setting to a 2 second run per stressor
+stress-ng: info:  [879341] dispatching hogs: 4 cpu
+stress-ng: info:  [879341] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879341]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879341] cpu               11764      2.00      8.00      0.00      5879.42        1469.84
+stress-ng: info:  [879341] successful run completed in 2.00s
+METHOD int128decimal128 5879.42
+stress-ng: info:  [879353] setting to a 2 second run per stressor
+stress-ng: info:  [879353] dispatching hogs: 4 cpu
+stress-ng: info:  [879353] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879353]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879353] cpu                6672      2.00      8.00      0.00      3336.04         833.98
+stress-ng: info:  [879353] successful run completed in 2.00s
+METHOD int64float 3336.04
+stress-ng: info:  [879367] setting to a 2 second run per stressor
+stress-ng: info:  [879367] dispatching hogs: 4 cpu
+stress-ng: info:  [879367] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879367]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879367] cpu                5400      2.00      8.00      0.00      2699.95         674.97
+stress-ng: info:  [879367] successful run completed in 2.00s
+METHOD int64double 2699.95
+stress-ng: info:  [879379] setting to a 2 second run per stressor
+stress-ng: info:  [879379] dispatching hogs: 4 cpu
+stress-ng: info:  [879379] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879379]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879379] cpu               10627      1.95      7.80      0.00      5449.89        1362.36
+stress-ng: info:  [879379] successful run completed in 2.00s
+METHOD int64longdouble 5449.89
+stress-ng: info:  [879399] setting to a 2 second run per stressor
+stress-ng: info:  [879399] dispatching hogs: 4 cpu
+stress-ng: info:  [879399] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879399]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879399] cpu                6580      2.00      8.00      0.00      3290.02         822.49
+stress-ng: info:  [879399] successful run completed in 2.00s
+METHOD int32float 3290.02
+stress-ng: info:  [879426] setting to a 2 second run per stressor
+stress-ng: info:  [879426] dispatching hogs: 4 cpu
+stress-ng: info:  [879426] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879426]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879426] cpu                5291      2.00      8.00      0.00      2645.51         661.36
+stress-ng: info:  [879426] successful run completed in 2.00s
+METHOD int32double 2645.51
+stress-ng: info:  [879438] setting to a 2 second run per stressor
+stress-ng: info:  [879438] dispatching hogs: 4 cpu
+stress-ng: info:  [879438] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879438]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879438] cpu               10500      2.00      8.00      0.00      5249.11        1312.24
+stress-ng: info:  [879438] successful run completed in 2.00s
+METHOD int32longdouble 5249.11
+stress-ng: info:  [879452] setting to a 2 second run per stressor
+stress-ng: info:  [879452] dispatching hogs: 4 cpu
+stress-ng: info:  [879452] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879452]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879452] cpu                3822      2.00      8.01      0.00      1909.81         477.44
+stress-ng: info:  [879452] successful run completed in 2.00s
+METHOD intconversion 1909.81
+stress-ng: info:  [879464] setting to a 2 second run per stressor
+stress-ng: info:  [879464] dispatching hogs: 4 cpu
+stress-ng: info:  [879464] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879464]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879464] cpu                6063      2.00      8.00      0.00      3031.54         757.87
+stress-ng: info:  [879464] successful run completed in 2.00s
+METHOD ipv4checksum 3031.54
+stress-ng: info:  [879476] setting to a 2 second run per stressor
+stress-ng: info:  [879476] dispatching hogs: 4 cpu
+stress-ng: info:  [879476] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879476]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879476] cpu                6137      2.00      8.00      0.00      3068.56         767.12
+stress-ng: info:  [879476] successful run completed in 2.00s
+METHOD jmp 3068.56
+stress-ng: info:  [879490] setting to a 2 second run per stressor
+stress-ng: info:  [879490] dispatching hogs: 4 cpu
+stress-ng: info:  [879490] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879490]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879490] cpu                3464      2.00      8.00      0.00      1732.01         432.99
+stress-ng: info:  [879490] successful run completed in 2.00s
+METHOD lfsr32 1732.01
+stress-ng: info:  [879502] setting to a 2 second run per stressor
+stress-ng: info:  [879502] dispatching hogs: 4 cpu
+stress-ng: info:  [879502] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879502]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879502] cpu                 340      1.92      7.70      0.00       176.70          44.17
+stress-ng: info:  [879502] successful run completed in 2.00s
+METHOD ln2 176.70
+stress-ng: info:  [879516] setting to a 2 second run per stressor
+stress-ng: info:  [879516] dispatching hogs: 4 cpu
+stress-ng: info:  [879516] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879516]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879516] cpu                7005      2.00      8.00      0.00      3502.52         875.61
+stress-ng: info:  [879516] successful run completed in 2.00s
+METHOD logmap 3502.52
+stress-ng: info:  [879528] setting to a 2 second run per stressor
+stress-ng: info:  [879528] dispatching hogs: 4 cpu
+stress-ng: info:  [879528] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879528]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879528] cpu                2072      2.00      8.01      0.00      1035.08         258.76
+stress-ng: info:  [879528] successful run completed in 2.00s
+METHOD longdouble 1035.08
+stress-ng: info:  [879540] setting to a 2 second run per stressor
+stress-ng: info:  [879540] dispatching hogs: 4 cpu
+stress-ng: info:  [879540] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879540]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879540] cpu                3240      2.00      8.00      0.00      1619.97         404.99
+stress-ng: info:  [879540] successful run completed in 2.00s
+METHOD loop 1619.97
+stress-ng: info:  [879554] setting to a 2 second run per stressor
+stress-ng: info:  [879554] dispatching hogs: 4 cpu
+stress-ng: info:  [879554] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879554]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879554] cpu                 988      2.00      8.00      0.00       493.85         123.46
+stress-ng: info:  [879554] successful run completed in 2.51s
+METHOD matrixprod 493.85
+stress-ng: info:  [879568] setting to a 2 second run per stressor
+stress-ng: info:  [879568] dispatching hogs: 4 cpu
+stress-ng: info:  [879568] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879568]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879568] cpu                2372      2.00      8.00      0.00      1186.01         296.49
+stress-ng: info:  [879568] successful run completed in 2.00s
+METHOD nsqrt 1186.01
+stress-ng: info:  [879582] setting to a 2 second run per stressor
+stress-ng: info:  [879582] dispatching hogs: 4 cpu
+stress-ng: info:  [879582] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879582]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879582] cpu                1260      2.00      8.00      0.00       630.01         157.48
+stress-ng: info:  [879582] successful run completed in 2.00s
+METHOD omega 630.01
+stress-ng: info:  [879594] setting to a 2 second run per stressor
+stress-ng: info:  [879594] dispatching hogs: 4 cpu
+stress-ng: info:  [879594] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879594]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879594] cpu                2910      2.00      8.00      0.00      1454.96         363.73
+stress-ng: info:  [879594] successful run completed in 2.00s
+METHOD parity 1454.96
+stress-ng: info:  [879619] setting to a 2 second run per stressor
+stress-ng: info:  [879619] dispatching hogs: 4 cpu
+stress-ng: info:  [879619] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879619]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879619] cpu                5143      2.00      8.00      0.00      2571.56         642.88
+stress-ng: info:  [879619] successful run completed in 2.00s
+METHOD phi 2571.56
+stress-ng: info:  [879633] setting to a 2 second run per stressor
+stress-ng: info:  [879633] dispatching hogs: 4 cpu
+stress-ng: info:  [879633] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879633]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879633] cpu                3709      2.00      8.00      0.00      1854.54         463.62
+stress-ng: info:  [879633] successful run completed in 2.00s
+METHOD pi 1854.54
+stress-ng: info:  [879645] setting to a 2 second run per stressor
+stress-ng: info:  [879645] dispatching hogs: 4 cpu
+stress-ng: info:  [879645] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879645]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879645] cpu               12178      2.00      8.00      0.00      6086.52        1521.60
+stress-ng: info:  [879645] successful run completed in 2.00s
+METHOD prime 6086.52
+stress-ng: info:  [879659] setting to a 2 second run per stressor
+stress-ng: info:  [879659] dispatching hogs: 4 cpu
+stress-ng: info:  [879659] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879659]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879659] cpu                 400      2.00      7.99      0.01       200.01          50.00
+stress-ng: info:  [879659] successful run completed in 2.00s
+METHOD psi 200.01
+stress-ng: info:  [879671] setting to a 2 second run per stressor
+stress-ng: info:  [879671] dispatching hogs: 4 cpu
+stress-ng: info:  [879671] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879671]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879671] cpu                6680      2.00      8.00      0.00      3339.25         834.79
+stress-ng: info:  [879671] successful run completed in 2.00s
+METHOD queens 3339.25
+stress-ng: info:  [879683] setting to a 2 second run per stressor
+stress-ng: info:  [879683] dispatching hogs: 4 cpu
+stress-ng: info:  [879683] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879683]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879683] cpu                5887      2.00      8.00      0.00      2943.47         735.85
+stress-ng: info:  [879683] successful run completed in 2.00s
+METHOD rand 2943.47
+stress-ng: info:  [879697] setting to a 2 second run per stressor
+stress-ng: info:  [879697] dispatching hogs: 4 cpu
+stress-ng: info:  [879697] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879697]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879697] cpu                5548      2.00      8.00      0.00      2773.77         693.36
+stress-ng: info:  [879697] successful run completed in 2.00s
+METHOD rand48 2773.77
+stress-ng: info:  [879709] setting to a 2 second run per stressor
+stress-ng: info:  [879709] dispatching hogs: 4 cpu
+stress-ng: info:  [879709] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879709]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879709] cpu                7155      2.00      8.00      0.00      3577.57         894.27
+stress-ng: info:  [879709] successful run completed in 2.00s
+METHOD rgb 3577.57
+stress-ng: info:  [879721] setting to a 2 second run per stressor
+stress-ng: info:  [879721] dispatching hogs: 4 cpu
+stress-ng: info:  [879721] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879721]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879721] cpu                4756      2.00      8.00      0.00      2377.66         594.40
+stress-ng: info:  [879721] successful run completed in 2.00s
+METHOD sieve 2377.66
+stress-ng: info:  [879735] setting to a 2 second run per stressor
+stress-ng: info:  [879735] dispatching hogs: 4 cpu
+stress-ng: info:  [879735] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879735]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879735] cpu                6006      2.00      8.00      0.00      3003.07         750.74
+stress-ng: info:  [879735] successful run completed in 2.00s
+METHOD stats 3003.07
+stress-ng: info:  [879747] setting to a 2 second run per stressor
+stress-ng: info:  [879747] dispatching hogs: 4 cpu
+stress-ng: info:  [879747] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879747]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879747] cpu                 412      2.00      8.01      0.00       205.64          51.41
+stress-ng: info:  [879747] successful run completed in 2.01s
+METHOD sqrt 205.64
+stress-ng: info:  [879761] setting to a 2 second run per stressor
+stress-ng: info:  [879761] dispatching hogs: 4 cpu
+stress-ng: info:  [879761] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879761]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879761] cpu                2280      2.00      8.01      0.00      1138.95         284.73
+stress-ng: info:  [879761] successful run completed in 2.00s
+METHOD trig 1138.95
+stress-ng: info:  [879773] setting to a 2 second run per stressor
+stress-ng: info:  [879773] dispatching hogs: 4 cpu
+stress-ng: info:  [879773] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879773]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879773] cpu                3656      2.00      8.00      0.00      1828.03         457.00
+stress-ng: info:  [879773] successful run completed in 2.00s
+METHOD union 1828.03
+stress-ng: info:  [879785] setting to a 2 second run per stressor
+stress-ng: info:  [879785] dispatching hogs: 4 cpu
+stress-ng: info:  [879785] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: info:  [879785]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: info:  [879785] cpu                3621      2.00      8.01      0.00      1809.21         452.29
+stress-ng: info:  [879785] successful run completed in 2.00s
+METHOD zeta 1809.21
+CPU_SUBSET_GEOMEAN 2030.5089
+=== END ===

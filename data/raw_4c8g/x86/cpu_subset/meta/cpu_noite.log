@@ -1,0 +1,189 @@
+[2026-10-20 10:01:05] === série de CPU (subconjunto) — llm4orders ===
+[10:01:05] estado salvo em /home/llm4orders/Documentos/exp_kit/state/host_prepare.state:
+hp node0 8192
+swap 1
+gov powersave
+timer apt-daily.timer
+timer apt-daily-upgrade.timer
+timer man-db.timer
+timer fwupd-refresh.timer
+timer motd-news.timer
+[10:01:05] [1/4] governador performance (todas as CPUs)
+[10:01:05] [2/4] swap off; timers de manutenção pausados (apt-daily.timer apt-daily-upgrade.timer man-db.timer fwupd-refresh.timer motd-news.timer)
+[10:01:05] [3/4] liberando hugepages dos outros nodes (aborta se alguma estiver em uso)
+[10:01:05] [4/4] reservando 4096 hugepages no node0
+[10:01:06] OK. THP: always [madvise] never
+[10:01:19] threads movidas para 0,6: 341 | falhas (ex.: cpuset de container): 0
+[10:01:19] isolamento ativo. Confira com: ./exp_isolate.sh check
+[2026-10-20 10:01:19] TCG: ligando
+[10:01:19] binário: /usr/bin/qemu-system-x86_64 (QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31))
+[10:01:21] TCG iniciado (pid 217701). Boot sob TCG é lento; acompanhe: tail -f /home/llm4orders/Documentos/exp_kit/state/tcg.serial.log
+[10:01:21] SSH: ./exp_vm.sh ssh qemu   (quando o boot terminar)
+pid 217701
+  qemu-system-x86        5,11
+  call_rcu               5,11
+  worker                 5,11
+  CPU 0/TCG              1
+  CPU 1/TCG              2
+  CPU 2/TCG              3
+  CPU 3/TCG              4
+[2026-10-20 10:02:04] TCG: descobrindo métodos de --cpu que funcionam sob TCG
+métodos OK sob TCG: 83 de 83
+[2026-10-20 10:06:31] métodos OK sob TCG: 83
+[10:06:31] monitor gravando em /home/llm4orders/experimentos/x86_4c8g/monitor_cpu_qemu_20261020_100631.csv
+  [2026-10-20T13:07:02+00:00] aquecimento 1/1: início
+  [2026-10-20T13:10:41+00:00] execução 1/15: início
+  [2026-10-20T13:13:49+00:00] execução 2/15: pausa 30s
+  [2026-10-20T13:14:19+00:00] execução 2/15: início
+  [2026-10-20T13:17:59+00:00] execução 3/15: início
+  [2026-10-20T13:21:39+00:00] execução 4/15: início
+  [2026-10-20T13:24:48+00:00] execução 5/15: pausa 30s
+  [2026-10-20T13:25:18+00:00] execução 5/15: início
+  [2026-10-20T13:28:58+00:00] execução 6/15: início
+  [2026-10-20T13:32:38+00:00] execução 7/15: início
+  [2026-10-20T13:35:47+00:00] execução 8/15: pausa 30s
+  [2026-10-20T13:36:17+00:00] execução 8/15: início
+  [2026-10-20T13:39:55+00:00] execução 9/15: início
+  [2026-10-20T13:43:05+00:00] execução 10/15: pausa 30s
+  [2026-10-20T13:43:35+00:00] execução 10/15: início
+  [2026-10-20T13:47:13+00:00] execução 11/15: início
+  [2026-10-20T13:50:52+00:00] execução 12/15: início
+  [2026-10-20T13:54:01+00:00] execução 13/15: pausa 30s
+  [2026-10-20T13:54:31+00:00] execução 13/15: início
+  [2026-10-20T13:58:10+00:00] execução 14/15: início
+  [2026-10-20T14:01:49+00:00] execução 15/15: início
+  [2026-10-20T14:04:59+00:00] série qemu_cpu concluída: 1 aquecimento + 15 válidas em /root/experimentos/qemu_cpu
+[2026-10-20 11:05:03] qemu: 15 válidas copiadas
+[11:05:03] monitor parado
+QEMU 6.2.0 monitor - type 'help' for more information
+(qemu) s[K[Dsy[K[D[Dsys[K[D[D[Dsyst[K[D[D[D[Dsyste[K[D[D[D[D[Dsystem[K[D[D[D[D[D[Dsystem_[K[D[D[D[D[D[D[Dsystem_p[K[D[D[D[D[D[D[D[Dsystem_po[K[D[D[D[D[D[D[D[D[Dsystem_pow[K[D[D[D[D[D[D[D[D[D[Dsystem_powe[K[D[D[D[D[D[D[D[D[D[D[Dsystem_power[K[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerd[K[D[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerdo[K[D[D[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerdow[K[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Dsystem_powerdown[K
+(qemu) [11:05:08] TCG desligado
+[2026-10-20 11:05:08] KVM: ligando
+Domain 'vm_exp_x86' started
+
+[2026-10-20 11:05:30] KVM: kvm-nx-lpage-recovery movida para o emulador
+OK    XML contém memballoon model='none'
+OK    XML contém <hugepages>
+OK    XML contém cache='none'
+OK    XML contém io='native'
+OK    XML contém host-passthrough
+OK    XML contém mode='strict' nodeset='0'
+-- afinidade real das threads do qemu (pid 220103) --
+OK    qemu-system-x86 -> 5,11
+OK    qemu-system-x86 -> 5,11
+OK    worker -> 5,11
+OK    vhost-220103 -> 5,11
+OK    IO mon_iothread -> 5,11
+OK    CPU 0/KVM -> 1
+OK    CPU 1/KVM -> 2
+OK    CPU 2/KVM -> 3
+OK    CPU 3/KVM -> 4
+OK    kvm-nx-lpage-re -> 5,11
+OK    hugepages em uso no node0: 4096
+-- memória do qemu por node (MB) --
+                           Node 0           Total
+Huge                      8192.00         8192.00
+Total                     8236.75         8236.75
+-- dentro da VM --
+nproc=4 threads/núcleo=1 swap=0 kernel=4.18.0-553.172.1.el8_10.x86_64 MemTotal:        8144036 kB
+OK    convidado vê 4 CPUs
+OK    1 thread por núcleo no convidado
+OK    convidado sem swap
+OK    kernel do convidado = 4.18.0-553.172.1.el8_10 (igual à Power9)
+      cpu1: irmãs SMT = 1,7
+      cpu2: irmãs SMT = 2,8
+      cpu3: irmãs SMT = 3,9
+      cpu4: irmãs SMT = 4,10
+OK    topologia: vCPUs em núcleos distintos; irmãs (7,8,9,10) fora de uso; emulador em núcleo próprio
+TUDO OK
+[2026-10-20 11:05:30] KVM verify: código 0
+[11:05:31] monitor gravando em /home/llm4orders/experimentos/x86_4c8g/monitor_cpu_kvm_20261020_110531.csv
+  [2026-10-20T14:06:01+00:00] aquecimento 1/1: início
+  [2026-10-20T14:09:18+00:00] execução 1/15: início
+  [2026-10-20T14:12:36+00:00] execução 2/15: início
+  [2026-10-20T14:15:53+00:00] execução 3/15: início
+  [2026-10-20T14:19:11+00:00] execução 4/15: início
+  [2026-10-20T14:21:59+00:00] execução 5/15: pausa 30s
+  [2026-10-20T14:22:29+00:00] execução 5/15: início
+  [2026-10-20T14:25:16+00:00] execução 6/15: pausa 30s
+  [2026-10-20T14:25:46+00:00] execução 6/15: início
+  [2026-10-20T14:29:04+00:00] execução 7/15: início
+  [2026-10-20T14:32:22+00:00] execução 8/15: início
+  [2026-10-20T14:35:39+00:00] execução 9/15: início
+  [2026-10-20T14:38:57+00:00] execução 10/15: início
+  [2026-10-20T14:41:44+00:00] execução 11/15: pausa 30s
+  [2026-10-20T14:42:14+00:00] execução 11/15: início
+  [2026-10-20T14:45:02+00:00] execução 12/15: pausa 30s
+  [2026-10-20T14:45:32+00:00] execução 12/15: início
+  [2026-10-20T14:48:49+00:00] execução 13/15: início
+  [2026-10-20T14:52:07+00:00] execução 14/15: início
+  [2026-10-20T14:55:24+00:00] execução 15/15: início
+  [2026-10-20T14:58:12+00:00] série kvm_cpu concluída: 1 aquecimento + 15 válidas em /root/experimentos/kvm_cpu
+[2026-10-20 11:58:48] kvm: 15 válidas copiadas
+[11:58:48] monitor parado
+Domain 'vm_exp_x86' is being shutdown
+
+[2026-10-20 11:58:53] HOST: série
+[11:58:53] monitor gravando em /home/llm4orders/experimentos/x86_4c8g/monitor_cpu_host_20261020_115853.csv
+[2026-10-20T11:58:53-03:00] início da série host_cpu [benchmark_cpu.sh] (aquecimento=1, válidas=15)
+[2026-10-20T11:59:03-03:00] aquecimento 1/1: pausa 30s
+[2026-10-20T11:59:33-03:00] aquecimento 1/1: início
+[2026-10-20T12:02:20-03:00] aquecimento 1/1: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/warmup/benchmark_cpu_host_llm4orders_20261020_115933.txt)
+[2026-10-20T12:02:30-03:00] execução 1/15: pausa 30s
+[2026-10-20T12:03:00-03:00] execução 1/15: início
+[2026-10-20T12:05:47-03:00] execução 1/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_120300.txt)
+[2026-10-20T12:05:57-03:00] execução 2/15: pausa 30s
+[2026-10-20T12:06:27-03:00] execução 2/15: início
+[2026-10-20T12:09:15-03:00] execução 2/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_120628.txt)
+[2026-10-20T12:09:25-03:00] execução 3/15: pausa 30s
+[2026-10-20T12:09:55-03:00] execução 3/15: início
+[2026-10-20T12:12:42-03:00] execução 3/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_120955.txt)
+[2026-10-20T12:12:52-03:00] execução 4/15: pausa 30s
+[2026-10-20T12:13:22-03:00] execução 4/15: início
+[2026-10-20T12:16:09-03:00] execução 4/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_121322.txt)
+[2026-10-20T12:16:20-03:00] execução 5/15: pausa 30s
+[2026-10-20T12:16:50-03:00] execução 5/15: início
+[2026-10-20T12:19:37-03:00] execução 5/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_121650.txt)
+[2026-10-20T12:19:47-03:00] execução 6/15: pausa 30s
+[2026-10-20T12:20:17-03:00] execução 6/15: início
+[2026-10-20T12:23:04-03:00] execução 6/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_122017.txt)
+[2026-10-20T12:23:14-03:00] execução 7/15: pausa 30s
+[2026-10-20T12:23:45-03:00] execução 7/15: início
+[2026-10-20T12:26:33-03:00] execução 7/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_122345.txt)
+[2026-10-20T12:26:43-03:00] execução 8/15: pausa 30s
+[2026-10-20T12:27:13-03:00] execução 8/15: início
+[2026-10-20T12:30:00-03:00] execução 8/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_122713.txt)
+[2026-10-20T12:30:10-03:00] execução 9/15: pausa 30s
+[2026-10-20T12:30:40-03:00] execução 9/15: início
+[2026-10-20T12:33:27-03:00] execução 9/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_123040.txt)
+[2026-10-20T12:33:37-03:00] execução 10/15: pausa 30s
+[2026-10-20T12:34:08-03:00] execução 10/15: início
+[2026-10-20T12:36:55-03:00] execução 10/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_123408.txt)
+[2026-10-20T12:37:05-03:00] execução 11/15: pausa 30s
+[2026-10-20T12:37:35-03:00] execução 11/15: início
+[2026-10-20T12:40:23-03:00] execução 11/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_123735.txt)
+[2026-10-20T12:40:33-03:00] execução 12/15: pausa 30s
+[2026-10-20T12:41:03-03:00] execução 12/15: início
+[2026-10-20T12:43:51-03:00] execução 12/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_124103.txt)
+[2026-10-20T12:44:01-03:00] execução 13/15: pausa 30s
+[2026-10-20T12:44:31-03:00] execução 13/15: início
+[2026-10-20T12:47:18-03:00] execução 13/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_124431.txt)
+[2026-10-20T12:47:28-03:00] execução 14/15: pausa 30s
+[2026-10-20T12:47:58-03:00] execução 14/15: início
+[2026-10-20T12:50:45-03:00] execução 14/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_124758.txt)
+[2026-10-20T12:50:56-03:00] execução 15/15: pausa 30s
+[2026-10-20T12:51:26-03:00] execução 15/15: início
+[2026-10-20T12:54:13-03:00] execução 15/15: ok (/home/llm4orders/experimentos/x86_4c8g/host_cpu/benchmark_cpu_host_llm4orders_20261020_125126.txt)
+[2026-10-20T12:54:13-03:00] série host_cpu concluída: 1 aquecimento + 15 válidas em /home/llm4orders/experimentos/x86_4c8g/host_cpu
+[2026-10-20 12:54:13] HOST: código 0 | 15 válidas
+[12:54:13] monitor parado
+[2026-10-20 12:54:13] === liberação ===
+monitor não estava rodando
+[12:54:15] restaurado: 333 threads; 8 já tinham terminado. IRQs, workqueues e irqbalance restaurados.
+[12:54:15] node0 hugepages -> 8192 (alvo 8192)
+[12:54:15] swap religado
+[12:54:15] timer apt-daily.timer religado
+[12:54:15] timer apt-daily-upgrade.timer religado
+[12:54:15] timer man-db.timer religado
+[12:54:15] timer fwupd-refresh.timer religado
+[12:54:15] timer motd-news.timer religado

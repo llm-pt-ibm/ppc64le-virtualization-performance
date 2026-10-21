@@ -1,0 +1,179 @@
+[2026-10-20 10:33:32] === série de CPU (subconjunto) — ibm-power9 ===
+[10:33:32] estado salvo em /home/multiarq/exp_kit/state/host_prepare.state:
+hp node0 8192
+hp node252 0
+hp node253 0
+hp node254 0
+hp node255 0
+hp node8 0
+swap 1
+gov performance
+[10:33:32] [1/4] governador performance (todas as CPUs)
+[10:33:32] [2/4] swap off
+[10:33:32] [3/4] liberando hugepages dos outros nodes (aborta se alguma estiver em uso)
+[10:33:32] node0: 8192 -> 0
+[10:33:32] [4/4] reservando 4096 hugepages no node8
+[10:33:35] OK. THP: always [madvise] never
+[10:33:51] threads movidas para 0-79: 512 | falhas (ex.: cpuset de container): 0
+[10:33:51] isolamento ativo. Confira com: ./exp_isolate.sh check
+[2026-10-20 10:33:51] TCG: ligando
+[10:33:52] binário: /usr/libexec/qemu-kvm (QEMU emulator version 6.2.0 (qemu-kvm-6.2.0-53.module_el8.10.0+4110+4a319788.6))
+[10:33:55] TCG iniciado (pid 847734). Boot sob TCG é lento; acompanhe: tail -f /home/multiarq/exp_kit/state/tcg.serial.log
+[10:33:55] SSH: ./exp_vm.sh ssh qemu   (quando o boot terminar)
+pid 847734
+  qemu-kvm               104-111
+  call_rcu               104-111
+  worker                 104-111
+  CPU 0/TCG              80
+  CPU 1/TCG              84
+  CPU 2/TCG              88
+  CPU 3/TCG              92
+[2026-10-20 10:36:13] TCG: descobrindo métodos de --cpu que funcionam sob TCG
+métodos OK sob TCG: 80 de 81
+[2026-10-20 10:40:58] métodos OK sob TCG: 80
+[10:40:58] monitor gravando em /home/multiarq/experimentos/p9_4c8g/monitor_cpu_qemu_20261020_104058.csv
+  [2026-10-20T13:41:32+00:00] aquecimento 1/1: início
+  [2026-10-20T13:45:37+00:00] execução 1/15: início
+  [2026-10-20T13:49:41+00:00] execução 2/15: início
+  [2026-10-20T13:53:16+00:00] execução 3/15: pausa 30s
+  [2026-10-20T13:53:46+00:00] execução 3/15: início
+  [2026-10-20T13:57:52+00:00] execução 4/15: início
+  [2026-10-20T14:01:26+00:00] execução 5/15: pausa 30s
+  [2026-10-20T14:01:56+00:00] execução 5/15: início
+  [2026-10-20T14:06:02+00:00] execução 6/15: início
+  [2026-10-20T14:10:06+00:00] execução 7/15: início
+  [2026-10-20T14:13:44+00:00] execução 8/15: pausa 30s
+  [2026-10-20T14:14:14+00:00] execução 8/15: início
+  [2026-10-20T14:18:20+00:00] execução 9/15: início
+  [2026-10-20T14:21:54+00:00] execução 10/15: pausa 30s
+  [2026-10-20T14:22:25+00:00] execução 10/15: início
+  [2026-10-20T14:26:29+00:00] execução 11/15: início
+  [2026-10-20T14:30:36+00:00] execução 12/15: início
+  [2026-10-20T14:34:12+00:00] execução 13/15: pausa 30s
+  [2026-10-20T14:34:42+00:00] execução 13/15: início
+  [2026-10-20T14:38:50+00:00] execução 14/15: início
+  [2026-10-20T14:42:26+00:00] execução 15/15: pausa 30s
+  [2026-10-20T14:42:56+00:00] execução 15/15: início
+  [2026-10-20T14:46:32+00:00] série qemu_cpu concluída: 1 aquecimento + 15 válidas em /root/experimentos/qemu_cpu
+[2026-10-20 11:47:18] qemu: 15 válidas copiadas
+[11:47:18] monitor parado
+[11:47:31] TCG desligado
+[2026-10-20 11:47:31] KVM: ligando
+Domain 'vm_exp_p9' started
+
+OK    XML contém memballoon model='none'
+OK    XML contém <hugepages>
+OK    XML contém cache='none'
+OK    XML contém io='native'
+OK    XML contém host-passthrough
+OK    XML contém mode='strict' nodeset='8'
+-- afinidade real das threads do qemu (pid 855193) --
+OK    qemu-kvm -> 104-111
+OK    qemu-kvm -> 104-111
+OK    IO mon_iothread -> 104-111
+OK    CPU 0/KVM -> 80
+OK    CPU 1/KVM -> 84
+OK    CPU 2/KVM -> 88
+OK    CPU 3/KVM -> 92
+OK    worker -> 104-111
+OK    hugepages em uso no node8: 4096
+-- memória do qemu por node (MB) --
+                           Node 0          Node 8        Node 252        Node 253        Node 254        Node 255           Total
+Huge                         0.00         8192.00            0.00            0.00            0.00            0.00         8192.00
+Total                       15.12         8229.88            0.00            0.00            0.00            0.00         8245.00
+-- dentro da VM --
+nproc=4 threads/núcleo=1 swap=0 kernel=4.18.0-553.172.1.el8_10.ppc64le MemTotal:        8318592 kB
+OK    convidado vê 4 CPUs
+OK    1 thread por núcleo no convidado
+OK    convidado sem swap
+TUDO OK
+[2026-10-20 11:48:14] KVM verify: código 0
+[11:48:15] monitor gravando em /home/multiarq/experimentos/p9_4c8g/monitor_cpu_kvm_20261020_114815.csv
+  [2026-10-20T14:48:46+00:00] aquecimento 1/1: início
+  [2026-10-20T14:51:58+00:00] execução 1/15: início
+  [2026-10-20T14:55:11+00:00] execução 2/15: início
+  [2026-10-20T14:58:24+00:00] execução 3/15: início
+  [2026-10-20T15:01:36+00:00] execução 4/15: início
+  [2026-10-20T15:04:49+00:00] execução 5/15: início
+  [2026-10-20T15:08:01+00:00] execução 6/15: início
+  [2026-10-20T15:11:14+00:00] execução 7/15: início
+  [2026-10-20T15:13:57+00:00] execução 8/15: pausa 30s
+  [2026-10-20T15:14:27+00:00] execução 8/15: início
+  [2026-10-20T15:17:09+00:00] execução 9/15: pausa 30s
+  [2026-10-20T15:17:39+00:00] execução 9/15: início
+  [2026-10-20T15:20:22+00:00] execução 10/15: pausa 30s
+  [2026-10-20T15:20:52+00:00] execução 10/15: início
+  [2026-10-20T15:24:04+00:00] execução 11/15: início
+  [2026-10-20T15:27:17+00:00] execução 12/15: início
+  [2026-10-20T15:30:29+00:00] execução 13/15: início
+  [2026-10-20T15:33:42+00:00] execução 14/15: início
+  [2026-10-20T15:36:55+00:00] execução 15/15: início
+  [2026-10-20T15:39:37+00:00] série kvm_cpu concluída: 1 aquecimento + 15 válidas em /root/experimentos/kvm_cpu
+[2026-10-20 12:40:24] kvm: 15 válidas copiadas
+[12:40:24] monitor parado
+Domain 'vm_exp_p9' is being shutdown
+
+[2026-10-20 12:40:29] HOST: série
+[12:40:29] monitor gravando em /home/multiarq/experimentos/p9_4c8g/monitor_cpu_host_20261020_124029.csv
+[2026-10-20T12:40:29-03:00] início da série host_cpu [benchmark_cpu.sh] (aquecimento=1, válidas=15)
+[2026-10-20T12:40:40-03:00] aquecimento 1/1: pausa 30s
+[2026-10-20T12:41:10-03:00] aquecimento 1/1: início
+[2026-10-20T12:43:54-03:00] aquecimento 1/1: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/warmup/benchmark_cpu_host_ibm-power9_20261020_124110.txt)
+[2026-10-20T12:44:04-03:00] execução 1/15: pausa 30s
+[2026-10-20T12:44:34-03:00] execução 1/15: início
+[2026-10-20T12:47:18-03:00] execução 1/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_124434.txt)
+[2026-10-20T12:47:28-03:00] execução 2/15: pausa 30s
+[2026-10-20T12:47:58-03:00] execução 2/15: início
+[2026-10-20T12:50:41-03:00] execução 2/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_124758.txt)
+[2026-10-20T12:50:52-03:00] execução 3/15: pausa 30s
+[2026-10-20T12:51:22-03:00] execução 3/15: início
+[2026-10-20T12:54:06-03:00] execução 3/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_125122.txt)
+[2026-10-20T12:54:16-03:00] execução 4/15: pausa 30s
+[2026-10-20T12:54:46-03:00] execução 4/15: início
+[2026-10-20T12:57:30-03:00] execução 4/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_125446.txt)
+[2026-10-20T12:57:40-03:00] execução 5/15: pausa 30s
+[2026-10-20T12:58:10-03:00] execução 5/15: início
+[2026-10-20T13:00:54-03:00] execução 5/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_125810.txt)
+[2026-10-20T13:01:04-03:00] execução 6/15: pausa 30s
+[2026-10-20T13:01:34-03:00] execução 6/15: início
+[2026-10-20T13:04:18-03:00] execução 6/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_130134.txt)
+[2026-10-20T13:04:28-03:00] execução 7/15: pausa 30s
+[2026-10-20T13:04:58-03:00] execução 7/15: início
+[2026-10-20T13:07:42-03:00] execução 7/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_130458.txt)
+[2026-10-20T13:07:52-03:00] execução 8/15: pausa 30s
+[2026-10-20T13:08:22-03:00] execução 8/15: início
+[2026-10-20T13:11:06-03:00] execução 8/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_130823.txt)
+[2026-10-20T13:11:16-03:00] execução 9/15: pausa 30s
+[2026-10-20T13:11:46-03:00] execução 9/15: início
+[2026-10-20T13:14:30-03:00] execução 9/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_131147.txt)
+[2026-10-20T13:14:40-03:00] execução 10/15: pausa 30s
+[2026-10-20T13:15:10-03:00] execução 10/15: início
+[2026-10-20T13:17:55-03:00] execução 10/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_131511.txt)
+[2026-10-20T13:18:05-03:00] execução 11/15: pausa 30s
+[2026-10-20T13:18:35-03:00] execução 11/15: início
+[2026-10-20T13:21:19-03:00] execução 11/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_131835.txt)
+[2026-10-20T13:21:29-03:00] execução 12/15: pausa 30s
+[2026-10-20T13:21:59-03:00] execução 12/15: início
+[2026-10-20T13:24:43-03:00] execução 12/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_132159.txt)
+[2026-10-20T13:24:53-03:00] execução 13/15: pausa 30s
+[2026-10-20T13:25:23-03:00] execução 13/15: início
+[2026-10-20T13:28:07-03:00] execução 13/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_132523.txt)
+[2026-10-20T13:28:17-03:00] execução 14/15: pausa 30s
+[2026-10-20T13:28:47-03:00] execução 14/15: início
+[2026-10-20T13:31:31-03:00] execução 14/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_132847.txt)
+[2026-10-20T13:31:41-03:00] execução 15/15: pausa 30s
+[2026-10-20T13:32:11-03:00] execução 15/15: início
+[2026-10-20T13:34:55-03:00] execução 15/15: ok (/home/multiarq/experimentos/p9_4c8g/host_cpu/benchmark_cpu_host_ibm-power9_20261020_133211.txt)
+[2026-10-20T13:34:55-03:00] série host_cpu concluída: 1 aquecimento + 15 válidas em /home/multiarq/experimentos/p9_4c8g/host_cpu
+[2026-10-20 13:34:55] HOST: código 0 | 15 válidas
+[13:34:55] monitor parado
+[2026-10-20 13:34:55] === liberação ===
+monitor não estava rodando
+[13:35:02] restaurado: 503 threads; 9 já tinham terminado. IRQs, workqueues e irqbalance restaurados.
+[13:35:02] node0 hugepages -> 8192 (alvo 8192)
+[13:35:02] node252 hugepages -> 0 (alvo 0)
+[13:35:02] node253 hugepages -> 0 (alvo 0)
+[13:35:02] node254 hugepages -> 0 (alvo 0)
+[13:35:02] node255 hugepages -> 0 (alvo 0)
+[13:35:02] node8 hugepages -> 0 (alvo 0)
+[13:35:02] swap religado

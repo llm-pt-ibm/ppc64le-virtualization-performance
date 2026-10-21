@@ -1,0 +1,186 @@
+### data
+2026-10-15T18:15:38-03:00
+### uname / os
+Linux llm4orders 6.8.0-138-generic #138~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Aug  7 13:43:15 UTC  x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 22.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+VERSION="22.04.5 LTS (Jammy Jellyfish)"
+VERSION_CODENAME=jammy
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=jammy
+### lscpu
+Arquitetura:                             x86_64
+Modo(s) operacional da CPU:              32-bit, 64-bit
+Address sizes:                           39 bits physical, 48 bits virtual
+Ordem dos bytes:                         Little Endian
+CPU(s):                                  12
+Lista de CPU(s) on-line:                 0-11
+ID de fornecedor:                        GenuineIntel
+Nome do modelo:                          Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz
+Família da CPU:                          6
+Modelo:                                  158
+Thread(s) per núcleo:                    2
+Núcleo(s) por soquete:                   6
+Soquete(s):                              1
+Step:                                    10
+CPU MHz máx.:                            4600,0000
+CPU MHz mín.:                            800,0000
+BogoMIPS:                                6399.96
+Opções:                                  fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp vnmi md_clear flush_l1d arch_capabilities ibpb_exit_to_user
+Virtualização:                           VT-x
+cache de L1d:                            192 KiB (6 instances)
+cache de L1i:                            192 KiB (6 instances)
+cache de L2:                             1,5 MiB (6 instances)
+cache de L3:                             12 MiB (1 instance)
+Nó(s) de NUMA:                           1
+CPU(s) de nó0 NUMA:                      0-11
+Vulnerability Gather data sampling:      Mitigation; Microcode
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             KVM: Mitigation: Split huge pages
+Vulnerability L1tf:                      Mitigation; PTE Inversion; VMX conditional cache flushes, SMT vulnerable
+Vulnerability Mds:                       Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Meltdown:                  Mitigation; PTI
+Vulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Mitigation; IBRS
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; IBRS; IBPB conditional; STIBP conditional; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                     Mitigation; Microcode
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Mitigation; TSX disabled
+Vulnerability Vmscape:                   Mitigation; IBPB before exit to userspace
+### systemd / cgroup
+systemd 249 (249.11-0ubuntu3.22)
+cgroup2fs
+### governador / driver / turbo
+performance
+intel_pstate
+0
+### frequência atual por CPU (MHz)
+cpu MHz		: 4300.065
+cpu MHz		: 4300.021
+cpu MHz		: 4300.506
+cpu MHz		: 4300.909
+cpu MHz		: 4298.576
+cpu MHz		: 800.000
+cpu MHz		: 4300.210
+cpu MHz		: 800.000
+cpu MHz		: 800.000
+cpu MHz		: 4342.939
+cpu MHz		: 800.000
+cpu MHz		: 4303.000
+### SMT
+1
+### THP
+always [madvise] never
+### swap
+### hugepages node0
+4096
+0
+### numactl -H
+available: 1 nodes (0)
+node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11
+node 0 size: 32007 MB
+node 0 free: 798 MB
+node distances:
+node   0 
+  0:  10 
+### virtualização
+8.0.0
+QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+### binários do benchmark no host
+500fafccf4f1f32323736ae45ef2b1412e1edffda116bbf0ca1b06ff8142a299  stress-ng
+d91276482270c8cf97635ad835cac215c5df20d70168b16097171c43a096f428  fio
+029077c8b3bca9af443678e0464d9a856cb13dec6a0a28f4fd147a3ad270118d  stream
+### isolamento
+ativo
+### serviços
+irqbalance inactive
+libvirtd active
+docker active
+snapd active
+unattended-upgrades active
+packagekit active
+### sessões
+llm4orders pts/0        2026-10-15 17:22 (150.165.85.190)
+### disco
+Sist. Arq.     Tipo  Tam. Usado Disp. Uso% Montado em
+/dev/sda2      ext4  219G  124G   96G  57% /
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+loop0    7:0    0     4K  1 loop /snap/bare/5
+loop1    7:1    0  55,5M  1 loop /snap/core18/2999
+loop2    7:2    0  55,5M  1 loop /snap/core18/3084
+loop3    7:3    0  63,8M  1 loop /snap/core20/2866
+loop4    7:4    0  63,8M  1 loop /snap/core20/2922
+loop5    7:5    0    74M  1 loop /snap/core22/2955
+loop6    7:6    0    74M  1 loop /snap/core22/2411
+loop7    7:7    0  66,8M  1 loop /snap/core24/1643
+loop8    7:8    0  66,8M  1 loop /snap/core24/2124
+loop9    7:9    0  11,8M  1 loop /snap/snap-store/1427
+loop10   7:10   0 218,4M  1 loop /snap/gnome-3-34-1804/93
+loop11   7:11   0 349,7M  1 loop /snap/gnome-3-38-2004/143
+loop12   7:12   0 531,5M  1 loop /snap/gnome-42-2204/263
+loop13   7:13   0 606,1M  1 loop /snap/gnome-46-2404/153
+loop14   7:14   0  91,7M  1 loop /snap/gtk-common-themes/1535
+loop15   7:15   0     2G  1 loop /snap/kf6-core22/43
+loop16   7:16   0   1,5G  1 loop /snap/kf6-core24/58
+loop17   7:17   0   1,6G  1 loop /snap/kf6-core24/64
+loop18   7:18   0   4,3M  1 loop /snap/lxqt-support-core24/16
+loop19   7:19   0   402M  1 loop /snap/mesa-2404/1839
+loop20   7:20   0  70,8M  1 loop /snap/okular/178
+loop21   7:21   0  12,2M  1 loop /snap/snap-store/1216
+loop22   7:22   0 262,2M  1 loop /snap/firefox/8995
+loop23   7:23   0  50,3M  1 loop /snap/snapd/27738
+loop24   7:24   0   828K  1 loop /snap/snapd-desktop-integration/387
+loop25   7:25   0   828K  1 loop /snap/snapd-desktop-integration/391
+loop26   7:26   0 262,3M  1 loop /snap/firefox/9036
+loop28   7:28   0  44,7M  1 loop /snap/snapd/28254
+sda      8:0    0 223,6G  0 disk 
+├─sda1   8:1    0   512M  0 part /boot/efi
+└─sda2   8:2    0 223,1G  0 part /var/snap/firefox/common/host-hunspell
+                                 /
+sdb      8:16   0   1,8T  0 disk 
+└─sdb1   8:17   0   1,8T  0 part 
+### VMs
+ Id   Name         State
+-----------------------------
+ 1    vm_exp_x86   running
+ -    kvm_vm0      shut off
+
+### uso das CPUs (10 s)
+0 1.0
+1 0.0
+2 0.0
+3 0.0
+4 0.1
+5 0.0
+6 0.7
+7 0.0
+8 0.0
+9 0.0
+10 0.0
+11 0.0
+### top processos
+    PID USER     PSR %CPU   RSS COMMAND
+ 123611 libvirt+   5 16.2 46580 qemu-system-x86
+    424 root       0  0.5  9772 plymouthd
+ 122304 root       7  0.1     0 kworker/u24:2-ipv6_addrconf
+      1 root       0  0.0 14124 systemd
+      2 root       1  0.0     0 kthreadd
+      3 root       1  0.0     0 pool_workqueue_release
+      4 root       0  0.0     0 kworker/R-rcu_g
+      5 root       0  0.0     0 kworker/R-rcu_p
+      6 root       0  0.0     0 kworker/R-slub_
+      7 root       0  0.0     0 kworker/R-netns
+      9 root       0  0.0     0 kworker/0:0H-events_highpri
+     12 root       0  0.0     0 kworker/R-mm_pe
+     13 root       0  0.0     0 rcu_tasks_kthread
+     14 root       0  0.0     0 rcu_tasks_rude_kthread

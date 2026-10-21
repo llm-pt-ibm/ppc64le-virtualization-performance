@@ -1,0 +1,75 @@
+[2026-10-19 16:56:48] === diagnóstico x86 ===
+[16:56:48] estado salvo em /home/llm4orders/Documentos/exp_kit/state/host_prepare.state:
+hp node0 8192
+swap 1
+gov powersave
+timer apt-daily.timer
+timer apt-daily-upgrade.timer
+timer man-db.timer
+timer fwupd-refresh.timer
+timer motd-news.timer
+[16:56:48] [1/4] governador performance (todas as CPUs)
+[16:56:48] [2/4] swap off; timers de manutenção pausados (apt-daily.timer apt-daily-upgrade.timer man-db.timer fwupd-refresh.timer motd-news.timer)
+[16:56:49] [3/4] liberando hugepages dos outros nodes (aborta se alguma estiver em uso)
+[16:56:49] [4/4] reservando 4096 hugepages no node0
+[16:56:49] OK. THP: always [madvise] never
+[16:57:02] threads movidas para 0,6: 341 | falhas (ex.: cpuset de container): 0
+[16:57:02] isolamento ativo. Confira com: ./exp_isolate.sh check
+Domain 'vm_exp_x86' started
+
+OK    XML contém memballoon model='none'
+OK    XML contém <hugepages>
+OK    XML contém cache='none'
+OK    XML contém io='native'
+OK    XML contém host-passthrough
+OK    XML contém mode='strict' nodeset='0'
+-- afinidade real das threads do qemu (pid 201695) --
+OK    qemu-system-x86 -> 5,11
+OK    qemu-system-x86 -> 5,11
+OK    worker -> 5,11
+OK    vhost-201695 -> 5,11
+OK    IO mon_iothread -> 5,11
+OK    CPU 0/KVM -> 1
+OK    CPU 1/KVM -> 2
+OK    CPU 2/KVM -> 3
+OK    CPU 3/KVM -> 4
+OK    kvm-nx-lpage-re -> 5,11
+OK    hugepages em uso no node0: 4096
+-- memória do qemu por node (MB) --
+                           Node 0           Total
+Huge                      8192.00         8192.00
+Total                     8236.49         8236.49
+-- dentro da VM --
+nproc=4 threads/núcleo=1 swap=0 kernel=4.18.0-553.172.1.el8_10.x86_64 MemTotal:        8144036 kB
+OK    convidado vê 4 CPUs
+OK    1 thread por núcleo no convidado
+OK    convidado sem swap
+OK    kernel do convidado = 4.18.0-553.172.1.el8_10 (igual à Power9)
+      cpu1: irmãs SMT = 1,7
+      cpu2: irmãs SMT = 2,8
+      cpu3: irmãs SMT = 3,9
+      cpu4: irmãs SMT = 4,10
+OK    topologia: vCPUs em núcleos distintos; irmãs (7,8,9,10) fora de uso; emulador em núcleo próprio
+TUDO OK
+[2026-10-19 16:57:24] verify: código 0
+host: ext4   /dev/sda2 rw,relatime,errors=remount-ro
+vm:   xfs    /dev/vda4 rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,noquota
+host disco: sda  SanDisk SSD PLUS 240GB    0 mq-deadline
+vm disco: [none] mq-deadline kyber bfq 
+[2026-10-19 16:57:25] A) 83 métodos de --cpu
+[2026-10-19 17:11:33] A) nx_huge_pages (atual=Y)
+[2026-10-19 17:17:35] B) 33 métodos de --vm
+[2026-10-19 17:29:07] fim das medições
+[2026-10-19 17:29:07] === liberação ===
+[2026-10-19 17:29:07] nx_huge_pages restaurado: Y
+Domain 'vm_exp_x86' is being shutdown
+
+[17:29:14] restaurado: 339 threads; 2 já tinham terminado. IRQs, workqueues e irqbalance restaurados.
+[17:29:15] node0 hugepages -> 8192 (alvo 8192)
+[17:29:15] swap religado
+[17:29:15] timer apt-daily.timer religado
+[17:29:15] timer apt-daily-upgrade.timer religado
+[17:29:15] timer man-db.timer religado
+[17:29:15] timer fwupd-refresh.timer religado
+[17:29:15] timer motd-news.timer religado
+[2026-10-19 17:29:15] FIM DIAG
